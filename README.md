@@ -58,6 +58,10 @@ After configuring the keyboard access, we then run ```roslaunch kitti_ros kitti_
 
 In docker, the keyboard input seems not work. Therefore, I add an "continuous" mode so that the kitti file will keep play once the ```roslaunch kitti_ros kitti_player.launch``` command is executed.
 
+## New feature: gpf_node
+A node to filter the ground plane and publish the filtered points are added, to use it, simply run
+```roslaunch tracking_lib demo_gpf.launch```
+
 ## Fix errors (already updated in the forked repositories)
 Because of the current pcl 1.10 requirs c++14 and above, we need to change all
 ```
