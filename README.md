@@ -2,8 +2,8 @@
 This repository is created by following the README of https://github.com/AutoLidarPerception/tracking_lib.
 
 ## Install catkin
-sudo apt_get update
-sudo apt install python3-catkin-tools python3-osrf-pycommon
+sudo apt-get update
+sudo apt-get install python3-catkin-tools python3-osrf-pycommon
 
 ## Zsh lines to create the whole project
 ```
@@ -54,7 +54,7 @@ In termical 2, run ```sudo chmod 777 /dev/input/event2```. Note that the device 
 ls -l
 ```
 to find the correct id, sometimes it does not list the keyboard, at which time one can also try ```cat /proc/bus/input/devices```. The variable 'keyboard_file' in 'kitti_player.lauch' should also be modified correspondingly, or one can specify it in the roslaunch command.
-After configuring the keyboard access, we then run ```roslaunch kitti_ros kitti_player.launch```. In this terminal, one can use the keyboard to control the how the data is played. Right arrow key plays the next frame and space key starts continuous playing.
+After configuring the keyboard access, we then run ```roslaunch kitti_ros kitti_player.launch keyboard_file:="/dev/input/event3" ```. In this terminal, one can use the keyboard to control the how the data is played. Right arrow key plays the next frame and space key starts continuous playing.
 
 ## Fix errors (already updated in the forked repositories)
 Because of the current pcl 1.10 requirs c++14 and above, we need to change all
