@@ -1,6 +1,39 @@
 ## About this repo
 This repository is created by following the README of https://github.com/AutoLidarPerception/tracking_lib.
 
+## Docker portable image
+A docker image containing the all codes and a test rosbag can be downloaded using the command below,
+```
+docker pull cyqian97/track-portable
+```
+After the download is done, three terminals are required to run the demo. 
+### Terminal 1
+First the following command to start a docker container,
+```
+sudo docker run --name test-track -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -it  track-portable
+```
+then in the docker, run ```roscore```.
+
+### Terminal 2
+First run the following command to enter the same docker container,
+```
+sudo docker exec -it test-track zsh -c "source /opt/ros/noetic/setup.zsh && zsh"
+
+```
+then start the ros nodes,
+```
+source devel/setup.zsh
+roslaunch tracking_lib demo.launch
+```
+
+### Terminal 3
+First run the following command to enter the same docker container,
+```
+sudo docker exec -it test-track zsh -c "source /opt/ros/noetic/setup.zsh && zsh"
+
+```
+then play the rosbag ``` rosbag play /dataset/TAMU/TAMU-2022-02-17/2022-02-17-18-12-35.bag ```.
+
 ## Install catkin
 sudo apt-get update
 sudo apt-get install python3-catkin-tools python3-osrf-pycommon
