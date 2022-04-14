@@ -4,13 +4,13 @@ This repository is created by following the README of https://github.com/AutoLid
 ## Docker portable image
 A docker image containing the all codes and a test rosbag can be downloaded using the command below,
 ```
-docker pull cyqian97/track-portable
+sudo docker pull cyqian97/track-portable
 ```
 After the download is done, three terminals are required to run the demo. 
 ### Terminal 1
 First the following command to start a docker container,
 ```
-sudo docker run --name test-track -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -it  track-portable
+xhost + && sudo docker run --name test-track -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -it  cyqian97/track-portable
 ```
 then in the docker, run ```roscore```.
 
@@ -18,7 +18,6 @@ then in the docker, run ```roscore```.
 First run the following command to enter the same docker container,
 ```
 sudo docker exec -it test-track zsh -c "source /opt/ros/noetic/setup.zsh && zsh"
-
 ```
 then start the ros nodes,
 ```
@@ -32,7 +31,10 @@ First run the following command to enter the same docker container,
 sudo docker exec -it test-track zsh -c "source /opt/ros/noetic/setup.zsh && zsh"
 
 ```
-then play the rosbag ``` rosbag play /dataset/TAMU/TAMU-2022-02-17/2022-02-17-18-12-35.bag ```.
+then play the rosbag,
+```
+rosbag play /dataset/TAMU/TAMU-2022-02-17/2022-02-17-18-12-35.bag 
+```
 
 ## Install catkin
 sudo apt-get update
