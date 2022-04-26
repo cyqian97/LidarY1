@@ -395,7 +395,7 @@ static void publishObjectsMarkers(
         }
         if (x_long > 3.5 && x_long < 7.0 && x_short < 4.0 && height > 0.8 && height < 2.5){
             box.color = autosense::common::WHITE.rgbA;
-        } else if(x_long > 0.3 && x_long < 1.5 && x_short < 1.0 && height > 1.0 && height < 2){
+        } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
             box.color = autosense::common::CYAN.rgbA;
         } else {
             box.color = color;

@@ -160,6 +160,15 @@ void OnSegmentClouds(
                     << tracking_objects_velo.size() << " Objects Tracked. Took "
                     << clock_tracking.takeRealTime() << "ms.");
 
+
+
+    for (size_t obj = 0u; obj < tracking_objects_velo.size(); ++obj) {
+        const double &length = tracking_objects_velo[obj]->length;
+        const double &width = tracking_objects_velo[obj]->width;
+        const double &height = tracking_objects_velo[obj]->height;
+    }
+    
+
     /**
      * publish tracking object clouds for classification
      *   object state: ground center & yaw & velocity
