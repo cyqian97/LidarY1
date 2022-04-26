@@ -213,7 +213,7 @@ struct alignas(16) Object {
     double height = 0.0;
 
     //---------------------- classification information
-    ObjectType type;
+    ObjectType type = NOTSURE;
     std::vector<ObjectType> type_history;
     // foreground score/probability
     float score = 0.0;

@@ -51,6 +51,7 @@ typedef PointDCloud::ConstPtr PointDCloudConstPtr;
 
 /// @brief Object classify type
 typedef enum {
+    NOTSURE = 0x00,
     PEDESTRIAN = 0x01,
     CAR = 0x02,
     TRUCK = 0x04,

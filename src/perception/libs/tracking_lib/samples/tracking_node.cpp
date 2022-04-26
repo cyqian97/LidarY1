@@ -166,6 +166,24 @@ void OnSegmentClouds(
         const double &length = tracking_objects_velo[obj]->length;
         const double &width = tracking_objects_velo[obj]->width;
         const double &height = tracking_objects_velo[obj]->height;
+        
+        double x_short;
+        double x_long;
+        if (width > length){
+            x_short = length;
+            x_long = width;
+        } else {
+            x_short = width;
+            x_long = length;
+        }
+        
+        autosense::ObjectType type_now = autosense::NOTSURE;
+        if (x_long > 3.5 && x_long < 7.0 && x_short < 4.0 && height > 0.8 && height < 2.5){
+            type_now = autosense::CAR;
+        } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
+            type_now = autosense::PEDESTRIAN;
+        }
+        tracking_objects_velo[obj]->type_history.push_back(type_now);
     }
     
 
