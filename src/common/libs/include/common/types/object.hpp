@@ -214,6 +214,7 @@ struct alignas(16) Object {
 
     //---------------------- classification information
     ObjectType type;
+    std::vector<ObjectType> type_history;
     // foreground score/probability
     float score = 0.0;
     // fg/bg flag
