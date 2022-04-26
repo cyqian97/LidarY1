@@ -4,10 +4,19 @@
  */
 
 #include <pcl_conversions/pcl_conversions.h>  // pcl::fromROSMsg
-#include <pcl_ros/impl/transforms.hpp>
 
-// #include <pcl_ros/point_cloud.h> // pcl_ros::transformPointCloud	
+#include <pcl_ros/impl/transforms.hpp> // pcl_ros::transformPointCloud, for point cloud inversion
+// #include <pcl_ros/point_cloud.h> 
 // #include <pcl/common/transforms.h>
+
+
+// For spherical voxel filtering
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include "common/filters/spherical_voxel_grid.hpp"
+
+
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <std_msgs/Header.h>
@@ -29,6 +38,8 @@ bool inverted_lidar_;
 tf::Transform tf_rot_y;
 
 bool use_roi_filter_;
+
+bool use_spherical_voxel_filter;
 
 autosense::ROIParams params_roi_;
 // ROS Subscriber
@@ -63,6 +74,15 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
         autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud);
     }
 
+    if (use_spherical_voxel_filter) {
+        autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
+        *cloud_in = *cloud;
+        cloud->clear();
+        pcl::SphericalVoxelGrid<pcl::PointXYZI> voxel;
+        voxel.setInputCloud (cloud_in);
+        voxel.setLeafSize (0.1, 180, 360);
+        voxel.filter (*cloud);
+    }
     std::vector<autosense::PointICloudPtr> cloud_clusters;
     autosense::PointICloudPtr cloud_ground(new autosense::PointICloud);
     autosense::PointICloudPtr cloud_nonground(new autosense::PointICloud);
@@ -110,6 +130,9 @@ int main(int argc, char **argv) {
 
     private_nh.getParam(param_ns_prefix_ + "/inverted_lidar",
                         inverted_lidar_);
+
+    private_nh.getParam(param_ns_prefix_ + "/use_spherical_voxel_filter",
+                        use_spherical_voxel_filter);
 
     /// @note Important to use roi filter for "Ground remover"
     private_nh.param<bool>(param_ns_prefix_ + "/use_roi_filter",

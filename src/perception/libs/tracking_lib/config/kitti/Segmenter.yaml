@@ -30,7 +30,7 @@ detect: {
     gpf_sensor_height: 1.5,
     # fitting multiple planes, at most 6 segments
     ## default: 1
-    gpf_num_segment: 5,
+    gpf_num_segment: 6,
     #gpf_num_segment: 3,
     # number of iterations
     #gpf_num_iter: 3,
@@ -38,11 +38,11 @@ detect: {
     ## number of points used to estimate the lowest point representative(LPR)
     # double of senser model???
     #gpf_num_lpr: 20,
-    gpf_num_lpr: 128,
+    gpf_num_lpr: 20,
     #gpf_num_lpr: 1280,
     gpf_th_lprs: 0.08,
     # threshold for points to be considered initial seeds
-    gpf_th_seeds: 0.1,
+    gpf_th_seeds: 0.5,
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
@@ -68,11 +68,11 @@ detect: {
     #rec_region_size: 7,
     rec_region_sizes: [4, 5, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5],
     # the same as euclidean distance tolerence for ECE
-    rec_region_initial_tolerance: 0.2,
+    rec_region_initial_tolerance: 0.1,
     ## increase euclidean distance tolerence between adjacent region
     # type: float
     # default: 0.2
-    rec_region_delta_tolerance: 0.2,
+    rec_region_delta_tolerance: 0.05,
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30000
@@ -82,12 +82,12 @@ detect: {
     ## Clusters merged between regions
     # type: bool
     # default: false
-    #rec_use_region_merge: false,
+    # rec_use_region_merge: false,
     rec_use_region_merge: true,
     ## Merge corresponding ground box overlap IoU threshold
     # type: float
     # default: 0., merge if there is overlap
-    rec_region_merge_tolerance: 4.0,
+    rec_region_merge_tolerance: 0.01,
 
     ### Euclidean Cluster Segmenter
     # 0.2,5,30000 in online_learning
