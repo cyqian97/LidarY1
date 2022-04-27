@@ -383,23 +383,31 @@ static void publishObjectsMarkers(
         }
         box.scale.x = 0.1;
 
-        double x_short;
-        double x_long;
+        // double x_short;
+        // double x_long;
         
-        if (width > length){
-            x_short = length;
-            x_long = width;
-        } else {
-            x_short = width;
-            x_long = length;
+        // if (width > length){
+        //     x_short = length;
+        //     x_long = width;
+        // } else {
+        //     x_short = width;
+        //     x_long = length;
+        // }
+        switch(objects_array[obj]->type){
+            case autosense::CAR:
+                box.color = autosense::common::WHITE.rgbA;
+                break;
+            case autosense::PEDESTRIAN:
+                box.color = autosense::common::CYAN.rgbA;
+                break;
         }
-        if (x_long > 3.5 && x_long < 7.0 && x_short < 4.0 && height > 0.8 && height < 2.5){
-            box.color = autosense::common::WHITE.rgbA;
-        } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
-            box.color = autosense::common::CYAN.rgbA;
-        } else {
-            box.color = color;
-        }
+        // if (objects_array[obj]->type == autosense::CAR){
+        //     box.color = autosense::common::WHITE.rgbA;
+        // } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
+        //     box.color = autosense::common::CYAN.rgbA;
+        // } else {
+        //     box.color = color;
+        // }
         
         
         
