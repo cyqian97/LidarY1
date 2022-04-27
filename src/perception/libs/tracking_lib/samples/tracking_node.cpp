@@ -23,6 +23,8 @@
 #include "object_builders/object_builder_manager.hpp"
 #include "tracking/tracking_worker_manager.hpp"
 
+std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
+
 const std::string param_ns_prefix_ = "tracking";  // NOLINT
 std::string local_frame_id_, global_frame_id_;    // NOLINT
 int tf_timeout_ms_ = 0;
@@ -178,12 +180,35 @@ void OnSegmentClouds(
         }
         
         autosense::ObjectType type_now = autosense::NOTSURE;
-        if (x_long > 3.5 && x_long < 7.0 && x_short < 4.0 && height > 0.8 && height < 2.5){
+        if (x_long > 3.5 && x_long < 7.0 && x_short > 0.5 && x_short < 4.0 && height > 0.8 && height < 2.5){
             type_now = autosense::CAR;
         } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
             type_now = autosense::PEDESTRIAN;
         }
-        tracking_objects_velo[obj]->type_history.push_back(type_now);
+
+        std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
+        if (it != type_histories.end()){
+            it->second.push_back(type_now);
+        } 
+        else {
+            std::vector<autosense::ObjectType> _temp_history{type_now};
+            type_histories.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, _temp_history)); 
+        }
+        // tracking_objects_velo[obj]->type_history.push_back(type_now);
+
+        // std::vector<autosense::ObjectType> type_history_last = std::vector<autosense::ObjectType>(
+        //     tracking_objects_velo[obj]->type_history.end() - 3, tracking_objects_velo[obj]->type_history.end());
+        it =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
+        ROS_INFO_STREAM("history length:" << it->second.size());
+
+        // std::vector<autosense::ObjectType> type_car_vector(3,autosense::CAR);
+
+        // if (type_history_last.begin() == type_car_vector.begin()){
+        //     tracking_objects_velo[obj]->type = autosense::CAR;
+        //     std::cout << "car detected" << std::endl;
+        //     throw "car detected!!!";
+        // }
+        // std::cout << type_history_last << std::endl; 
     }
     
 
