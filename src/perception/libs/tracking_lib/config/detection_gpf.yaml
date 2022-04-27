@@ -29,4 +29,6 @@ detect: {
 
   ## Spherical Voxel Filter
   use_spherical_voxel_filter: true,
+  filter_leaf_sizes: [1, 128, 720],
+
 }

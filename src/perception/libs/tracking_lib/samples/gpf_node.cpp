@@ -2,6 +2,11 @@
  * Copyright (C) 2019 by AutoSense Organization. All rights reserved.
  * Gary Chan <chenshj35@mail2.sysu.edu.cn>
  */
+// For spherical voxel filtering
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include "common/filters/spherical_voxel_grid.hpp"
 
 #include <pcl_conversions/pcl_conversions.h>  // pcl::fromROSMsg
 #include <pcl_ros/impl/transforms.hpp>
@@ -11,6 +16,7 @@
 
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 
+
 #include "common/parameter.hpp"              // common::getSegmenterParams
 #include "common/publisher.hpp"              // common::publishCloud
 #include "common/time.hpp"                   // common::Clock
@@ -19,10 +25,16 @@
 
 #include "roi_filters/roi.hpp"  // roi::applyROIFilter
 
+
+bool inverted_lidar_;
+tf::Transform tf_rot_y;
+
+bool use_spherical_voxel_filter;
+std::vector<double> filter_leaf_sizes;
+
 const std::string param_ns_prefix_ = "detect";  // NOLINT
 std::string frame_id_;                          // NOLINT
 bool use_roi_filter_;
-bool inverted_lidar_;
 autosense::ROIParams params_roi_;
 // ROS Subscriber
 ros::Subscriber pointcloud_sub_;
@@ -47,17 +59,23 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
         autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
         *cloud_in = *cloud;
         cloud->clear();
-        tf::Transform transform;
-        transform.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-        tf::Quaternion q;
-        q.setRPY(0, 180, 0);
-        transform.setRotation(q);
         ROS_INFO_STREAM("Start to invert");
-        pcl_ros::transformPointCloud(*cloud_in,*cloud,transform);
+        pcl_ros::transformPointCloud(*cloud_in,*cloud,tf_rot_y);
     }
 
     if (use_roi_filter_) {
         autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud);
+    }
+
+
+    if (use_spherical_voxel_filter) {
+        autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
+        *cloud_in = *cloud;
+        cloud->clear();
+        pcl::SphericalVoxelGrid<pcl::PointXYZI> voxel;
+        voxel.setInputCloud (cloud_in);
+        voxel.setLeafSize (filter_leaf_sizes[0], filter_leaf_sizes[1], filter_leaf_sizes[2]);
+        voxel.filter (*cloud);
     }
 
     std::vector<autosense::PointICloudPtr> cloud_clusters;
@@ -73,6 +91,7 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     // Convert to ROS data type
     sensor_msgs::PointCloud2 output;
     pcl::toROSMsg(*cloud_nonground, output);
+    output.header = ros_pc2->header;
     pcs_segmented_pub_.publish(output);
     
     // reset clusters
@@ -93,6 +112,13 @@ int main(int argc, char **argv) {
     ros::NodeHandle private_nh = ros::NodeHandle("~");
     ros::AsyncSpinner spiner(1);
 
+    // Initialize the transform to rotate point cloud
+    tf_rot_y.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
+    tf::Quaternion q;
+    q.setRPY(0, 3.14159265 , 0);
+    tf_rot_y.setRotation(q);
+
+
     /// @brief Load ROS parameters from rosparam server
     private_nh.getParam(param_ns_prefix_ + "/frame_id", frame_id_);
 
@@ -108,12 +134,19 @@ int main(int argc, char **argv) {
     private_nh.getParam(param_ns_prefix_ + "/inverted_lidar",
                         inverted_lidar_);
 
-    
     /// @note Important to use roi filter for "Ground remover"
     private_nh.param<bool>(param_ns_prefix_ + "/use_roi_filter",
                            use_roi_filter_, false);
     params_roi_ = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
 
+    private_nh.getParam(param_ns_prefix_ + "/use_spherical_voxel_filter",
+                        use_spherical_voxel_filter);
+
+    private_nh.getParam(param_ns_prefix_ + "/filter_leaf_sizes",
+                        filter_leaf_sizes);
+    
+    ROS_INFO_STREAM("filter leaf sizes: " << filter_leaf_sizes[0] << ", " << filter_leaf_sizes[1] << ", " << filter_leaf_sizes[2]);
+    
     // Ground remover & non-ground segmenter
     std::string ground_remover_type, non_ground_segmenter_type;
     private_nh.param<std::string>(param_ns_prefix_ + "/ground_remover_type",
@@ -122,6 +155,7 @@ int main(int argc, char **argv) {
     private_nh.param<std::string>(
         param_ns_prefix_ + "/non_ground_segmenter_type",
         non_ground_segmenter_type, "RegionEuclideanSegmenter");
+
     autosense::SegmenterParams param =
         autosense::common::getSegmenterParams(private_nh, param_ns_prefix_);
 
