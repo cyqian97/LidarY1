@@ -24,8 +24,9 @@
 #include "tracking/tracking_worker_manager.hpp"
 
 std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
-std::vector<autosense::ObjectType> type_car_vector(3,autosense::CAR);
-std::vector<autosense::ObjectType> type_ped_vector(3,autosense::PEDESTRIAN);
+std::map<autosense::IdType, autosense::ObjectType> type_fixed;
+const std::vector<autosense::ObjectType> type_car_vector(5,autosense::CAR);
+const std::vector<autosense::ObjectType> type_ped_vector(5,autosense::PEDESTRIAN);
 
 const std::string param_ns_prefix_ = "tracking";  // NOLINT
 std::string local_frame_id_, global_frame_id_;    // NOLINT
@@ -167,57 +168,73 @@ void OnSegmentClouds(
 
 
     for (size_t obj = 0u; obj < tracking_objects_velo.size(); ++obj) {
-        const double &length = tracking_objects_velo[obj]->length;
-        const double &width = tracking_objects_velo[obj]->width;
-        const double &height = tracking_objects_velo[obj]->height;
-        
-        double x_short;
-        double x_long;
-        if (width > length){
-            x_short = length;
-            x_long = width;
-        } else {
-            x_short = width;
-            x_long = length;
-        }
-        
-        autosense::ObjectType type_now = autosense::NOTSURE;
-        if (x_long > 3.5 && x_long < 7.0 && x_short > 0.5 && x_short < 4.0 && height > 0.8 && height < 2.5){
-            type_now = autosense::CAR;
-        } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
-            type_now = autosense::PEDESTRIAN;
-        }
+        std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_type =  type_fixed.find(tracking_objects_velo[obj]->tracker_id);
+        if (it_tracker_type == type_fixed.end()){
+            const double &length = tracking_objects_velo[obj]->length;
+            const double &width = tracking_objects_velo[obj]->width;
+            const double &height = tracking_objects_velo[obj]->height;
+            
+            double x_short;
+            double x_long;
+            if (width > length){
+                x_short = length;
+                x_long = width;
+            } else {
+                x_short = width;
+                x_long = length;
+            }
+            
+            autosense::ObjectType type_now = autosense::NOTSURE;
+            if (x_long > 3.5 && x_long < 7.0 && x_short > 0.5 && x_short < 4.0 && height > 0.8 && height < 2.5){
+                type_now = autosense::CAR;
+            } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
+                type_now = autosense::PEDESTRIAN;
+            }
 
-        std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_id =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
-        if (it_tracker_id != type_histories.end()){
-            it_tracker_id->second.push_back(type_now);
+            std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
+            if (it_tracker_history != type_histories.end()){
+                it_tracker_history->second.push_back(type_now);
+            } 
+            else {
+                std::vector<autosense::ObjectType> _temp_history{type_now};
+                type_histories.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, _temp_history)); 
+            }
+            // tracking_objects_velo[obj]->type_history.push_back(type_now);
+
+            // std::vector<autosense::ObjectType> type_history_last = std::vector<autosense::ObjectType>(
+            //     tracking_objects_velo[obj]->type_history.end() - 3, tracking_objects_velo[obj]->type_history.end());
+            it_tracker_history =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
+            // ROS_INFO_STREAM("history length:" << it_tracker_history->second.size());
+
+            std::vector<autosense::ObjectType> type_history_last = std::vector<autosense::ObjectType>(it_tracker_history->second.end() - 5, it_tracker_history->second.end());
+            if (type_history_last == type_car_vector){
+                type_fixed.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, autosense::CAR)); 
+            } 
+            else if (type_history_last == type_ped_vector){
+                type_fixed.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, autosense::PEDESTRIAN)); 
+            } 
+
+            if (it_tracker_history->second.size()>30){
+                type_fixed.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, autosense::NOTSURE)); 
+            } 
+
+        }
+        
+
+
+        it_tracker_type =  type_fixed.find(tracking_objects_velo[obj]->tracker_id);
+        if (it_tracker_type != type_fixed.end()){
+            tracking_objects_velo[obj]->type = it_tracker_type->second;
         } 
-        else {
-            std::vector<autosense::ObjectType> _temp_history{type_now};
-            type_histories.insert(std::make_pair(tracking_objects_velo[obj]->tracker_id, _temp_history)); 
-        }
-        // tracking_objects_velo[obj]->type_history.push_back(type_now);
 
-        // std::vector<autosense::ObjectType> type_history_last = std::vector<autosense::ObjectType>(
-        //     tracking_objects_velo[obj]->type_history.end() - 3, tracking_objects_velo[obj]->type_history.end());
-        it_tracker_id =  type_histories.find(tracking_objects_velo[obj]->tracker_id);
-        ROS_INFO_STREAM("history length:" << it_tracker_id->second.size());
-
-        
-        std::vector<autosense::ObjectType> type_history_last = std::vector<autosense::ObjectType>(it_tracker_id->second.end() - 3, it_tracker_id->second.end());
-        std::vector<autosense::ObjectType>::iterator it_history;
-        // for(it_history = type_car_vector.begin(); it_history != type_car_vector.end(); it_history++){
-        //     if(*it_history == autosense::CAR) {
-        //     ROS_INFO_STREAM("Car detected");
-        //     }
-        // }
-        // 
-
-        // ROS_INFO_STREAM("last length:" << type_history_last.size());
-        if (type_history_last == type_car_vector){
-            tracking_objects_velo[obj]->type = autosense::CAR;
-            ROS_INFO_STREAM("Car detected");
-        }
+        // if (type_history_last == type_car_vector){
+        //     tracking_objects_velo[obj]->type = autosense::CAR;
+        //     ROS_INFO_STREAM("CAR detected");
+        // } 
+        // else if (type_history_last == type_ped_vector){
+        //     tracking_objects_velo[obj]->type = autosense::PEDESTRIAN;
+        //     ROS_INFO_STREAM("PEDESTRIAN detected");
+        // } 
 
         // if (type_history_last.begin() == type_car_vector.begin()){
         //     tracking_objects_velo[obj]->type = autosense::CAR;
