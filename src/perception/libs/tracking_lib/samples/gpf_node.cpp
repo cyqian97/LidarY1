@@ -76,6 +76,7 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
         voxel.setInputCloud (cloud_in);
         voxel.setLeafSize (filter_leaf_sizes[0], filter_leaf_sizes[1], filter_leaf_sizes[2]);
         voxel.filter (*cloud);
+        ROS_INFO_STREAM("Downsampling ratio: " << float(cloud->size())/float(cloud_in->size()));
     }
 
     std::vector<autosense::PointICloudPtr> cloud_clusters;
@@ -99,9 +100,6 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     // segmenter_->segment(*cloud_nonground, cloud_clusters);
     // autosense::common::publishPointCloudArray<autosense::PointICloudPtr>(
     //     pcs_segmented_pub_, header, cloud_clusters);
-
-    ROS_INFO_STREAM("Ground plane filtered. Took " << clock.takeRealTime()
-                                             << "ms.\n");
 }
 
 int main(int argc, char **argv) {

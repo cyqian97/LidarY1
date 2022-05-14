@@ -47,10 +47,13 @@ void MinBoxObjectBuilder::build(
 
 void MinBoxObjectBuilder::build(ObjectPtr object) { buildObject(object); }
 
+// Get l,w,h,center and the initial 2D bounding box
 void MinBoxObjectBuilder::setDefaultValue(PointICloudPtr cloud,
                                           ObjectPtr obj,
                                           Eigen::Vector4f *min_pt,
                                           Eigen::Vector4f *max_pt) {
+
+    // Get the minimum and maximum values on each of the 3 (x-y-z) dimensions in a given pointcloud.
     pcl::getMinMax3D(*cloud, *min_pt, *max_pt);
     Eigen::Vector3f center(((*min_pt)[0] + (*max_pt)[0]) / 2,
                            ((*min_pt)[1] + (*max_pt)[1]) / 2,
@@ -204,11 +207,11 @@ void MinBoxObjectBuilder::computePolygon2dxy(ObjectPtr obj) {
     if (cloud->points.size() < 4u /* unsigned 4 */) {
         return;
     }
-    // 直接获取点云 min_pt.x/y/z; max_pt.x/y/z
-    pcl::getMinMax3D(*cloud, min_pt, max_pt);
-    // 高度信息
-    obj->height =
-        static_cast<double>(max_pt[2]) - static_cast<double>(min_pt[2]);
+            // 直接获取点云 min_pt.x/y/z; max_pt.x/y/z
+            // pcl::getMinMax3D(*cloud, min_pt, max_pt);
+            // // 高度信息
+            // obj->height =
+            //     static_cast<double>(max_pt[2]) - static_cast<double>(min_pt[2]);
 
     // epsilon: the difference between 1.0 and the next value representable by
     // the
