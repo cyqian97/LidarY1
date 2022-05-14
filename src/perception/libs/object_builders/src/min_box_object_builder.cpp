@@ -224,6 +224,8 @@ void MinBoxObjectBuilder::computePolygon2dxy(ObjectPtr obj) {
     // if ((max_pt[1] - min_pt[1]) < min_eps) {
     //     _cloud->points[0].y += min_eps;
     // }
+
+    // Prevent degeneracy
     const double diff_x = cloud->points[1].x - cloud->points[0].x;
     const double diff_y = cloud->points[1].y - cloud->points[0].y;
     size_t idx = 0;

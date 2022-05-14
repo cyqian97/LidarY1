@@ -148,12 +148,12 @@ void OnSegmentClouds(
     }
 
     // visualize expected objects
-    autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
-                                             autosense::common::DARKGREEN.rgbA,
-                                             expected_objects);
+    // autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
+    //                                          autosense::common::DARKGREEN.rgbA,
+    //                                          expected_objects);
     // visualize segmentation results
-    autosense::common::publishObjectsMarkers(
-        segments_pub_, header, autosense::common::GREEN.rgbA, obsv_objects);
+    // autosense::common::publishObjectsMarkers(
+    //     segments_pub_, header, autosense::common::GREEN.rgbA, obsv_objects);
 
     autosense::tracking::TrackingOptions tracking_options;
     tracking_options.velo2world_trans = velo2world;
