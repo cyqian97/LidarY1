@@ -178,6 +178,15 @@ struct ClassifierParams {
     std::string classifier_type;
 
     std::string classifier_model_path;
+
+    // Implicit shape model (ISM) method parameters
+    double normal_estimator_radius;
+    double fpfh_radius;
+    double ism_sampling_size;
+    double vote_radius_multiplier;
+    double vote_sigma_multiplier;
+
+
     // If true, save model in model specification&timestamps name
     bool classifier_save;
 

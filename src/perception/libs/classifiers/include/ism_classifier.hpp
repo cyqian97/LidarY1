@@ -31,7 +31,7 @@ class ISMClassifier : public BaseClassifier {
  public:
     ISMClassifier();
 
-    explicit ISMClassifier(const ISMModelParams& params);
+    explicit ISMClassifier(const ClassifierParams& params);
 
     ~ISMClassifier();
 
@@ -46,10 +46,10 @@ class ISMClassifier : public BaseClassifier {
     std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
     std::map<autosense::IdType, autosense::ObjectType> type_fixed;
 
-    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator;
-    pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh
-    pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal> ism;  
-    pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;
+    pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;
+    pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal> ism_;  
+    pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model_;
 };  // class EuclideanSegmenter
 
 }  // namespace ISMClassifier
