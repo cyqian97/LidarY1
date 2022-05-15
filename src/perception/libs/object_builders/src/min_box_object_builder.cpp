@@ -28,6 +28,7 @@
 namespace autosense {
 namespace object_builder {
 
+// Create objects with bounding boxes from point clouds
 void MinBoxObjectBuilder::build(
     const std::vector<PointICloudPtr> &cloud_clusters,
     std::vector<ObjectPtr> *objects) {
