@@ -12,7 +12,8 @@
 #include <filesystem>
 
 #include "common/types/type.h"
-#include "roi_filters/roi.hpp"     
+#include "roi_filters/roi.hpp"  
+#include "base_classifier.hpp"   
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/features/normal_3d.h>
@@ -36,14 +37,17 @@ class ISMClassifier : public BaseClassifier {
     ~ISMClassifier();
 
     /// @brief classify the object using the implicit shape model.
-    virtual bool classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
+    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
 
-    virtual bool classify(const ObjectPtr &object) = 0;
+    virtual void classify(const ObjectPtr &object) = 0;
+
+    virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved)  = 0;
 
     virtual std::string name() const { return "ISMClassifier"; }
 
  private:
     ClassifierParams params_;
+    VolumetricModelParams volumetric_params_;
 
     std::map<IdType, std::vector<ObjectType>> type_histories;
     std::map<IdType, ObjectType> type_fixed;
@@ -51,9 +55,9 @@ class ISMClassifier : public BaseClassifier {
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;
     pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;
     pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal> ism_;  
-    pcl::Feature< pcl::PointXYZ, pcl::Histogram<125> >::Ptr feature_estimator_;
+   //  pcl::Feature< pcl::PointXYZ, pcl::Histogram<125> >::Ptr feature_estimator_;
     pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model_;
-};  // class EuclideanSegmenter
+};  // class ISMClassifier
 
 }  // namespace ISMClassifier
 }  // namespace autosense

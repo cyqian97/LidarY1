@@ -53,6 +53,7 @@ typedef PointDCloud::ConstPtr PointDCloudConstPtr;
 typedef enum {
     PEDESTRIAN = 0x00,
     CAR = 0x01,
+    DEER = 0x02,
     TRUCK = 0x04,
     CYCLIST = 0x10,
     DONTCARE = 0x20,
@@ -85,6 +86,8 @@ struct VolumetricModelParams {
     VolumetricModel model_car;
     bool use_human_model;
     VolumetricModel model_human;
+    bool use_deer_model;
+    VolumetricModel model_deer;
 };
 
 /*------------------------------ Parameter type ------------------------------*/
@@ -179,12 +182,19 @@ struct ClassifierParams {
 
     std::string classifier_model_path;
 
+    VolumetricModelParams volumetric_params;
+
+    // label fixing
+    int fix_frame_lim;
+    int abort_frame_lim;
+
     // Implicit shape model (ISM) method parameters
-    double normal_estimator_radius;
-    double fpfh_radius;
+    double ism_normal_estimator_radius;
+    double ism_fpfh_radius;
     double ism_sampling_size;
-    double vote_radius_multiplier;
-    double vote_sigma_multiplier;
+    double ism_vote_radius_multiplier;
+    double ism_vote_sigma_multiplier;
+    int ism_num_clusters;
 
 
     // If true, save model in model specification&timestamps name

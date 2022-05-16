@@ -20,6 +20,7 @@ static VolumetricModelParams getVolumetricModelParams(
     VolumetricModelParams params;
 
     std::string volumetric_ns = ns_prefix + "/VolumetricModels";
+
     nh.param<bool>(volumetric_ns + "/use_car_volumetric_model",
                    params.use_car_model, false);
     std::vector<double> volumetric_model(6, 0.);
@@ -37,13 +38,25 @@ static VolumetricModelParams getVolumetricModelParams(
                    params.use_car_model, false);
     volumetric_model.resize(6, 0.);
     nh.getParam(volumetric_ns + "/human_volumetric_model", volumetric_model);
-    params.model_car.model_type = PEDESTRIAN;
+    params.model_human.model_type = PEDESTRIAN;
     params.model_human.l_min = volumetric_model[0];
     params.model_human.l_max = volumetric_model[1];
     params.model_human.w_min = volumetric_model[2];
     params.model_human.w_max = volumetric_model[3];
     params.model_human.h_min = volumetric_model[4];
     params.model_human.h_max = volumetric_model[5];
+
+    nh.param<bool>(volumetric_ns + "/use_deer_volumetric_model",
+                   params.use_car_model, false);
+    volumetric_model.resize(6, 0.);
+    nh.getParam(volumetric_ns + "/deer_volumetric_model", volumetric_model);
+    params.model_deer.model_type = DEER;
+    params.model_deer.l_min = volumetric_model[0];
+    params.model_deer.l_max = volumetric_model[1];
+    params.model_deer.w_min = volumetric_model[2];
+    params.model_deer.w_max = volumetric_model[3];
+    params.model_deer.h_min = volumetric_model[4];
+    params.model_deer.h_max = volumetric_model[5];
 
     return params;
 }
@@ -171,6 +184,29 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
     nh.getParam(ns + "/svm_model_filename", params.svm_model_filename);
     // *.range
     nh.getParam(ns + "/svm_range_filename", params.svm_range_filename);
+
+    //---------------- Lable fixing
+    nh.param<int>(ns + "/fix_frame_lim",
+                    params.fix_frame_lim, 5);
+    nh.param<int>(ns + "/ism_num_clusters",
+                    params.abort_frame_lim, 30);
+
+
+
+    //---------------- Implicit Shape Model (ISM) Parameters
+    nh.param<double>(ns + "/ism_normal_estimator_radius",
+                    params.ism_normal_estimator_radius, 1.0);
+    nh.param<double>(ns + "/ism_fpfh_radius",
+                    params.ism_fpfh_radius, 1.0);
+    nh.param<double>(ns + "/ism_sampling_size",
+                    params.ism_sampling_size, 1.0);
+    nh.param<double>(ns + "/ism_vote_radius_multiplier",
+                    params.ism_vote_radius_multiplier, 1.0);
+    nh.param<double>(ns + "/ism_vote_sigma_multiplier",
+                    params.ism_vote_sigma_multiplier, 10.0);
+    nh.param<int>(ns + "/ism_num_clusters",
+                    params.ism_num_clusters, 5000);
+    params.volumetric_params =  getVolumetricModelParams(nh,ns_prefix);
 
     //----------------- Random Forest Classifier parameters
     nh.param<double>(ns + "/rf_threshold_to_accept_object",

@@ -18,7 +18,7 @@ class BaseClassifier {
     /// @brief classify the object    
     virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
 
-    virtual bool classify(const ObjectPtr &object)  = 0;
+    virtual void classify(const ObjectPtr &object)  = 0;
  
  private:
     virtual std::map<IdType, std::vector<ObjectType>> type_histories const = 0;

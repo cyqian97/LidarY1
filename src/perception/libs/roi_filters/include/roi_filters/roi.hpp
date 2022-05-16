@@ -298,6 +298,34 @@ static void humanCarModelFilter(const std::vector<ObjectPtr>& objects_in,
         .insert((*objects_filtered).end(), objects.begin(), objects.end());
 }
 
+static void VolumetricFilter(const std::vector<ObjectPtr>& objects_in,
+                           const VolumetricModel& model) {
+    std::vector<ObjectPtr> objects(objects_in.begin(), objects_in.end());
+    (*objects_filtered).clear();
+    for (size_t obj_id = 0u; obj_id < objects.size(); ++obj_id) {
+        double length = objects[obj_id]->length;
+        double width = objects[obj_id]->width;
+        double height = objects[obj_id]->height;
+
+        if (abs(model.l_min - model.l_max) > common::EPSILON &&
+            (length < model.l_min || length > model.l_max)) {
+            continue;
+        }
+
+        if (abs(model.w_min - model.w_max) > common::EPSILON &&
+            (width < model.w_min || width > model.w_max)) {
+            continue;
+        }
+
+        if (abs(model.h_min - model.h_max) > common::EPSILON &&
+            (height < model.h_min || height > model.h_max)) {
+            continue;
+        }
+
+        objects[obj_id]->size_conjectures.push_back(model.model_type);
+    }
+}
+
 }  // namespace roi
 }  // namespace autosense
 
