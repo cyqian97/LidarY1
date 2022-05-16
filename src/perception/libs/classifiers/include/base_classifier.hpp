@@ -16,11 +16,13 @@ namespace classifier {
 class BaseClassifier {
  public:
     /// @brief classify the object    
-    virtual void classify(const std::vector<ObjectPtr> &object_obsved) = 0;
+    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
+
+    virtual bool classify(const ObjectPtr &object)  = 0;
  
  private:
-    virtual std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories const = 0;
-    virtual std::map<autosense::IdType, autosense::ObjectType> type_fixed const = 0;
+    virtual std::map<IdType, std::vector<ObjectType>> type_histories const = 0;
+    virtual std::map<IdType, ObjectType> type_fixed const = 0;
 
 };  // BaseClassifier
 

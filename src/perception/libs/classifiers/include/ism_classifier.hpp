@@ -36,19 +36,22 @@ class ISMClassifier : public BaseClassifier {
     ~ISMClassifier();
 
     /// @brief classify the object using the implicit shape model.
-    virtual bool classify(const ObjectPtr &object_obsved) = 0;
+    virtual bool classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
+
+    virtual bool classify(const ObjectPtr &object) = 0;
 
     virtual std::string name() const { return "ISMClassifier"; }
 
  private:
     ClassifierParams params_;
 
-    std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
-    std::map<autosense::IdType, autosense::ObjectType> type_fixed;
+    std::map<IdType, std::vector<ObjectType>> type_histories;
+    std::map<IdType, ObjectType> type_fixed;
 
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;
     pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;
     pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal> ism_;  
+    pcl::Feature< pcl::PointXYZ, pcl::Histogram<125> >::Ptr feature_estimator_;
     pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model_;
 };  // class EuclideanSegmenter
 
