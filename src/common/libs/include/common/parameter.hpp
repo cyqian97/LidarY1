@@ -171,24 +171,24 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
 
     nh.getParam(ns + "/classifier_model_path", params.classifier_model_path);
 
-    // If true, save model in model specification&timestamps name
-    nh.getParam(ns + "/classifier_save", params.classifier_save);
+    // // If true, save model in model specification&timestamps name
+    // nh.getParam(ns + "/classifier_save", params.classifier_save);
 
-    nh.getParam(ns + "/classifier_max_num_samples",
-                params.classifier_max_num_samples);
+    // nh.getParam(ns + "/classifier_max_num_samples",
+    //             params.classifier_max_num_samples);
 
-    // empty means no need to load, *.xml
-    nh.getParam(ns + "/rf_model_filename", params.rf_model_filename);
+    // // empty means no need to load, *.xml
+    // nh.getParam(ns + "/rf_model_filename", params.rf_model_filename);
 
-    // empty means no need to load, *.model
-    nh.getParam(ns + "/svm_model_filename", params.svm_model_filename);
-    // *.range
-    nh.getParam(ns + "/svm_range_filename", params.svm_range_filename);
+    // // empty means no need to load, *.model
+    // nh.getParam(ns + "/svm_model_filename", params.svm_model_filename);
+    // // *.range
+    // nh.getParam(ns + "/svm_range_filename", params.svm_range_filename);
 
     //---------------- Lable fixing
     nh.param<int>(ns + "/fix_frame_lim",
                     params.fix_frame_lim, 5);
-    nh.param<int>(ns + "/ism_num_clusters",
+    nh.param<int>(ns + "/abort_frame_lim",
                     params.abort_frame_lim, 30);
 
 

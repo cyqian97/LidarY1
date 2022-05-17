@@ -8,6 +8,7 @@
 #include <tf/transform_listener.h>
 #include <memory>
 
+
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
@@ -34,6 +35,7 @@ std::string local_frame_id_, global_frame_id_;    // NOLINT
 int tf_timeout_ms_ = 0;
 double threshold_contian_IoU_ = 0.0;
 autosense::TrackingWorkerParams tracking_params_;
+autosense::ClassifierParams classifier_params_;
 // ROS Subscriber
 ros::Subscriber pcs_segmented_sub_;
 std::unique_ptr<tf::TransformListener> tf_listener_;
@@ -51,6 +53,8 @@ ros::Publisher tracking_objects_trajectory_pub_;
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
     nullptr;
 std::unique_ptr<autosense::tracking::BaseTrackingWorker> tracking_worker_ =
+    nullptr;
+std::unique_ptr<autosense::classifier::ISMClassifier> classifier_worker_ =
     nullptr;
 
 // TODO(chenshengjie): callback function as fast as possible

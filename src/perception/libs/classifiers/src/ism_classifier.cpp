@@ -136,7 +136,7 @@ void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved
 
         it_tracker_history = type_histories.find(object->tracker_id);
 
-        if (it_tracker_history->second.size()>30)
+        if (it_tracker_history->second.size()>params_.abort_frame_lim)
         {
             type_fixed.insert(std::make_pair(object->tracker_id, NOTSURE)); 
         } 

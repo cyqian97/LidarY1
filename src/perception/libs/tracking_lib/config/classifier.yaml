@@ -1,0 +1,11 @@
+Classifier: {
+  classifier_type: "implicit_shape_model",
+  classifier_model_path: "/autodrive/LidarMore/track1/src/perception/libs/classifiers/model_files/trained_ism_model_car_ped.txt",
+
+
+  # label fixing
+  fix_frame_lim: 5, # number of consecutive valid classifications to fix the label
+  abort_frame_lim: 30, # fix the label to NOTSURE if label has not been fixed after this number of frames
+
+
+}
