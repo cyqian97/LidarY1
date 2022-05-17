@@ -199,7 +199,7 @@ void GroundPlaneFittingSegmenter::segment(
     cloud_clusters.clear();
 
     common::Clock clock;
-    ROS_INFO("Starting Ground Plane Fitting segmentation.");
+    if (verbose) ROS_INFO("Starting Ground Plane Fitting segmentation.");
 
     // Main Loop
     PointICloudPtr cloud_ground(new PointICloud),
@@ -244,7 +244,7 @@ void GroundPlaneFittingSegmenter::segment(
     cloud_clusters.push_back(cloud_ground);
     cloud_clusters.push_back(cloud_nonground);
 
-    ROS_INFO_STREAM("GPF Segmentation complete. Took " << clock.takeRealTime()
+    if (verbose) ROS_INFO_STREAM("GPF Segmentation complete. Took " << clock.takeRealTime()
                                                        << "ms.");
 }
 

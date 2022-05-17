@@ -22,4 +22,6 @@ tracking: {
   pub_tracking_objects_cloud_topic: "/tracking/clouds",
   pub_tracking_objects_velocity_topic: "/tracking/objects_vel",
   pub_tracking_objects_trajectory_topic: "/tracking/trajectory",
+
+  verbose: false,
 }

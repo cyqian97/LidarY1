@@ -206,7 +206,7 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
                     params.ism_vote_sigma_multiplier, 10.0);
     nh.param<int>(ns + "/ism_num_clusters",
                     params.ism_num_clusters, 5000);
-    params.volumetric_params =  getVolumetricModelParams(nh,ns_prefix);
+    params.volumetric_params =  getVolumetricModelParams(nh, ns_prefix);
 
     //----------------- Random Forest Classifier parameters
     nh.param<double>(ns + "/rf_threshold_to_accept_object",

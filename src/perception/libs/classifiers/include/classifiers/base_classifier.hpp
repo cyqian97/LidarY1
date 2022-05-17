@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include <string>
 #include <vector>
+#include <iostream>
 #include "common/types/type.h"
 
 namespace autosense {

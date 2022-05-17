@@ -34,6 +34,8 @@
 const std::string param_ns_prefix_ = "detect";  // NOLINT
 std::string frame_id_;                          // NOLINT
 
+bool verbose;
+
 bool inverted_lidar_;
 tf::Transform tf_rot_y;
 
@@ -56,7 +58,7 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     autosense::PointICloudPtr cloud(new autosense::PointICloud);
     
     pcl::fromROSMsg(*ros_pc2, *cloud);
-    ROS_INFO_STREAM(" Cloud inputs: #" << cloud->size() << " Points");
+    if (verbose) ROS_INFO_STREAM(" Cloud inputs: #" << cloud->size() << " Points");
 
     std_msgs::Header header = ros_pc2->header;
     header.frame_id = frame_id_;
@@ -66,7 +68,7 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
         autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
         *cloud_in = *cloud;
         cloud->clear();
-        ROS_INFO_STREAM("Start to invert");
+        if (verbose) ROS_INFO_STREAM("Start to invert");
         pcl_ros::transformPointCloud(*cloud_in,*cloud,tf_rot_y);
     }
 
@@ -97,7 +99,7 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     autosense::common::publishPointCloudArray<autosense::PointICloudPtr>(
         pcs_segmented_pub_, header, cloud_clusters);
 
-    ROS_INFO_STREAM("Cloud processed. Took " << clock.takeRealTime()
+    if (verbose) ROS_INFO_STREAM("Cloud processed. Took " << clock.takeRealTime()
                                              << "ms.\n");
 }
 
@@ -133,6 +135,8 @@ int main(int argc, char **argv) {
 
     private_nh.getParam(param_ns_prefix_ + "/use_spherical_voxel_filter",
                         use_spherical_voxel_filter);
+                        
+    private_nh.getParam(param_ns_prefix_ + "/verbose", verbose);
 
     /// @note Important to use roi filter for "Ground remover"
     private_nh.param<bool>(param_ns_prefix_ + "/use_roi_filter",
@@ -152,9 +156,11 @@ int main(int argc, char **argv) {
 
     param.segmenter_type = ground_remover_type;
     ground_remover_ = autosense::segmenter::createGroundSegmenter(param);
+    ground_remover_->verbose = verbose;
 
     param.segmenter_type = non_ground_segmenter_type;
     segmenter_ = autosense::segmenter::createNonGroundSegmenter(param);
+    segmenter_->verbose = verbose;
 
     pcs_segmented_pub_ = nh.advertise<autosense_msgs::PointCloud2Array>(
         pub_pcs_segmented_topic, 1);

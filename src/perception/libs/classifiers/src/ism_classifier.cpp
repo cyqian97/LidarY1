@@ -11,8 +11,12 @@ ISMClassifier::ISMClassifier(const ClassifierParams& params): params_(params)
     normal_estimator_.setRadiusSearch (params_.ism_normal_estimator_radius);
 
     
-    pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_
+    pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr _temp_fpfh
         (new pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >);
+    fpfh_ = _temp_fpfh;
+    ROS_INFO_STREAM("Classifier type: " << params_.classifier_type);
+    ROS_INFO_STREAM("ism_vote_sigma_multiplier: " << params_.ism_vote_sigma_multiplier);
+    ROS_INFO_STREAM("ism_fpfh_radius: " << params_.ism_fpfh_radius);
     fpfh_->setRadiusSearch (params_.ism_fpfh_radius);
 
     ism_.setFeatureEstimator(fpfh_);
@@ -21,8 +25,11 @@ ISMClassifier::ISMClassifier(const ClassifierParams& params): params_(params)
 
     // model_  = new pcl::features::ISMModel;
 
-  pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model_ (new pcl::features::ISMModel);
+    pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr _temp_model (new pcl::features::ISMModel);
+    model_=_temp_model;
+    ROS_INFO_STREAM("Model path: " << params_.classifier_model_path);
     model_->loadModelFromfile (params_.classifier_model_path);
+    ROS_INFO_STREAM( "Model class number: " << model_->classes_.size());
 }
 
 ISMClassifier::~ISMClassifier() {}
@@ -35,9 +42,16 @@ void ISMClassifier::classify(const ObjectPtr &object)
     {   
         pcl::PointCloud<pcl::Normal>::Ptr normals = (new pcl::PointCloud<pcl::Normal>)->makeShared ();
         pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
+
+
+        ROS_INFO("2.1");
         common::convertPointCloud(object->cloud,_temp_cloud);
+
+        ROS_INFO("2.2");
         normal_estimator_.setInputCloud (_temp_cloud);
+        ROS_INFO("2.3");
         normal_estimator_.compute (*normals);
+        ROS_INFO("2.4");
 
         bool normal_check = true;
         for (int i = 0; i < normals->size(); i++)
@@ -55,11 +69,17 @@ void ISMClassifier::classify(const ObjectPtr &object)
             for(const auto& i_class: object->size_conjectures) 
             {
                 common::convertPointCloud(object->cloud,_temp_cloud);
-                pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list = ism_.findObjects (
-                    model_,
-                    _temp_cloud,
-                    normals,
-                    int(i_class));
+                pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
+                ROS_INFO("2.5");
+                
+                vote_list = ism_.findObjects (
+                model_,
+                _temp_cloud,
+                normals,
+                int(i_class));
+
+
+                ROS_INFO("2.6");
                 // std::cout << "Class: " << i_class << ", vote size: " << vote_list->getNumberOfVotes() << std::endl;
                 if (vote_list->getNumberOfVotes()<1) 
                 {
@@ -74,6 +94,8 @@ void ISMClassifier::classify(const ObjectPtr &object)
                     vote_list->findStrongestPeaks (strongest_peaks, int(i_class), radius, sigma);
                     class_peaks.push_back(strongest_peaks[0].density);
                 }
+                ROS_INFO("2.7");
+                
             }
 
             std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
@@ -87,6 +109,7 @@ void ISMClassifier::classify(const ObjectPtr &object)
             {
                 type_now = NOTSURE;
             }
+            ROS_INFO("2.7");
         }
     }
 
@@ -112,6 +135,7 @@ void ISMClassifier::sizeConjectures(const std::vector<ObjectPtr> &objects_obsved
 
 void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved)
 {
+    ROS_INFO("Enter classify vector");
     std::vector<ObjectPtr> objects_label_not_fixed;
     std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_fixed;
     for(const auto& object: objects_obsved)
@@ -126,13 +150,15 @@ void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved
             objects_label_not_fixed.push_back(object);
         }
     }
-
+    ROS_INFO("1");
     sizeConjectures(objects_label_not_fixed);
+    ROS_INFO("2");
 
     std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
     for(const auto& object: objects_label_not_fixed)
     {
         classify(object);
+        ROS_INFO("3");
 
         it_tracker_history = type_histories.find(object->tracker_id);
 

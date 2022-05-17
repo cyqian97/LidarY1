@@ -28,5 +28,7 @@ detect: {
   inverted_lidar: false,
 
   ## Spherical Voxel Filter
-  use_spherical_voxel_filter: true,
+  use_spherical_voxel_filter: false,
+
+  verbose: false,
 }

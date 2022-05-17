@@ -1,4 +1,6 @@
-Classifier: {
+classifier: {
+
+  Classifier:{
   classifier_type: "implicit_shape_model",
   classifier_model_path: "/autodrive/LidarMore/track1/src/perception/libs/classifiers/model_files/trained_ism_model_car_ped.txt",
 
@@ -9,11 +11,13 @@ Classifier: {
 
   # Implicit Shape Model (ISM) Parameters
   ism_normal_estimator_radius: 1.0,
-  ism_fpfh_radius: 1.0,
+  ism_fpfh_radius: 2.0,
   ism_sampling_size: 1.0,
   ism_vote_radius_multiplier: 1.0,
   ism_vote_sigma_multiplier: 10.0,
   ism_num_clusters: 5000, # May not necessary
+
+  },
 
   VolumetricModels: {
     use_car_volumetric_model: true,

@@ -34,19 +34,19 @@ detect: {
     #gpf_num_segment: 3,
     # number of iterations
     #gpf_num_iter: 3,
-    gpf_num_iter: 50,
+    gpf_num_iter: 100,
     ## number of points used to estimate the lowest point representative(LPR)
     # double of senser model???
     #gpf_num_lpr: 20,
-    gpf_num_lpr: 20,
+    gpf_num_lpr: 100,
     #gpf_num_lpr: 1280,
-    gpf_th_lprs: 0.08,
+    gpf_th_lprs: 0.0,
     # threshold for points to be considered initial seeds
     gpf_th_seeds: 0.5,
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
-    gpf_th_gnds: 0.5,
+    gpf_th_gnds: 0.3,
 
     ### Ground RANSAC Segmenter
     # 0.3 for better perforamce
@@ -99,7 +99,7 @@ detect: {
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30,000
-    ec_min_cluster_size: 20,
+    ec_min_cluster_size: 10,
     #ec_min_cluster_size: 50,
     ec_max_cluster_size: 30000,
   },

@@ -22,6 +22,8 @@ class BaseSegmenter {
         std::vector<PointICloudPtr> &cloud_clusters) = 0;  // NOLINT
 
     virtual std::string name() const = 0;
+
+    bool verbose;
 };  // BaseSegmenter
 
 }  // namespace segmenter
