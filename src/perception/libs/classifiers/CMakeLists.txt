@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
     # sensor_msgs
     # ROS PCL
     # pcl_conversions
-    pcl_ros
+    # pcl_ros
     # ROS tf
     # tf
     # tf_conversions
@@ -40,6 +40,7 @@ find_package(PCL 1.8 REQUIRED COMPONENTS
     features
     segmentation
 )
+
 add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
 ### Eigen

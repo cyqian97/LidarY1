@@ -10,15 +10,19 @@ ISMClassifier::ISMClassifier(const ClassifierParams& params): params_(params)
 {
     normal_estimator_.setRadiusSearch (params_.ism_normal_estimator_radius);
 
-    fpfh_ = new pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >;
+    
+    pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_
+        (new pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >);
     fpfh_->setRadiusSearch (params_.ism_fpfh_radius);
 
     ism_.setFeatureEstimator(fpfh_);
     ism_.setSamplingSize (params_.ism_sampling_size);  
     ism_.setNumberOfClusters(params_.ism_num_clusters);
 
-    model_  = new pcl::features::ISMModel;
-    model_->loadModelFromfile (params_.ism_classifier_model_path);
+    // model_  = new pcl::features::ISMModel;
+
+  pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr model_ (new pcl::features::ISMModel);
+    model_->loadModelFromfile (params_.classifier_model_path);
 }
 
 ISMClassifier::~ISMClassifier() {}
@@ -30,10 +34,12 @@ void ISMClassifier::classify(const ObjectPtr &object)
     if(!object->size_conjectures.empty())
     {   
         pcl::PointCloud<pcl::Normal>::Ptr normals = (new pcl::PointCloud<pcl::Normal>)->makeShared ();
-        normal_estimator_.setInputCloud (object->cloud);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
+        common::convertPointCloud(object->cloud,_temp_cloud);
+        normal_estimator_.setInputCloud (_temp_cloud);
         normal_estimator_.compute (*normals);
 
-        normal_check = true;
+        bool normal_check = true;
         for (int i = 0; i < normals->size(); i++)
         {
             if (!pcl::isFinite<pcl::Normal>((*normals)[i]))
@@ -48,9 +54,10 @@ void ISMClassifier::classify(const ObjectPtr &object)
 
             for(const auto& i_class: object->size_conjectures) 
             {
-                pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list = ism.findObjects (
+                common::convertPointCloud(object->cloud,_temp_cloud);
+                pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list = ism_.findObjects (
                     model_,
-                    object->cloud,
+                    _temp_cloud,
                     normals,
                     int(i_class));
                 // std::cout << "Class: " << i_class << ", vote size: " << vote_list->getNumberOfVotes() << std::endl;
@@ -69,13 +76,12 @@ void ISMClassifier::classify(const ObjectPtr &object)
                 }
             }
 
-            int maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end()) - class_peaks.begin();
-            int firstIndex = std::distance(class_peaks.begin(), maxElementIndex)
+            std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
+            int firstIndex = std::distance(class_peaks.begin(), maxElementIndex);
             
             if(class_peaks[firstIndex] > std::numeric_limits<double>::epsilon())
             {
-                type_now = size_conjectures[firstIndex];
-                
+                type_now = object->size_conjectures[firstIndex];
             }
             else
             {
@@ -84,13 +90,12 @@ void ISMClassifier::classify(const ObjectPtr &object)
         }
     }
 
-    std::map<normalsIdType, std::vector<normalsObjectType>>::iterator it_tracker_history 
-        = type_histories.find(object->tracker_id);
+    std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history = type_histories.find(object->tracker_id);
     if (it_tracker_history != type_histories.end()){
         it_tracker_history->second.push_back(type_now);
     } 
     else {
-        std::vector<normalsObjectType> _temp_history{type_now};
+        std::vector<ObjectType> _temp_history{type_now};
         type_histories.insert(std::make_pair(object->tracker_id, _temp_history)); 
     }
 }
@@ -108,7 +113,7 @@ void ISMClassifier::sizeConjectures(const std::vector<ObjectPtr> &objects_obsved
 void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved)
 {
     std::vector<ObjectPtr> objects_label_not_fixed;
-    std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_fixed;
+    std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_fixed;
     for(const auto& object: objects_obsved)
     {
         it_tracker_fixed = type_fixed.find(object->tracker_id);

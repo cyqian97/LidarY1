@@ -298,10 +298,8 @@ static void humanCarModelFilter(const std::vector<ObjectPtr>& objects_in,
         .insert((*objects_filtered).end(), objects.begin(), objects.end());
 }
 
-static void VolumetricFilter(const std::vector<ObjectPtr>& objects_in,
+static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
                            const VolumetricModel& model) {
-    std::vector<ObjectPtr> objects(objects_in.begin(), objects_in.end());
-    (*objects_filtered).clear();
     for (size_t obj_id = 0u; obj_id < objects.size(); ++obj_id) {
         double length = objects[obj_id]->length;
         double width = objects[obj_id]->width;

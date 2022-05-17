@@ -11,6 +11,8 @@
 #include <iostream>
 #include <filesystem>
 
+
+#include "common/common.hpp"
 #include "common/types/type.h"
 #include "roi_filters/roi.hpp"  
 #include "base_classifier.hpp"   
@@ -49,10 +51,12 @@ class ISMClassifier : public BaseClassifier {
     ClassifierParams params_;
     VolumetricModelParams volumetric_params_;
 
+    
+
     std::map<IdType, std::vector<ObjectType>> type_histories;
     std::map<IdType, ObjectType> type_fixed;
 
-    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;  
     pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;
     pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal> ism_;  
    //  pcl::Feature< pcl::PointXYZ, pcl::Histogram<125> >::Ptr feature_estimator_;

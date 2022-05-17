@@ -106,6 +106,23 @@ static void convertPointCloud(PointICloudPtr icloud,
     }
 }
 
+/**
+ * @brief convert PointI cloud in indices to PointD cloud
+ * @param cloud
+ * @param indices
+ * @param trans_cloud
+ */
+static void convertPointCloud(PointICloudPtr cloud_in, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_out) {
+    cloud_out->clear();
+    cloud_out->resize(cloud_in->size());
+
+    for (size_t i = 0u; i < cloud_out->size(); ++i) {
+        cloud_out->points[i].x = cloud_in->points[i].x;
+        cloud_out->points[i].y = cloud_in->points[i].y;
+        cloud_out->points[i].z = cloud_in->points[i].z;
+    }
+}
+
 //----------------------------------- print information
 static void displayPerformances(unsigned int tp,
                                 unsigned int tn,

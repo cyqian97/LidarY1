@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>common_lib</name>
+  <name>classifiers_lib</name>
   <version>0.0.0</version>
-  <description>The common library for other Lidar Perception packages.</description>
+  <description>The classifier library</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="chenshj35@qq.com">Gary</maintainer>
+  <maintainer email="cyqian@tamu.edu">Gary</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -33,8 +33,9 @@
   <!-- Examples: -->
   <!-- Use depend as a shortcut for packages that are both build and exec dependencies -->
   <depend>roscpp</depend>
-  <depend>tf</depend>
-  <depend>tf_conversions</depend>
+  <depend>object_builders_lib</depend>
+  <depend>common_lib</depend>
+  <depend>roi_filters_lib</depend>
   <!--   Note that this is equivalent to the following: -->
   <!--   <build_depend>roscpp</build_depend> -->
   <!--   <exec_depend>roscpp</exec_depend> -->

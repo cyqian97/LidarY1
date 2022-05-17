@@ -21,8 +21,8 @@ class BaseClassifier {
     virtual void classify(const ObjectPtr &object)  = 0;
  
  private:
-    virtual std::map<IdType, std::vector<ObjectType>> type_histories const = 0;
-    virtual std::map<IdType, ObjectType> type_fixed const = 0;
+    std::map<IdType, std::vector<ObjectType>> type_histories;
+    std::map<IdType, ObjectType> type_fixed;
 
 };  // BaseClassifier
 
