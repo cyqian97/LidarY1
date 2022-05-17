@@ -305,6 +305,12 @@ static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
         double width = objects[obj_id]->width;
         double height = objects[obj_id]->height;
 
+        if (width > length){
+            double _temp = length;
+            length = width;
+            width = _temp;
+        } 
+
         if (abs(model.l_min - model.l_max) > common::EPSILON &&
             (length < model.l_min || length > model.l_max)) {
             continue;

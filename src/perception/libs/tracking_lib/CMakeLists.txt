@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
     common_lib
     feature_extractors_lib
     object_builders_lib
+    classifiers_lib
 )
 
 ## System dependencies are found with CMake's conventions

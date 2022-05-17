@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
     roi_filters_lib
     tracking_lib
     feature_extractors_lib
+    classifiers_lib
 )
 
 

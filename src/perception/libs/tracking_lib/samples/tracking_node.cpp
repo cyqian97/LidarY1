@@ -21,6 +21,7 @@
 #include "common/types/object.hpp"
 #include "common/types/type.h"
 #include "object_builders/object_builder_manager.hpp"
+#include "classifiers/ism_classifier.hpp"
 #include "tracking/tracking_worker_manager.hpp"
 
 std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;

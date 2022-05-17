@@ -15,7 +15,7 @@
 #include "common/common.hpp"
 #include "common/types/type.h"
 #include "roi_filters/roi.hpp"  
-#include "base_classifier.hpp"   
+#include "classifiers/base_classifier.hpp"   
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/features/normal_3d.h>
