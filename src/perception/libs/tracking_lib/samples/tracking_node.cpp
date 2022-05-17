@@ -21,8 +21,9 @@
 #include "common/transform.hpp"
 #include "common/types/object.hpp"
 #include "common/types/type.h"
+
 #include "object_builders/object_builder_manager.hpp"
-#include "classifiers/ism_classifier.hpp"
+#include "classifiers/classifier_manager.hpp"
 #include "tracking/tracking_worker_manager.hpp"
 
 std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
@@ -54,7 +55,7 @@ std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
     nullptr;
 std::unique_ptr<autosense::tracking::BaseTrackingWorker> tracking_worker_ =
     nullptr;
-std::unique_ptr<autosense::classifier::ISMClassifier> classifier_worker_ =
+std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
     nullptr;
 
 // TODO(chenshengjie): callback function as fast as possible
@@ -341,6 +342,9 @@ int main(int argc, char **argv) {
     tracking_params_ =
         autosense::common::getTrackingWorkerParams(nh, param_ns_prefix_);
 
+    classifier_params_ = 
+        autosense::common::getClassfierParams(nh,"/Classifier");
+
     // Init core compoments
     object_builder_ = autosense::object_builder::createObjectBuilder();
     if (nullptr == object_builder_) {
@@ -353,7 +357,13 @@ int main(int argc, char **argv) {
         ROS_FATAL("Failed to create tracking_worker_.");
         return -1;
     }
-
+    classifier_worker_ = 
+        autosense::classifier::createClassifier(classifier_params_);
+    if (nullptr == classifier_worker_) {
+        ROS_FATAL("Failed to create classifier.");
+        return -1;
+    }
+    
     // Init subscribers and publishers
     pcs_segmented_sub_ = nh.subscribe<autosense_msgs::PointCloud2Array>(
         sub_pcs_segmented_topic, sub_pcs_queue_size, OnSegmentClouds);

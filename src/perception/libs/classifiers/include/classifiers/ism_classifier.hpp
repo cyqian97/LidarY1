@@ -39,19 +39,17 @@ class ISMClassifier : public BaseClassifier {
     ~ISMClassifier();
 
     /// @brief classify the object using the implicit shape model.
-    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
+    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved);
 
-    virtual void classify(const ObjectPtr &object) = 0;
+    virtual void classify(const ObjectPtr &object);
 
-    virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved)  = 0;
+    virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved);
 
     virtual std::string name() const { return "ISMClassifier"; }
 
  private:
     ClassifierParams params_;
     VolumetricModelParams volumetric_params_;
-
-    
 
     std::map<IdType, std::vector<ObjectType>> type_histories;
     std::map<IdType, ObjectType> type_fixed;

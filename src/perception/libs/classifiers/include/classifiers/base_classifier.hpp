@@ -19,6 +19,10 @@ class BaseClassifier {
     virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved) = 0;
 
     virtual void classify(const ObjectPtr &object)  = 0;
+    
+    virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved)  = 0;
+
+    virtual std::string name() const = 0;
  
  private:
     std::map<IdType, std::vector<ObjectType>> type_histories;
