@@ -67,7 +67,7 @@ void ISMClassifier::classify(const ObjectPtr &object)
         {
             std::vector<double> class_peaks; 
             std::vector<int> classes{0,1};
-            for(const auto& i_class: classes)//object->size_conjectures) 
+            for(const auto& i_class: object->size_conjectures) //classes)
             {
                 common::convertPointCloud(object->cloud,_temp_cloud);
                 pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
@@ -106,18 +106,19 @@ void ISMClassifier::classify(const ObjectPtr &object)
             
             if(class_peaks[firstMaxIndex] > params_.peak_threshold)//std::numeric_limits<double>::epsilon())
             {
-                for(const auto& _in_conj: object->size_conjectures)
-                {
-                    if(firstMaxIndex == int(_in_conj))
-                    {
-                        type_now = _in_conj;
-                        break;
-                    }
-                    else
-                    {
-                        type_now = NOTSURE;
-                    }
-                }
+                type_now = object->size_conjectures[firstMaxIndex];
+                // for(const auto& _in_conj: object->size_conjectures)
+                // {
+                //     if(firstMaxIndex == int(_in_conj))
+                //     {
+                //         type_now = _in_conj;
+                //         break;
+                //     }
+                //     else
+                //     {
+                //         type_now = NOTSURE;
+                //     }
+                // }
             }
             else
             {

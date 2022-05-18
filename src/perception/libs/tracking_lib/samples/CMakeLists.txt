@@ -59,6 +59,9 @@ add_executable(${PROJECT_NAME}_gpf_node
 add_executable(${PROJECT_NAME}_tracking_node
     tracking_node.cpp
 )
+add_executable(${PROJECT_NAME}_tracking_compare_node
+    tracking_node_compare.cpp
+)
 
 ### Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_detection_node
@@ -72,6 +75,11 @@ target_link_libraries(${PROJECT_NAME}_gpf_node
 )
 
 target_link_libraries(${PROJECT_NAME}_tracking_node
+    ${catkin_LIBRARIES}
+    ${PCL_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}_tracking_compare_node
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
 )

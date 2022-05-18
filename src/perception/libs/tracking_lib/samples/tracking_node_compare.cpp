@@ -194,9 +194,9 @@ void OnSegmentClouds(
             }
             
             autosense::ObjectType type_now = autosense::NOTSURE;
-            if (x_long > 3.5 && x_long < 7.0 && x_short > 0.5 && x_short < 4.0 && height > 0.8 && height < 2.5){
+            if (x_long > 3.0 && x_long < 7.0 && x_short > 0.5 && x_short < 4.0 && height > 0.8 && height < 2.5){
                 type_now = autosense::CAR;
-            } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
+            } else if(x_long > 0.3 && x_long < 1.5 && x_short > 0.3 && x_short < 1.0 && height > 1.0 && height < 2.5){
                 type_now = autosense::PEDESTRIAN;
             }
 
