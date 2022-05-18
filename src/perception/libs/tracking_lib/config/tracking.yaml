@@ -24,6 +24,8 @@ tracking: {
   pub_tracking_objects_tracker_id_topic: "tracking/tracker_ids",
   pub_tracking_objects_trajectory_topic: "/tracking/trajectory",
 
+  pub_can_bus_topic: "/can_bus/objects",
+
 
   verbose: false,
 }

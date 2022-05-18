@@ -12,6 +12,9 @@
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
+#include "common/msgs/autosense_msgs/TrackingObjectArray.h"
+#include "perception_msgs/Object.h"
+#include "perception_msgs/Objects.h"
 
 #include "common/bounding_box.hpp"
 #include "common/color.hpp"
@@ -53,6 +56,7 @@ ros::Publisher tracking_objects_cloud_pub_;
 ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
+ros::Publisher can_bus_pub_;
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
     nullptr;
@@ -271,6 +275,12 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/pub_tracking_objects_trajectory_topic",
         pub_tracking_objects_trajectory_topic);
 
+    std::string pub_can_bus_topic;
+    private_nh.getParam(
+        param_ns_prefix_ + "/pub_can_bus_topic",
+        pub_can_bus_topic);
+
+
     private_nh.getParam(
         param_ns_prefix_ + "/verbose", verbose);
 
@@ -343,6 +353,8 @@ int main(int argc, char **argv) {
     tracking_output_trajectories_pub_ =
         private_nh.advertise<autosense_msgs::TrackingFixedTrajectoryArray>(
             pub_output_trajectories_topic, 1);
+
+    can_bus_pub_ = private_nh.advertise<perception_msgs::Objects>(pub_can_bus_topic,1);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

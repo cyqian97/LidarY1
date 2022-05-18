@@ -20,12 +20,13 @@ find_package(catkin REQUIRED COMPONENTS
     cmake_modules
     # local packages
     common_lib
+    perception_msgs
     segmenters_lib
+    classifiers_lib
     # needed for detection_node
     roi_filters_lib
     tracking_lib
     feature_extractors_lib
-    classifiers_lib
 )
 
 

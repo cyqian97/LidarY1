@@ -1,0 +1,3 @@
+[submodule "src/perception_msgs"]
+	path = src/perception_msgs
+	url = https://github.tamu.edu/AutoDrive-II-Common/perception_msgs.git
