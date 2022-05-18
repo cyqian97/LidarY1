@@ -213,6 +213,12 @@ class HmTrackingWorker : public BaseTrackingWorker {
         return objects_expected;
     }
 
+    virtual void setVerbose(bool verbose)
+    {
+        matcher_->verbose = verbose;
+        multi_object_tracker_->verbose = verbose;
+    }
+
     std::string name() const { return "HmObjectTracker"; }
 
  protected:
@@ -259,6 +265,7 @@ class HmTrackingWorker : public BaseTrackingWorker {
     // @return nothing
     void collectTrackingObjects(std::vector<ObjectPtr> *objects_tracking);
 
+
  private:
     //--------- algorithm setup
     // Multi-object tracker
@@ -294,6 +301,7 @@ class HmTrackingWorker : public BaseTrackingWorker {
 
     // booted after bootloader()
     bool booted_;
+
 };  // class HmTrackingWorker
 
 }  // namespace tracking

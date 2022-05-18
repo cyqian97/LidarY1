@@ -30,6 +30,8 @@ ISMClassifier::ISMClassifier(const ClassifierParams& params): params_(params)
     ROS_INFO_STREAM("Model path: " << params_.classifier_model_path);
     model_->loadModelFromfile (params_.classifier_model_path);
     ROS_INFO_STREAM( "Model class number: " << model_->classes_.size());
+
+    // std::cout << "[ped, car, deer]: " << params_.volumetric_params.use_car_model << ", " << params_.volumetric_params.use_human_model << ", " << params_.volumetric_params.use_deer_model << std::endl;
 }
 
 ISMClassifier::~ISMClassifier() {}
@@ -44,14 +46,9 @@ void ISMClassifier::classify(const ObjectPtr &object)
         pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
 
 
-        ROS_INFO("2.1");
         common::convertPointCloud(object->cloud,_temp_cloud);
-
-        ROS_INFO("2.2");
         normal_estimator_.setInputCloud (_temp_cloud);
-        ROS_INFO("2.3");
         normal_estimator_.compute (*normals);
-        ROS_INFO("2.4");
 
         bool normal_check = true;
         for (int i = 0; i < normals->size(); i++)
@@ -70,7 +67,6 @@ void ISMClassifier::classify(const ObjectPtr &object)
             {
                 common::convertPointCloud(object->cloud,_temp_cloud);
                 pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
-                ROS_INFO("2.5");
                 
                 vote_list = ism_.findObjects (
                 model_,
@@ -79,7 +75,6 @@ void ISMClassifier::classify(const ObjectPtr &object)
                 int(i_class));
 
 
-                ROS_INFO("2.6");
                 // std::cout << "Class: " << i_class << ", vote size: " << vote_list->getNumberOfVotes() << std::endl;
                 if (vote_list->getNumberOfVotes()<1) 
                 {
@@ -94,10 +89,14 @@ void ISMClassifier::classify(const ObjectPtr &object)
                     vote_list->findStrongestPeaks (strongest_peaks, int(i_class), radius, sigma);
                     class_peaks.push_back(strongest_peaks[0].density);
                 }
-                ROS_INFO("2.7");
-                
             }
-
+            std::cout << "=======peaks: ";
+            for(const auto& peak: class_peaks)
+            {
+                std::cout << std::setw(10) << peak;
+            }
+            std::cout << "\n";
+            
             std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
             int firstIndex = std::distance(class_peaks.begin(), maxElementIndex);
             
@@ -109,7 +108,6 @@ void ISMClassifier::classify(const ObjectPtr &object)
             {
                 type_now = NOTSURE;
             }
-            ROS_INFO("2.7");
         }
     }
 
@@ -135,7 +133,6 @@ void ISMClassifier::sizeConjectures(const std::vector<ObjectPtr> &objects_obsved
 
 void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved)
 {
-    ROS_INFO("Enter classify vector");
     std::vector<ObjectPtr> objects_label_not_fixed;
     std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_fixed;
     for(const auto& object: objects_obsved)
@@ -150,15 +147,18 @@ void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved
             objects_label_not_fixed.push_back(object);
         }
     }
-    ROS_INFO("1");
     sizeConjectures(objects_label_not_fixed);
-    ROS_INFO("2");
+    // for(const auto& object: objects_obsved)
+    // {
+    //     ROS_INFO_STREAM("Object type: " << int(object->size_conjectures.size()));
+    // }
+
 
     std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
     for(const auto& object: objects_label_not_fixed)
     {
+        std::cout << "Object ID: " << 
         classify(object);
-        ROS_INFO("3");
 
         it_tracker_history = type_histories.find(object->tracker_id);
 

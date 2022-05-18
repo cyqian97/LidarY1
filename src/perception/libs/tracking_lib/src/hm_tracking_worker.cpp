@@ -81,7 +81,7 @@ HmTrackingWorker::HmTrackingWorker(const TrackingWorkerParams &params)
         ROS_ERROR_STREAM("Failed to set point num distance weight! " << name());
         return;
     }
-    // load histogram distance weight
+    // load histogram distance weightROS_INFO
     if (!TrackerObsvDistance::setHistogramDistanceWeight(
             params_.matcher_histogram_distance_weight)) {
         ROS_ERROR_STREAM("Failed to set histogram distance weight! " << name());
@@ -253,7 +253,7 @@ bool HmTrackingWorker::track(const std::vector<ObjectPtr> &objects_obsved,
                              const TrackingOptions &options,
                              std::vector<ObjectPtr> *objects_tracked) {
     common::Clock clock;
-    ROS_WARN_STREAM("HmTrackingWorker::track with " << objects_obsved.size()
+    if(verbose) ROS_WARN_STREAM("HmTrackingWorker::track with " << objects_obsved.size()
                                                     << " observed objects.");
     if (objects_tracked == nullptr) {
         return false;
@@ -304,7 +304,7 @@ bool HmTrackingWorker::track(const std::vector<ObjectPtr> &objects_obsved,
         multi_object_tracker_->getTrackers();
     matcher_->match(&objects_trackable_transformed, trackers, tracker_predicts,
                     &assignments, &unassigned_trackers, &unassigned_obsvs);
-    ROS_INFO_STREAM(
+    if(verbose) ROS_INFO_STREAM(
         "multi-object-tracking: "
         << "trackers.size(): " << trackers.size() << "  "
         << "assignments.size(): " << assignments.size() << "  "
@@ -424,7 +424,7 @@ bool HmTrackingWorker::bootloader(const std::vector<ObjectPtr> &objects_obsved,
     // TODO(gary): D. collect system tracked results 筛选可靠的追踪障碍物输出
     collectTrackingObjects(objects_tracked);
 
-    ROS_INFO_STREAM("HmTrackingWorker::bootloader. Took "
+    if(verbose) ROS_INFO_STREAM("HmTrackingWorker::bootloader. Took "
                     << clock.takeRealTime() << "ms.");
 
     return true;
@@ -475,7 +475,7 @@ void HmTrackingWorker::constructTrackedObjects(
         (*objects_tracked)[i]->anchor_point = anchor_point;
     }
 
-    ROS_INFO_STREAM("HmTrackingWorker::constructTrackedObjects. Took "
+    if(verbose) ROS_INFO_STREAM("HmTrackingWorker::constructTrackedObjects. Took "
                     << clock.takeRealTime() << "ms.");
 }
 
@@ -622,7 +622,7 @@ void HmTrackingWorker::collectTrackingObjects(
 
     objects_tracked->resize(num_objects_collected);
 
-    ROS_INFO_STREAM("HmTrackingWorker::collectTrackingObjects. Took "
+    if(verbose) ROS_INFO_STREAM("HmTrackingWorker::collectTrackingObjects. Took "
                     << clock.takeRealTime() << "ms.");
 }
 //----------------------------- collect status -------------------------------//

@@ -64,8 +64,8 @@ static void publishClustersCloud(
         publisher.publish(msg_cloud);
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << clusters_array.size()
-                                      << " clusters in one cloud.");
+        // ROS_INFO_STREAM("Publishing " << clusters_array.size()
+        //                               << " clusters in one cloud.");
     }
 
     PointICloudPtr cloud(new PointICloud);
@@ -113,8 +113,8 @@ static void publishClustersCloud(
         publisher.publish(msg_cloud);
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << objects_array.size()
-                                      << " clusters in one cloud.");
+        // ROS_INFO_STREAM("Publishing " << objects_array.size()
+        //                               << " clusters in one cloud.");
     }
 
     PointICloudPtr cloud(new PointICloud);
@@ -168,7 +168,7 @@ static void publishPointCloudArray(const ros::Publisher &publisher,
 
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << segment_array.size() << " segments.");
+        // ROS_INFO_STREAM("Publishing " << segment_array.size() << " segments.");
 
         autosense_msgs::PointCloud2Array segments_msg;
         std::vector<sensor_msgs::PointCloud2> clouds;
@@ -221,7 +221,7 @@ static void publishObjectsMarkers(
         ROS_WARN("Publish empty object marker.");
         return;
     } else {
-        ROS_INFO("Publishing %lu objects markers.", objects_array.size());
+        // ROS_INFO("Publishing %lu objects markers.", objects_array.size());
     }
 
     visualization_msgs::MarkerArray object_markers;
@@ -461,8 +461,8 @@ static void publishObjectsVelocityArrow(
         ROS_WARN("Publish empty object's velocity.");
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << objects_array.size()
-                                      << " objects' velocity.");
+        // ROS_INFO_STREAM("Publishing " << objects_array.size()
+        //                               << " objects' velocity.");
     }
 
     if (!objects_array.empty()) {
@@ -575,8 +575,8 @@ static void publishObjectsTrajectory(
         ROS_WARN("Publish empty object's trajectory.");
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << trajectories.size()
-                                      << " objects' trajectory.");
+        // ROS_INFO_STREAM("Publishing " << trajectories.size()
+        //                               << " objects' trajectory.");
     }
 
     visualization_msgs::MarkerArray markers_trajectory;
@@ -655,7 +655,7 @@ static void publishMinMaxMarkers(
         ROS_WARN("Publish empty cluster marker.");
         return;
     } else {
-        ROS_INFO("Publishing %lu clusters markers.", clusters_array.size());
+        // ROS_INFO("Publishing %lu clusters markers.", clusters_array.size());
     }
 
     visualization_msgs::MarkerArray cluster_markers;
@@ -766,8 +766,8 @@ static void publishTrackingObjects(
         ROS_WARN("Publish empty object.");
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << tracking_objects.size()
-                                      << " objects.");
+        // ROS_INFO_STREAM("Publishing " << tracking_objects.size()
+        //                               << " objects.");
     }
 
     if (!tracking_objects.empty()) {
@@ -815,11 +815,11 @@ static void publishTrackingFixedTrajectories(
     const std_msgs::Header &header,
     const std::vector<FixedTrajectory> &trajectories) {
     if (trajectories.empty()) {
-        ROS_WARN("Publish empty fixed trajectory.");
+        // ROS_WARN("Publish empty fixed trajectory.");
         return;
     } else {
-        ROS_INFO_STREAM("Publishing " << trajectories.size()
-                                      << " fixed trajectories.");
+        // ROS_INFO_STREAM("Publishing " << trajectories.size()
+        //                               << " fixed trajectories.");
     }
 
     if (!trajectories.empty()) {

@@ -305,11 +305,15 @@ static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
         double width = objects[obj_id]->width;
         double height = objects[obj_id]->height;
 
+
         if (width > length){
             double _temp = length;
             length = width;
             width = _temp;
         } 
+        // std::cout << "Object ID: " << obj_id << ", model type:" << int(model.model_type) << std::endl;
+        // std::cout.precision(2);
+        // std::cout << "size: [" << length << ", " << width << ", " << height << "]" << std::endl;
 
         if (abs(model.l_min - model.l_max) > common::EPSILON &&
             (length < model.l_min || length > model.l_max)) {
@@ -327,6 +331,7 @@ static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
         }
 
         objects[obj_id]->size_conjectures.push_back(model.model_type);
+        // std::cout << "Size conjecture:" << int(model.model_type) << std::endl;
     }
 }
 

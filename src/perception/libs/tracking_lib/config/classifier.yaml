@@ -6,12 +6,12 @@ classifier: {
 
 
   # label fixing
-  fix_frame_lim: 5, # number of consecutive valid classifications to fix the label
+  fix_frame_lim: 1, # number of consecutive valid classifications to fix the label
   abort_frame_lim: 30, # fix the label to NOTSURE if label has not been fixed after this number of frames
 
   # Implicit Shape Model (ISM) Parameters
   ism_normal_estimator_radius: 1.0,
-  ism_fpfh_radius: 2.0,
+  ism_fpfh_radius: 1.0,
   ism_sampling_size: 1.0,
   ism_vote_radius_multiplier: 1.0,
   ism_vote_sigma_multiplier: 10.0,

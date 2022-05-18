@@ -32,8 +32,8 @@ struct TrackingOptions {
 
     explicit TrackingOptions(Eigen::Matrix4d *pose) : velo2world_trans(pose) {}
 
-    std::shared_ptr<Eigen::Matrix4d> velo2world_trans;
-
+    std::shared_ptr<Eigen::Matrix4d> velo2world_trans;    
+    
     // TODO(gary): HDMap provided information
     // HdmapStructPtr hdmap = nullptr;
     // HDMapInput* hdmap_input = NULL;
@@ -82,6 +82,12 @@ class BaseTrackingWorker {
         const double &timestamp, const Eigen::Matrix4d &trans_pose) const = 0;
 
     virtual std::string name() const = 0;
+
+    bool verbose;
+
+    virtual void setVerbose(bool verbose) = 0;
+    
+
 };  // class BaseTrackingWorker
 
 }  // namespace tracking

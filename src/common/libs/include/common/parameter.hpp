@@ -35,7 +35,7 @@ static VolumetricModelParams getVolumetricModelParams(
     // common::displayModelInfo(model_car_);
 
     nh.param<bool>(volumetric_ns + "/use_human_volumetric_model",
-                   params.use_car_model, false);
+                   params.use_human_model, false);
     volumetric_model.resize(6, 0.);
     nh.getParam(volumetric_ns + "/human_volumetric_model", volumetric_model);
     params.model_human.model_type = PEDESTRIAN;
@@ -47,7 +47,7 @@ static VolumetricModelParams getVolumetricModelParams(
     params.model_human.h_max = volumetric_model[5];
 
     nh.param<bool>(volumetric_ns + "/use_deer_volumetric_model",
-                   params.use_car_model, false);
+                   params.use_deer_model, false);
     volumetric_model.resize(6, 0.);
     nh.getParam(volumetric_ns + "/deer_volumetric_model", volumetric_model);
     params.model_deer.model_type = DEER;

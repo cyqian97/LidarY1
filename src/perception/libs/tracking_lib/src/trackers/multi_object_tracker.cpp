@@ -145,7 +145,7 @@ void MultiObjectTracker::createNewTrackers(
             new ObjectTracker(obsvs_trackable[obsv_id], getNextTrackerId()));
         trackers_.push_back(tracker);
     }
-    ROS_INFO_STREAM("HmTrackingWorker::created "
+    if(verbose) ROS_INFO_STREAM("HmTrackingWorker::created "
                     << unassigned_ids.size() << " new Trackers. Took "
                     << clock.takeRealTime() << "ms.");
 }
@@ -176,7 +176,7 @@ void MultiObjectTracker::createNewTrackers(
         // initial period -1.0
         (*trajectory_periods).insert(std::make_pair(tracker->idx_, -1.));
     }
-    ROS_INFO_STREAM("HmTrackingWorker::created "
+    if(verbose) ROS_INFO_STREAM("HmTrackingWorker::created "
                     << unassigned_ids.size() << " new Trackers. Took "
                     << clock.takeRealTime() << "ms.");
 }

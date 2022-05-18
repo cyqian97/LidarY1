@@ -59,6 +59,8 @@ class BaseTrackerObsvMatcher {
     // @brief get name of matcher
     // @return name of matcher
     virtual std::string Name() const = 0;
+
+    bool verbose;
 };  // class BaseTrackerObsvMatcher
 
 }  // namespace tracking

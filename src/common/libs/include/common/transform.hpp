@@ -52,9 +52,9 @@ static bool getVelodynePose(const tf::TransformListener& tf_buffer,
     tf::transformTFToEigen(transform_stamped, affine_3d);
     *trans = affine_3d.matrix();
 
-    ROS_INFO_STREAM("Get " << source_frame << " to " << target_frame
-                           << " trans: \n"
-                           << *trans);
+    // ROS_INFO_STREAM("Get " << source_frame << " to " << target_frame
+    //                        << " trans: \n"
+    //                        << *trans);
 
     return true;
 }

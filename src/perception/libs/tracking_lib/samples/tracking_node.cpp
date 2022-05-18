@@ -269,11 +269,12 @@ int main(int argc, char **argv) {
                              threshold_contian_IoU_, 1.0);
     tracking_params_ =
         autosense::common::getTrackingWorkerParams(private_nh, param_ns_prefix_);
-    ROS_INFO_STREAM("tracking_collect_consecutive_invisible_maximum: " << tracking_params_.tracking_collect_consecutive_invisible_maximum);
+    // ROS_INFO_STREAM("tracking_collect_consecutive_invisible_maximum: " << tracking_params_.tracking_collect_consecutive_invisible_maximum);
 
     classifier_params_ = 
         autosense::common::getClassfierParams(private_nh,"classifier");
-    ROS_INFO_STREAM("Classifier type: " << classifier_params_.classifier_type);
+    // ROS_INFO_STREAM("Classifier type: " << classifier_params_.classifier_type);
+    // std::cout << "[ped, car, deer]: " << classifier_params_.volumetric_params.use_car_model << ", " << classifier_params_.volumetric_params.use_human_model << ", " << classifier_params_.volumetric_params.use_deer_model << std::endl;
 
     // Init core compoments
     object_builder_ = autosense::object_builder::createObjectBuilder();
@@ -287,6 +288,9 @@ int main(int argc, char **argv) {
         ROS_FATAL("Failed to create tracking_worker_.");
         return -1;
     }
+    tracking_worker_->verbose = verbose;
+    tracking_worker_->setVerbose(verbose);
+
     classifier_worker_ = 
         autosense::classifier::createClassifier(classifier_params_);
     if (nullptr == classifier_worker_) {

@@ -32,6 +32,8 @@ class MultiObjectTracker {
     static int s_tracker_consecutive_invisible_maximum_;
     static float s_tracker_visible_ratio_minimum_;
 
+    bool verbose;
+
  public:
     MultiObjectTracker();
 

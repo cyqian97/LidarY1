@@ -75,7 +75,7 @@ void HungarianTrackerObsvMatcher::match(
     // TODO(gary): 子图：要么只有一个顶点，要么是一个二分图
     computeConnectedComponents(association_mat, s_match_distance_maximum_,
                                &tracker_components, &obsv_components);
-    ROS_INFO_STREAM("HungarianTrackerObsvMatcher: partition graph into "
+    if(verbose) ROS_INFO_STREAM("HungarianTrackerObsvMatcher: partition graph into "
                     << tracker_components.size() << " sub-graphs.");
 
     // C. matching each sub-graph 在每个子图(连通分量)里面进行匹配
