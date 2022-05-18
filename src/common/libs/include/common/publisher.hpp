@@ -15,10 +15,14 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <math.h>
 
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
+
+#include "perception_msgs/Object.h"
+#include "perception_msgs/Objects.h"
 
 #include "common/common.hpp"
 #include "common/geometry.hpp"      // common::geometry::calcYaw4DirectionVector
@@ -898,6 +902,62 @@ static void publishTrackingFixedTrajectories(
         }
         publisher.publish(msg);
     }
+}
+
+
+/**
+ * @brief publish dynamic object canbus messages
+ * All distance and velocities should be in the NEU frame.
+ * Some information on the Lidar pose need to be added to the input
+ * @param publisher
+ * @param objects_array
+ */
+static void publishClustersCloud(
+    const ros::Publisher &publisher,
+    const float64 theta,
+    const float64 min_speed,
+    const std::vector<ObjectPtr> &objects_array)
+{
+    perception_msgs::Lidar_camera_objects* objects_msgs;
+
+
+    Eigen::Matrix3d local_to_NEU;
+    local_to_NEU << cos(theta), sin(theta), 0,
+                    -sin(theta), cos(theta), 0,
+                    0, 0, 0;
+
+
+    for(const auto& object: objects_array)
+    {
+        perception_msgs::Lidar_camera_object object_msg;
+        Eigen::Vector3d velocity = local_to_NEU * object->velocity;
+        Eigen::Vector3d center = local_to_NEU * object->ground_center;
+
+        
+        object_msg.lat = center(0);
+        object_msg.lon = center(1);
+        object_msg.abs_speed = velocity.norm();
+        object_msg.lat_speed = velocity(0);
+        object_msg.lon_speed = velocity(1);
+
+        float32 course = 0;
+        if(velocity.norm() > min_speed)
+        {
+            course = acos(velocity(1)/velocity.norm()) * 180.0 / PI;
+            if (velocity(0)<0)
+            {
+                course = 360.0 - course;
+            }
+        }
+        object_msg.course = course;
+
+        object_msg.width = (object->length + object->width)/2;
+        object_msg.height = object->height;
+        // convert typeID to canbus type
+
+    }
+
+    
 }
 
 }  // namespace common

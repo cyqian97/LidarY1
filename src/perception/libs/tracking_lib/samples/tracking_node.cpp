@@ -13,8 +13,8 @@
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
-#include "perception_msgs/Object.h"
-#include "perception_msgs/Objects.h"
+#include "perception_msgs/Lidar_camera_object.h"
+#include "perception_msgs/Lidar_camera_objects.h"
 
 #include "common/bounding_box.hpp"
 #include "common/color.hpp"
@@ -354,7 +354,7 @@ int main(int argc, char **argv) {
         private_nh.advertise<autosense_msgs::TrackingFixedTrajectoryArray>(
             pub_output_trajectories_topic, 1);
 
-    can_bus_pub_ = private_nh.advertise<perception_msgs::Objects>(pub_can_bus_topic,1);
+    can_bus_pub_ = private_nh.advertise<perception_msgs::Lidar_camera_objects>(pub_can_bus_topic,1);
 
     spiner.start();
     ROS_INFO("tracking_node started...");
