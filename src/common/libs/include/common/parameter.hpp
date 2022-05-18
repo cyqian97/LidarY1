@@ -190,6 +190,8 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
                     params.fix_frame_lim, 5);
     nh.param<int>(ns + "/abort_frame_lim",
                     params.abort_frame_lim, 30);
+    nh.param<double>(ns + "/peak_threshold",
+                    params.peak_threshold, 0.0);
 
 
 

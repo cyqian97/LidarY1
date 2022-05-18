@@ -530,7 +530,7 @@ static void publishObjectsVelocityArrow(
                 // fixed：表示普通方式输出，不采用科学计数法。
                 vel_str << std::fixed << std::setprecision(2)
                         << std::setfill('0') << vel_scalar;
-                vel_text.text = vel_str.str() + " m/s";
+                vel_text.text = vel_str.str() + " m/s " ;
             }
             vel_text.scale.z = 0.7;
             vel_text.color = color;
@@ -541,6 +541,70 @@ static void publishObjectsVelocityArrow(
         }
 
         publisher.publish(velocity_markers);
+    }
+}
+
+static void publishObjectsTrackerID(
+    const ros::Publisher &publisher,
+    const std_msgs::Header &header,
+    const std_msgs::ColorRGBA &color,
+    const std::vector<ObjectPtr> &objects_array,
+    const bool &is_offline_keep_alive = true) {
+    // clear all markers before
+    visualization_msgs::MarkerArray empty_markers;
+    visualization_msgs::Marker clear_marker;
+    clear_marker.header = header;
+    clear_marker.ns = "tracker_ids";
+    clear_marker.id = 0;
+    // clear_marker.type = clear_marker.TEXT_VIEW_FACING;
+    // clear_marker.action = clear_marker.DELETEALL;
+    clear_marker.action = clear_marker.DELETEALL;
+    clear_marker.lifetime = ros::Duration();
+    empty_markers.markers.push_back(clear_marker);
+    publisher.publish(empty_markers);
+
+    if (objects_array.empty()) {
+        ROS_WARN("Publish empty object's tracker ids.");
+        return;
+    } else {
+        // ROS_INFO_STREAM("Publishing " << objects_array.size()
+        //                               << " objects' velocity.");
+    }
+
+    if (!objects_array.empty()) {
+        visualization_msgs::MarkerArray tracker_id_markers;
+        uint32_t id = 0u;
+        for (size_t obj = 0u; obj < objects_array.size(); ++obj) {
+            visualization_msgs::Marker tracker_id_text;
+            tracker_id_text.header = header;
+            tracker_id_text.ns = "tracker_ids";
+            tracker_id_text.id = id++;
+            tracker_id_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+            // Fill in velocity's arrow
+            const Eigen::Vector3d &center = objects_array[obj]->ground_center;
+            const Eigen::Vector3d &velocity = objects_array[obj]->velocity;
+            const double &yaw_rad = objects_array[obj]->yaw_rad;
+            const double &length = objects_array[obj]->length;
+            const double &height = objects_array[obj]->height;
+            Eigen::Vector3d dir(cos(yaw_rad), sin(yaw_rad), 0);
+
+            // Fill in velocity's label
+            tracker_id_text.pose.position.x = center[0];
+            tracker_id_text.pose.position.y = center[1];
+            tracker_id_text.pose.position.z = center[2];
+            // Eigen::Quaternion q = Eigen::AngleAxisd(yaw_rad,
+            // Eigen::Vector3f::UnitZ());
+            tracker_id_text.pose.orientation.w = yaw_rad;
+            tracker_id_text.text = std::to_string(objects_array[obj]->tracker_id) ;
+            tracker_id_text.scale.z = 2;
+            tracker_id_text.color = color;
+            if (!is_offline_keep_alive) {
+                tracker_id_text.lifetime = ros::Duration(0.5);
+            }
+            tracker_id_markers.markers.push_back(tracker_id_text);
+        }
+
+        publisher.publish(tracker_id_markers);
     }
 }
 

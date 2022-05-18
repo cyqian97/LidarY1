@@ -42,6 +42,10 @@ void ISMClassifier::classify(const ObjectPtr &object)
 
     if(!object->size_conjectures.empty())
     {   
+        std::cout << "Tracker ID: " << object->tracker_id << ", size conj:";
+        for(const auto& i_class: object->size_conjectures) std::cout << int(i_class) << " ";
+        std::cout << "\n";
+
         pcl::PointCloud<pcl::Normal>::Ptr normals = (new pcl::PointCloud<pcl::Normal>)->makeShared ();
         pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
 
@@ -62,8 +66,8 @@ void ISMClassifier::classify(const ObjectPtr &object)
         if (normal_check)
         {
             std::vector<double> class_peaks; 
-
-            for(const auto& i_class: object->size_conjectures) 
+            std::vector<int> classes{0,1};
+            for(const auto& i_class: classes)//object->size_conjectures) 
             {
                 common::convertPointCloud(object->cloud,_temp_cloud);
                 pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
@@ -90,19 +94,30 @@ void ISMClassifier::classify(const ObjectPtr &object)
                     class_peaks.push_back(strongest_peaks[0].density);
                 }
             }
-            std::cout << "=======peaks: ";
+            std::cout << "\tpeaks: ";
             for(const auto& peak: class_peaks)
             {
-                std::cout << std::setw(10) << peak;
+                std::cout << std::setprecision(6) << peak << " ";
             }
             std::cout << "\n";
             
             std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
-            int firstIndex = std::distance(class_peaks.begin(), maxElementIndex);
+            int firstMaxIndex = std::distance(class_peaks.begin(), maxElementIndex);
             
-            if(class_peaks[firstIndex] > std::numeric_limits<double>::epsilon())
+            if(class_peaks[firstMaxIndex] > params_.peak_threshold)//std::numeric_limits<double>::epsilon())
             {
-                type_now = object->size_conjectures[firstIndex];
+                for(const auto& _in_conj: object->size_conjectures)
+                {
+                    if(firstMaxIndex == int(_in_conj))
+                    {
+                        type_now = _in_conj;
+                        break;
+                    }
+                    else
+                    {
+                        type_now = NOTSURE;
+                    }
+                }
             }
             else
             {
@@ -157,7 +172,6 @@ void ISMClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved
     std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
     for(const auto& object: objects_label_not_fixed)
     {
-        std::cout << "Object ID: " << 
         classify(object);
 
         it_tracker_history = type_histories.find(object->tracker_id);

@@ -187,6 +187,7 @@ struct ClassifierParams {
     // label fixing
     int fix_frame_lim;
     int abort_frame_lim;
+    double peak_threshold;
 
     // Implicit shape model (ISM) method parameters
     double ism_normal_estimator_radius;

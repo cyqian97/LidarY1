@@ -51,6 +51,7 @@ ros::Publisher tracking_output_trajectories_pub_;
 ros::Publisher tracking_objects_pub_;
 ros::Publisher tracking_objects_cloud_pub_;
 ros::Publisher tracking_objects_velocity_pub_;
+ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
@@ -210,6 +211,10 @@ void OnSegmentClouds(
     autosense::common::publishObjectsVelocityArrow(
         tracking_objects_velocity_pub_, header, autosense::common::RED.rgbA,
         tracking_objects_velo);
+    autosense::common::publishObjectsTrackerID(
+        tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
+        tracking_objects_velo);
+    
 }
 
 int main(int argc, char **argv) {
@@ -250,6 +255,7 @@ int main(int argc, char **argv) {
 
     std::string pub_tracking_objects_topic, pub_tracking_objects_cloud_topic,
         pub_tracking_objects_velocity_topic,
+        pub_tracking_objects_tracker_id_topic,
         pub_tracking_objects_trajectory_topic;
     private_nh.getParam(param_ns_prefix_ + "/pub_tracking_objects_topic",
                         pub_tracking_objects_topic);
@@ -258,6 +264,9 @@ int main(int argc, char **argv) {
     private_nh.getParam(
         param_ns_prefix_ + "/pub_tracking_objects_velocity_topic",
         pub_tracking_objects_velocity_topic);
+    private_nh.getParam(
+        param_ns_prefix_ + "/pub_tracking_objects_tracker_id_topic",
+        pub_tracking_objects_tracker_id_topic);
     private_nh.getParam(
         param_ns_prefix_ + "/pub_tracking_objects_trajectory_topic",
         pub_tracking_objects_trajectory_topic);
@@ -321,6 +330,9 @@ int main(int argc, char **argv) {
     tracking_objects_velocity_pub_ =
         private_nh.advertise<visualization_msgs::MarkerArray>(
             pub_tracking_objects_velocity_topic, 1);
+    tracking_objects_tracker_id_pub_ =
+        private_nh.advertise<visualization_msgs::MarkerArray>(
+            pub_tracking_objects_tracker_id_topic, 1);
     tracking_objects_trajectory_pub_ =
         private_nh.advertise<visualization_msgs::MarkerArray>(
             pub_tracking_objects_trajectory_topic, 1);
