@@ -13,10 +13,10 @@ classifier: {
   # Implicit Shape Model (ISM) Parameters
   ism_normal_estimator_radius: 0.5,
   ism_fpfh_radius: 0.5,
-  ism_sampling_size: 0.5,
+  ism_sampling_size: 0.1,
   ism_vote_radius_multiplier: 1.0,
   ism_vote_sigma_multiplier: 10.0,
-  ism_num_clusters: 5000, # May not necessary
+  ism_num_clusters: 500, 
 
   },
 

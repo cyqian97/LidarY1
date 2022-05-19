@@ -46,7 +46,7 @@ tracking: {
       tracking_histogram_bin_size: 10,
       # initial tracker ages 1
       #  1 for more N-samples
-      tracking_collect_age_minimum: 5,
+      tracking_collect_age_minimum: 10,
       # sometimes, detection failed
       tracking_collect_consecutive_invisible_maximum: 5,
   }

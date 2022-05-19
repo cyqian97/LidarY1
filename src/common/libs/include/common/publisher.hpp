@@ -21,7 +21,8 @@
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
 
-#include "perception_msgs/Object.h"
+#include "perception_msgs/Lidar_camera_object.h"
+#include "perception_msgs/Lidar_camera_objects.h"
 #include "perception_msgs/Objects.h"
 
 #include "common/common.hpp"
@@ -914,8 +915,8 @@ static void publishTrackingFixedTrajectories(
  */
 static void publishClustersCloud(
     const ros::Publisher &publisher,
-    const float64 theta,
-    const float64 min_speed,
+    const double theta,
+    const double min_speed,
     const std::vector<ObjectPtr> &objects_array)
 {
     perception_msgs::Lidar_camera_objects* objects_msgs;
@@ -940,10 +941,10 @@ static void publishClustersCloud(
         object_msg.lat_speed = velocity(0);
         object_msg.lon_speed = velocity(1);
 
-        float32 course = 0;
+        double course = 0;
         if(velocity.norm() > min_speed)
         {
-            course = acos(velocity(1)/velocity.norm()) * 180.0 / PI;
+            course = acos(velocity(1)/velocity.norm()) * 180.0 / 3.14159265358979323846;
             if (velocity(0)<0)
             {
                 course = 360.0 - course;
