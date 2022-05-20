@@ -405,6 +405,8 @@ static void publishObjectsMarkers(
             case autosense::PEDESTRIAN:
                 box.color = autosense::common::CYAN.rgbA;
                 break;
+            default:
+                box.color = color;
         }
         // if (objects_array[obj]->type == autosense::CAR){
         //     box.color = autosense::common::WHITE.rgbA;
@@ -913,7 +915,7 @@ static void publishTrackingFixedTrajectories(
  * @param publisher
  * @param objects_array
  */
-static void publishClustersCloud(
+static void publishLidarCameraObjects(
     const ros::Publisher &publisher,
     const double theta,
     const double min_speed,
@@ -955,10 +957,22 @@ static void publishClustersCloud(
         object_msg.width = (object->length + object->width)/2;
         object_msg.height = object->height;
         // convert typeID to canbus type
-
+        switch (object->type)
+        {
+        case CAR:
+            object_msg.type = uint8_t(1);
+            break;
+        case PEDESTRIAN:
+            object_msg.type = uint8_t(4);
+            break;
+        case DEER:
+            object_msg.type = uint8_t(6);
+            break;
+        default:
+            object_msg.type = uint8_t(0);
+            break;
+        }
     }
-
-    
 }
 
 }  // namespace common

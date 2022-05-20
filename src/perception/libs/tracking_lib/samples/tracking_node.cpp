@@ -31,10 +31,10 @@
 
 bool verbose;
 
-std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
-std::map<autosense::IdType, autosense::ObjectType> type_fixed;
-const std::vector<autosense::ObjectType> type_car_vector(5,autosense::CAR);
-const std::vector<autosense::ObjectType> type_ped_vector(5,autosense::PEDESTRIAN);
+// std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
+// std::map<autosense::IdType, autosense::ObjectType> type_fixed;
+// const std::vector<autosense::ObjectType> type_car_vector(5,autosense::CAR);
+// const std::vector<autosense::ObjectType> type_ped_vector(5,autosense::PEDESTRIAN);
 
 const std::string param_ns_prefix_ = "tracking";  // NOLINT
 std::string local_frame_id_, global_frame_id_;    // NOLINT
@@ -56,7 +56,7 @@ ros::Publisher tracking_objects_cloud_pub_;
 ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
-ros::Publisher can_bus_pub_;
+ros::Publisher lidar_camera_pub_;
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
     nullptr;
@@ -218,6 +218,8 @@ void OnSegmentClouds(
     autosense::common::publishObjectsTrackerID(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
         tracking_objects_velo);
+    autosense::common::publishLidarCameraObjects(
+        lidar_camera_pub_, 0, 0.1, tracking_objects_velo);
     
 }
 
@@ -275,10 +277,10 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/pub_tracking_objects_trajectory_topic",
         pub_tracking_objects_trajectory_topic);
 
-    std::string pub_can_bus_topic;
+    std::string pub_lidar_camera_topic_;
     private_nh.getParam(
-        param_ns_prefix_ + "/pub_can_bus_topic",
-        pub_can_bus_topic);
+        param_ns_prefix_ + "/pub_lidar_camera_topic_",
+        pub_lidar_camera_topic_);
 
 
     private_nh.getParam(
@@ -354,7 +356,7 @@ int main(int argc, char **argv) {
         private_nh.advertise<autosense_msgs::TrackingFixedTrajectoryArray>(
             pub_output_trajectories_topic, 1);
 
-    can_bus_pub_ = private_nh.advertise<perception_msgs::Lidar_camera_objects>(pub_can_bus_topic,1);
+    lidar_camera_pub_ = private_nh.advertise<perception_msgs::Lidar_camera_objects>(pub_lidar_camera_topic_,1);
 
     spiner.start();
     ROS_INFO("tracking_node started...");
