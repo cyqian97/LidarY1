@@ -294,23 +294,21 @@ int main(int argc, char **argv) {
     private_nh.getParam(
         param_ns_prefix_ + "/pub_tracking_objects_trajectory_topic",
         pub_tracking_objects_trajectory_topic);
+    private_nh.param<double>(param_ns_prefix_ + "/threshold_contian_IoU",
+                             threshold_contian_IoU_, 1.0);
 
     // Publish settings for the Autodrive challenge
-    std::string pub_lidar_camera_topic_;
+    std::string pub_lidar_camera_topic_, srv_lidar_camera_name;
     private_nh.getParam(
         param_ns_prefix_ + "/pub_lidar_camera_topic_",
         pub_lidar_camera_topic_);
-    
     private_nh.getParam(param_ns_prefix_ + "/pub_course_speed_limit", pub_course_speed_limit);
+    private_nh.getParam(param_ns_prefix_ + "/srv_lidar_camera_name", srv_lidar_camera_name);
 
-
-
-
+    // Control the command line output
     private_nh.getParam(
         param_ns_prefix_ + "/verbose", verbose);
 
-    private_nh.param<double>(param_ns_prefix_ + "/threshold_contian_IoU",
-                             threshold_contian_IoU_, 1.0);
     tracking_params_ =
         autosense::common::getTrackingWorkerParams(private_nh, param_ns_prefix_);
     // ROS_INFO_STREAM("tracking_collect_consecutive_invisible_maximum: " << tracking_params_.tracking_collect_consecutive_invisible_maximum);
@@ -342,6 +340,7 @@ int main(int argc, char **argv) {
         return -1;
     }
     
+    
     // Init subscribers and publishers
     pcs_segmented_sub_ = nh.subscribe<autosense_msgs::PointCloud2Array>(
         sub_pcs_segmented_topic, sub_pcs_queue_size, OnSegmentClouds);
@@ -358,6 +357,7 @@ int main(int argc, char **argv) {
             pub_segments_predict_topic, 1);
     segments_pub_ = private_nh.advertise<visualization_msgs::MarkerArray>(
         pub_segments_topic, 1);
+
     // tracking infos for debugging
     tracking_objects_pub_ =
         private_nh.advertise<visualization_msgs::MarkerArray>(
@@ -374,6 +374,7 @@ int main(int argc, char **argv) {
     tracking_objects_trajectory_pub_ =
         private_nh.advertise<visualization_msgs::MarkerArray>(
             pub_tracking_objects_trajectory_topic, 1);
+
     // the whole tracking output
     tracking_output_objects_pub_ =
         private_nh.advertise<autosense_msgs::TrackingObjectArray>(

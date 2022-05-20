@@ -26,9 +26,13 @@ tracking: {
   pub_tracking_objects_tracker_id_topic: "tracking/tracker_ids",
   pub_tracking_objects_trajectory_topic: "/tracking/trajectory",
 
+
+
   pub_lidar_camera_topic_: "/can_bus/lidar_camera_objects",
+  srv_lidar_camera_name: "/bbox_to_centers",
 
   # objects with speeds below this limit will have course = 0
   pub_course_speed_limit: 0.2,
   verbose: false,
+
 }
