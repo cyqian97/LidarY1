@@ -9,6 +9,8 @@ tracking: {
   # segmented point clouds directly from segment node
   sub_pcs_segmented_topic: "/segment/clouds_segmented",
   sub_pcs_queue_size: 1,
+  
+  sub_gps_topic: "/Pose",
 
   # intermediate segments
   pub_segments_coarse_topic: "/tracking/segments_coarse",
@@ -26,6 +28,7 @@ tracking: {
 
   pub_lidar_camera_topic_: "/can_bus/lidar_camera_objects",
 
-
-  verbose: true,
+  # objects with speeds below this limit will have course = 0
+  pub_course_speed_limit: 0.2,
+  verbose: false,
 }

@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
     pcl_ros
     # ROS core
     roscpp
+    # ROS messages
+    geometry_msgs
     # 3rd modules for ROS, like Eigen
     cmake_modules
     # local packages

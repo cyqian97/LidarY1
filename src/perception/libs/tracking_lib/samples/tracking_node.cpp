@@ -15,6 +15,7 @@
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
 #include "perception_msgs/Lidar_camera_object.h"
 #include "perception_msgs/Lidar_camera_objects.h"
+#include <geometry_msgs/Pose2D.h>
 
 #include "common/bounding_box.hpp"
 #include "common/color.hpp"
@@ -40,11 +41,17 @@ const std::string param_ns_prefix_ = "tracking";  // NOLINT
 std::string local_frame_id_, global_frame_id_;    // NOLINT
 int tf_timeout_ms_ = 0;
 double threshold_contian_IoU_ = 0.0;
+double pub_course_speed_limit;
+
 autosense::TrackingWorkerParams tracking_params_;
 autosense::ClassifierParams classifier_params_;
 // ROS Subscriber
 ros::Subscriber pcs_segmented_sub_;
 std::unique_ptr<tf::TransformListener> tf_listener_;
+
+ros::Subscriber gps_sub_;
+double theta;
+
 // ROS Publisher
 ros::Publisher segments_coarse_pub_;
 ros::Publisher segments_predict_pub_;
@@ -219,8 +226,15 @@ void OnSegmentClouds(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
         tracking_objects_velo);
     autosense::common::publishLidarCameraObjects(
-        lidar_camera_pub_, 0, 0.1, tracking_objects_velo);
+        lidar_camera_pub_, header, theta, pub_course_speed_limit, tracking_objects_velo);
     
+}
+
+
+void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
+{
+    theta = gps_msg->theta;
+    if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
 }
 
 int main(int argc, char **argv) {
@@ -243,6 +257,10 @@ int main(int argc, char **argv) {
                         sub_pcs_segmented_topic);
     private_nh.getParam(param_ns_prefix_ + "/sub_pcs_queue_size",
                         sub_pcs_queue_size);
+
+    std::string sub_gps_topic;
+    private_nh.getParam(param_ns_prefix_ + "/sub_gps_topic",
+                        sub_gps_topic);
 
     std::string pub_segments_coarse_topic, pub_segments_predict_topic,
         pub_segments_topic;
@@ -277,10 +295,15 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/pub_tracking_objects_trajectory_topic",
         pub_tracking_objects_trajectory_topic);
 
+    // Publish settings for the Autodrive challenge
     std::string pub_lidar_camera_topic_;
     private_nh.getParam(
         param_ns_prefix_ + "/pub_lidar_camera_topic_",
         pub_lidar_camera_topic_);
+    
+    private_nh.getParam(param_ns_prefix_ + "/pub_course_speed_limit", pub_course_speed_limit);
+
+
 
 
     private_nh.getParam(
@@ -323,6 +346,9 @@ int main(int argc, char **argv) {
     pcs_segmented_sub_ = nh.subscribe<autosense_msgs::PointCloud2Array>(
         sub_pcs_segmented_topic, sub_pcs_queue_size, OnSegmentClouds);
     tf_listener_.reset(new tf::TransformListener);
+
+    gps_sub_ = nh.subscribe<geometry_msgs::Pose2D>(sub_gps_topic, 1, OnGPS);
+
     // segments
     segments_coarse_pub_ =
         private_nh.advertise<visualization_msgs::MarkerArray>(

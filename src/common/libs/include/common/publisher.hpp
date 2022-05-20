@@ -917,25 +917,31 @@ static void publishTrackingFixedTrajectories(
  */
 static void publishLidarCameraObjects(
     const ros::Publisher &publisher,
+    const std_msgs::Header &header, 
     const double theta,
     const double min_speed,
     const std::vector<ObjectPtr> &objects_array)
 {
-    perception_msgs::Lidar_camera_objects* objects_msgs;
-
-
+    perception_msgs::Lidar_camera_objects* objects_msg(
+            new perception_msgs::Lidar_camera_objects);
+    objects_msg->stamp = header.stamp;
+    // perception_msgs::Lidar_camera_object[] object_msg_list 
+    //     = new perception_msgs::Lidar_camera_object[objects_array.size()];
+    
+    
     Eigen::Matrix3d local_to_NEU;
     local_to_NEU << cos(theta), sin(theta), 0,
                     -sin(theta), cos(theta), 0,
                     0, 0, 0;
 
-
+    // int index = 0;
     for(const auto& object: objects_array)
     {
         perception_msgs::Lidar_camera_object object_msg;
         Eigen::Vector3d velocity = local_to_NEU * object->velocity;
         Eigen::Vector3d center = local_to_NEU * object->ground_center;
 
+        object_msg.id = object->tracker_id;
         
         object_msg.lat = center(0);
         object_msg.lon = center(1);
@@ -972,7 +978,14 @@ static void publishLidarCameraObjects(
             object_msg.type = uint8_t(0);
             break;
         }
+        objects_msg->list.push_back(object_msg);
+        // object_msg_list[index] = object_msg;
+        // index++;
     }
+
+    // objects_msg->list = object_msg_list;
+    // std::copy(object_msg_list.begin(),object_msg_list.end(),objects_msg->list);
+    publisher.publish(*objects_msg);
 }
 
 }  // namespace common
