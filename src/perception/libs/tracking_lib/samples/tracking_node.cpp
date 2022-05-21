@@ -12,9 +12,9 @@
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
-#include "common/msgs/autosense_msgs/TrackingObjectArray.h"
 #include "perception_msgs/Lidar_camera_object.h"
 #include "perception_msgs/Lidar_camera_objects.h"
+#include "perception_msgs/pos3d.h"
 #include <geometry_msgs/Pose2D.h>
 
 #include "common/bounding_box.hpp"
@@ -45,6 +45,13 @@ double pub_course_speed_limit;
 
 autosense::TrackingWorkerParams tracking_params_;
 autosense::ClassifierParams classifier_params_;
+
+//ROS service
+ros::ServiceServer srv_pos3d;
+std::shared_ptr<autosense_msgs::PointCloud2Array> non_ground_copy;
+// td::make_shared<Eigen::Matrix4d>
+
+
 // ROS Subscriber
 ros::Subscriber pcs_segmented_sub_;
 std::unique_ptr<tf::TransformListener> tf_listener_;
@@ -75,6 +82,7 @@ std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
 // TODO(chenshengjie): callback function as fast as possible
 void OnSegmentClouds(
     const autosense_msgs::PointCloud2ArrayConstPtr &segments_msg) {
+    non_ground_copy = std::make_shared<autosense_msgs::PointCloud2Array>(*segments_msg);
     const double kTimeStamp = segments_msg->header.stamp.toSec();
     if (verbose) ROS_INFO("Clusters size: %d at %lf.", segments_msg->clouds.size(),
              kTimeStamp);
@@ -235,6 +243,18 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
 {
     theta = gps_msg->theta;
     if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
+    ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
+}
+
+
+bool srv_pos3d_func(perception_msgs::pos3d::Request &req,
+    perception_msgs::pos3d::Response &res)
+{
+    // ROS_INFO_STREAM(non_ground_copy->clouds.size());
+    res.lat = 0.0;
+    res.lon = 1.0;
+    res.height = 2.0;
+    return true;
 }
 
 int main(int argc, char **argv) {
@@ -339,7 +359,8 @@ int main(int argc, char **argv) {
         ROS_FATAL("Failed to create classifier.");
         return -1;
     }
-    
+    // Init service
+    srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);
     
     // Init subscribers and publishers
     pcs_segmented_sub_ = nh.subscribe<autosense_msgs::PointCloud2Array>(
