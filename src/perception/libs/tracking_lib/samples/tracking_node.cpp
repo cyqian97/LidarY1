@@ -48,7 +48,7 @@ autosense::ClassifierParams classifier_params_;
 
 //ROS service
 ros::ServiceServer srv_pos3d;
-std::shared_ptr<autosense_msgs::PointCloud2Array> non_ground_copy;
+std::shared_ptr<autosense_msgs::PointCloud2Array> non_ground_copy = nullptr;
 // td::make_shared<Eigen::Matrix4d>
 
 
@@ -243,7 +243,7 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
 {
     theta = gps_msg->theta;
     if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
-    ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
+    if (nullptr != non_ground_copy) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
 }
 
 
