@@ -62,6 +62,15 @@ typedef enum {
     PEDESTRIAN_CAR = PEDESTRIAN | CAR
 } ObjectType;
 
+/// @brief Object dynamic properties
+typedef enum {
+    UNKNOWN = 0,
+    FIXED = 1,
+    STOPPED = 2,
+    SAME = 3,
+    OPPOSITE = 4
+} DynProp;
+
 typedef uint32_t IdType;
 #define ID_MAX UINT_MAX
 // poses array

@@ -60,6 +60,8 @@ class HmTrackingWorker : public BaseTrackingWorker {
                const TrackingOptions &options,
                std::vector<ObjectPtr> *objects_tracked);
 
+    void updateDynProp(std::vector<ObjectPtr> *objects_tracked, double speed_lim_);
+
     /**
      * @brief get object trackers from current tracking system
      * @return object tracks maintained in tracker
@@ -294,6 +296,10 @@ class HmTrackingWorker : public BaseTrackingWorker {
     std::map<IdType, double> trajectory_periods_;
     // tracking objects in World coordiante at current frame
     std::vector<ObjectPtr> tracking_objects_;
+
+    // Speed histories
+    std::map<IdType, std::vector<Eigen::Vector3d>> speed_histories_;
+    std::map<IdType, DynProp> dynprop_histories_;
 
     //--------- System states
     // Tracking system's timestamp

@@ -216,6 +216,9 @@ struct alignas(16) Object {
     ObjectType type = NOTSURE;
     std::vector<ObjectType> size_conjectures;
 
+    //---------------------- Dynamic Properties
+    DynProp dyn_prop = UNKNOWN;
+
     // foreground score/probability
     float score = 0.0;
     // fg/bg flag

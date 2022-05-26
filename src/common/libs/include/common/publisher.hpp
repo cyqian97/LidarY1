@@ -938,8 +938,8 @@ static void publishLidarCameraObjects(
     for(const auto& object: objects_array)
     {
         perception_msgs::Lidar_camera_object object_msg;
-        Eigen::Vector3d velocity = local_to_NEU * object->velocity;
-        Eigen::Vector3d center = local_to_NEU * object->ground_center;
+        Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;
+        Eigen::Vector3d center = object->ground_center;//local_to_NEU * object->ground_center;
 
         object_msg.id = object->tracker_id;
         
@@ -958,7 +958,7 @@ static void publishLidarCameraObjects(
                 course = 360.0 - course;
             }
         }
-        object_msg.course = course;
+        object_msg.course = course + theta;//course
 
         object_msg.width = (object->length + object->width)/2;
         object_msg.height = object->height;
@@ -976,6 +976,25 @@ static void publishLidarCameraObjects(
             break;
         default:
             object_msg.type = uint8_t(0);
+            break;
+        }
+
+        switch (object->dyn_prop)
+        {
+        case FIXED:
+            object_msg.dynamic_prop = uint8_t(1);
+            break;
+        case STOPPED:
+            object_msg.dynamic_prop = uint8_t(2);
+            break;
+        case SAME:
+            object_msg.dynamic_prop = uint8_t(3);
+            break;
+        case OPPOSITE:
+            object_msg.dynamic_prop = uint8_t(4);
+            break;
+        default:
+            object_msg.dynamic_prop = uint8_t(0);
             break;
         }
         objects_msg->list.push_back(object_msg);

@@ -326,6 +326,8 @@ bool HmTrackingWorker::track(const std::vector<ObjectPtr> &objects_obsved,
                 objects_trackable_transformed[obsv_id]->object_ptr->id);
         }
     }
+
+    
     // E.2 update tracks without associated objects
     multi_object_tracker_->updateUnassignedTrackers(
         tracker_predicts, unassigned_trackers, time_diff);
@@ -360,6 +362,60 @@ bool HmTrackingWorker::track(const std::vector<ObjectPtr> &objects_obsved,
     collectTrackingObjects(objects_tracked);
 
     return true;
+}
+
+void HmTrackingWorker::updateDynProp(std::vector<ObjectPtr> *objects_tracked, double speed_lim_)
+{
+    for (size_t i = 0u; i < objects_tracked->size(); ++i) {
+        int tracker_id = (*objects_tracked)[i]->tracker_id;
+        auto iter = dynprop_histories_.find(tracker_id);
+        DynProp dyn_prop_now_ = UNKNOWN;
+        Eigen::Vector3d velocity = (*objects_tracked)[i]->velocity;
+        if (iter == dynprop_histories_.end()) {
+            if(velocity.norm() < speed_lim_)
+            {
+                dyn_prop_now_ = FIXED;
+            } 
+            else if (velocity(1) > velocity.norm()/2)
+            {
+                dyn_prop_now_ = SAME;
+            }
+            else
+            {
+                dyn_prop_now_ = OPPOSITE;
+            }
+            (*objects_tracked)[i]->dyn_prop = dyn_prop_now_;
+            dynprop_histories_.insert(std::make_pair(tracker_id,dyn_prop_now_));
+        }
+        else
+        {
+            if(velocity.norm() >= speed_lim_)
+            {
+                if (velocity(1) > velocity.norm()/2)
+                {
+                    dyn_prop_now_ = SAME;
+                }
+                else
+                {
+                    dyn_prop_now_ = OPPOSITE;
+                }
+            }
+            else
+            {
+                if( iter->second == SAME || iter->second == OPPOSITE || iter->second == STOPPED)
+                {
+                    dyn_prop_now_= STOPPED;
+                }
+                else
+                {
+                    dyn_prop_now_= FIXED;
+                }
+            }
+
+            iter->second = dyn_prop_now_;
+            (*objects_tracked)[i]->dyn_prop = dyn_prop_now_;
+        }
+    }
 }
 
 /**

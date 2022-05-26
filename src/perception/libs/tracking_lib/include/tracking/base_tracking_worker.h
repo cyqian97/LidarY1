@@ -54,6 +54,8 @@ class BaseTrackingWorker {
                        const TrackingOptions &options,
                        std::vector<ObjectPtr> *objects_tracked) = 0;
 
+    virtual void updateDynProp(std::vector<ObjectPtr> *objects_tracked, double speed_lim_) = 0;
+
     virtual inline const std::vector<ObjectTrackerPtr> &getTrackers() const = 0;
 
     virtual inline const std::vector<IdType> &getUnassignedTrackers() const = 0;

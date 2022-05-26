@@ -57,7 +57,7 @@ ros::Subscriber pcs_segmented_sub_;
 std::unique_ptr<tf::TransformListener> tf_listener_;
 
 ros::Subscriber gps_sub_;
-double theta;
+double theta = 0.0;
 
 // ROS Publisher
 ros::Publisher segments_coarse_pub_;
@@ -189,12 +189,17 @@ void OnSegmentClouds(
     autosense::common::Clock clock_tracking;
     tracking_worker_->track(obsv_objects, kTimeStamp, tracking_options,
                             &tracking_objects_velo);
+
+    tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
+
     if (verbose) ROS_INFO_STREAM("Finish tracking. "
                     << tracking_objects_velo.size() << " Objects Tracked. Took "
                     << clock_tracking.takeRealTime() << "ms.");
 
 
     classifier_worker_->classify_vector(tracking_objects_velo);
+
+
 
     /**
      * publish tracking object clouds for classification
@@ -242,8 +247,8 @@ void OnSegmentClouds(
 void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
 {
     theta = gps_msg->theta;
-    if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
-    if (nullptr != non_ground_copy) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
+    // if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
+    // if (nullptr != non_ground_copy) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
 }
 
 
