@@ -48,7 +48,10 @@ autosense::ClassifierParams classifier_params_;
 
 //ROS service
 ros::ServiceServer srv_pos3d;
-std::shared_ptr<autosense_msgs::PointCloud2Array> non_ground_copy = nullptr;
+std::shared_ptr<std::vector<autosense::PointICloudPtr>> non_ground_copy = nullptr;
+Eigen::MatrixXd K_C;
+Eigen::MatrixXd R_Lidar_CameraC;
+Eigen::MatrixXd t_Lidar_CameraC;
 // td::make_shared<Eigen::Matrix4d>
 
 
@@ -82,7 +85,7 @@ std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
 // TODO(chenshengjie): callback function as fast as possible
 void OnSegmentClouds(
     const autosense_msgs::PointCloud2ArrayConstPtr &segments_msg) {
-    non_ground_copy = std::make_shared<autosense_msgs::PointCloud2Array>(*segments_msg);
+    // non_ground_copy = std::make_shared<autosense_msgs::PointCloud2Array>(*segments_msg);
     const double kTimeStamp = segments_msg->header.stamp.toSec();
     if (verbose) ROS_INFO("Clusters size: %d at %lf.", segments_msg->clouds.size(),
              kTimeStamp);
@@ -99,6 +102,7 @@ void OnSegmentClouds(
         pcl::fromROSMsg(segments_msg->clouds[i], *cloud);
         segment_clouds.push_back(cloud);
     }
+    non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
 
     // current pose
     Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
@@ -247,15 +251,34 @@ void OnSegmentClouds(
 void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
 {
     theta = gps_msg->theta;
-    // if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
-    // if (nullptr != non_ground_copy) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->clouds.size());
+    if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
+    if (nullptr != non_ground_copy) 
+    {
+        ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
+        autosense::PointICloudPtr cloud_combined(new autosense::PointICloud);
+        for(const auto& cloud: *non_ground_copy)
+        {
+            ROS_INFO_STREAM("\t cloud size: " << cloud->size());
+            *cloud_combined += *cloud;
+        }
+        ROS_INFO_STREAM("\t combined size: " << cloud_combined->size());
+        auto m = cloud_combined->getMatrixXfMap(3,4,0);
+        ROS_INFO_STREAM("\t mat cols: " << m.cols());
+        ROS_INFO_STREAM("\t mat rows: " << m.rows());
+    }
 }
 
 
 bool srv_pos3d_func(perception_msgs::pos3d::Request &req,
     perception_msgs::pos3d::Response &res)
 {
-    // ROS_INFO_STREAM(non_ground_copy->clouds.size());
+    
+    autosense::PointICloudPtr cloud_combined(new autosense::PointICloud);
+    for(const auto& cloud: *non_ground_copy) *cloud_combined += *cloud;
+    auto m = cloud_combined->getMatrixXfMap(3,4,0);
+
+
+
     res.lat = 0.0;
     res.lon = 1.0;
     res.height = 2.0;
@@ -333,6 +356,27 @@ int main(int argc, char **argv) {
     // Control the command line output
     private_nh.getParam(
         param_ns_prefix_ + "/verbose", verbose);
+
+    // callibration parameters
+    std::vector<double> K_C_vec(9, 0.);
+    private_nh.getParam("callibration/K_C",K_C_vec);
+    K_C = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    std::cout << "K_C" << K_C << std::endl;
+    
+    std::vector<double> R_Lidar_CameraC_vec(9, 0.);
+    private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
+    R_Lidar_CameraC = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    std::cout << "R_Lidar_CameraC" << R_Lidar_CameraC << std::endl;
+
+    std::vector<double> t_Lidar_CameraC_vec(3, 0.);
+    private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
+    t_Lidar_CameraC = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
+    std::cout << "t_Lidar_CameraC" << t_Lidar_CameraC << std::endl;
+    // std::cout << "K_C" << std::endl;
+    // for(const auto &d: K_C_vec){
+    //     std::cout << d << std::endl;
+    // }
+
 
     tracking_params_ =
         autosense::common::getTrackingWorkerParams(private_nh, param_ns_prefix_);

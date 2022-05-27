@@ -30,7 +30,7 @@ detect: {
     gpf_sensor_height: 1.5,
     # fitting multiple planes, at most 6 segments
     ## default: 1
-    gpf_num_segment: 6,
+    gpf_num_segment: 1,
     #gpf_num_segment: 3,
     # number of iterations
     #gpf_num_iter: 3,
@@ -46,7 +46,7 @@ detect: {
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
-    gpf_th_gnds: 0.3,
+    gpf_th_gnds: 0.15,
 
     ### Ground RANSAC Segmenter
     # 0.3 for better perforamce

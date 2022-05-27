@@ -25,7 +25,7 @@ detect: {
   #non_ground_segmenter_type: "EuclideanSegmenter",
 
   ## Inverted Lidar
-  inverted_lidar: false,
+  inverted_lidar: true,
 
   ## Spherical Voxel Filter
   use_spherical_voxel_filter: false,
