@@ -22,10 +22,11 @@ namespace callibration {
  * @return
  */
 static Eigen::MatrixXd proj(const Eigen::MatrixXd& K, const Eigen::MatrixXd& R, const Eigen::MatrixXd& t,
-                    const Eigen::MatrixXd& x) {
-    return(K*(R*x+t));
+                    const Eigen::MatrixXf& x) {
+    Eigen::MatrixXd m = K*(R*x+t)
+    return m;
 }
-}  // namespace geometry
+}  // namespace callibration
 }  // namespace common
 }  // namespace autosense
 

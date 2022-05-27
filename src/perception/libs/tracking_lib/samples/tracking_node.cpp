@@ -25,6 +25,7 @@
 #include "common/transform.hpp"
 #include "common/types/object.hpp"
 #include "common/types/type.h"
+#include "commom/callibration.hpp"
 
 #include "object_builders/object_builder_manager.hpp"
 #include "classifiers/classifier_manager.hpp"
@@ -266,6 +267,7 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
         ROS_INFO_STREAM("\t mat cols: " << m.cols());
         ROS_INFO_STREAM("\t mat rows: " << m.rows());
     }
+
 }
 
 
