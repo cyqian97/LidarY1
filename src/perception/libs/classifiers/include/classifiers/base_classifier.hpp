@@ -24,6 +24,8 @@ class BaseClassifier {
     virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved)  = 0;
 
     virtual std::string name() const = 0;
+
+    bool verbose; 
  
  private:
     std::map<IdType, std::vector<ObjectType>> type_histories;

@@ -39,91 +39,121 @@ ISMClassifier::~ISMClassifier() {}
 void ISMClassifier::classify(const ObjectPtr &object)
 {
     ObjectType type_now = NOTSURE;
-
+    
     if(!object->size_conjectures.empty())
     {   
-        std::cout << "Tracker ID: " << object->tracker_id << ", size conj:";
-        for(const auto& i_class: object->size_conjectures) std::cout << int(i_class) << " ";
-        std::cout << "\n";
-
-        pcl::PointCloud<pcl::Normal>::Ptr normals = (new pcl::PointCloud<pcl::Normal>)->makeShared ();
-        pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
-
-
-        common::convertPointCloud(object->cloud,_temp_cloud);
-        normal_estimator_.setInputCloud (_temp_cloud);
-        normal_estimator_.compute (*normals);
-
-        bool normal_check = true;
-        for (int i = 0; i < normals->size(); i++)
+        bool _find_traffic_blockage = false;
+        if (!_find_traffic_blockage) 
         {
-            if (!pcl::isFinite<pcl::Normal>((*normals)[i]))
+            auto iter_conjectures = std::find(
+                object->size_conjectures.begin(),object->size_conjectures.end(),autosense::CONE);
+            if(iter_conjectures != object->size_conjectures.end())
             {
-                normal_check = false;
-                break;
+                type_now = autosense::CONE;
+                _find_traffic_blockage = true;
             }
         }
-        if (normal_check)
+        if (!_find_traffic_blockage) 
         {
-            std::vector<double> class_peaks; 
-            std::vector<int> classes{0,1};
-            for(const auto& i_class: object->size_conjectures) //classes)
+            auto iter_conjectures = std::find(
+                object->size_conjectures.begin(),object->size_conjectures.end(),autosense::BARRICADE);
+            if(iter_conjectures != object->size_conjectures.end())
             {
-                common::convertPointCloud(object->cloud,_temp_cloud);
-                pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
-                
-                vote_list = ism_.findObjects (
-                model_,
-                _temp_cloud,
-                normals,
-                int(i_class));
+                type_now = autosense::BARRICADE;
+                _find_traffic_blockage = true;
+            }
+        }
+        
+        if (!_find_traffic_blockage) 
+        {
+            if(verbose)
+            {
+                std::cout << "Tracker ID: " << object->tracker_id << ", size conj:";
+                for(const auto& i_class: object->size_conjectures) std::cout << int(i_class) << " ";
+                std::cout << "\n";
+            }
+            
+            pcl::PointCloud<pcl::Normal>::Ptr normals = (new pcl::PointCloud<pcl::Normal>)->makeShared ();
+            pcl::PointCloud<pcl::PointXYZ>::Ptr _temp_cloud(new pcl::PointCloud<pcl::PointXYZ> ());
 
 
-                // std::cout << "Class: " << i_class << ", vote size: " << vote_list->getNumberOfVotes() << std::endl;
-                if (vote_list->getNumberOfVotes()<1) 
+            common::convertPointCloud(object->cloud,_temp_cloud);
+            normal_estimator_.setInputCloud (_temp_cloud);
+            normal_estimator_.compute (*normals);
+
+            bool normal_check = true;
+            for (int i = 0; i < normals->size(); i++)
+            {
+                if (!pcl::isFinite<pcl::Normal>((*normals)[i]))
                 {
-                    class_peaks.push_back(0.0);
+                    normal_check = false;
+                    break;
+                }
+            }
+            if (normal_check)
+            {
+                std::vector<double> class_peaks; 
+                std::vector<int> classes{0,1};
+                for(const auto& i_class: object->size_conjectures) //classes)
+                {
+                    common::convertPointCloud(object->cloud,_temp_cloud);
+                    pcl::features::ISMVoteList<pcl::PointXYZ>::Ptr vote_list;
+                    
+                    vote_list = ism_.findObjects (
+                    model_,
+                    _temp_cloud,
+                    normals,
+                    int(i_class));
+
+
+                    // std::cout << "Class: " << i_class << ", vote size: " << vote_list->getNumberOfVotes() << std::endl;
+                    if (vote_list->getNumberOfVotes()<1) 
+                    {
+                        class_peaks.push_back(0.0);
+                    }
+                    else
+                    {
+                        double radius = model_->sigmas_[int(i_class)] * params_.ism_vote_radius_multiplier;
+                        double sigma = model_->sigmas_[int(i_class)] * params_.ism_vote_sigma_multiplier;
+
+                        std::vector<pcl::ISMPeak, Eigen::aligned_allocator<pcl::ISMPeak> > strongest_peaks;
+                        vote_list->findStrongestPeaks (strongest_peaks, int(i_class), radius, sigma);
+                        class_peaks.push_back(strongest_peaks[0].density);
+                    }
+                }
+                if(verbose) 
+                {
+                    std::cout << "\tpeaks: ";
+                    for(const auto& peak: class_peaks)
+                    {
+                        std::cout << std::setprecision(6) << peak << " ";
+                    }
+                    std::cout << "\n";
+                }
+                std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
+                int firstMaxIndex = std::distance(class_peaks.begin(), maxElementIndex);
+                
+                if(class_peaks[firstMaxIndex] > params_.peak_threshold)//std::numeric_limits<double>::epsilon())
+                {
+                    type_now = object->size_conjectures[firstMaxIndex];
+                    // for(const auto& _in_conj: object->size_conjectures)
+                    // {
+                    //     if(firstMaxIndex == int(_in_conj))
+                    //     {
+                    //         type_now = _in_conj;
+                    //         break;
+                    //     }
+                    //     else
+                    //     {
+                    //         type_now = NOTSURE;
+                    //     }
+                    // }
                 }
                 else
                 {
-                    double radius = model_->sigmas_[int(i_class)] * params_.ism_vote_radius_multiplier;
-                    double sigma = model_->sigmas_[int(i_class)] * params_.ism_vote_sigma_multiplier;
-
-                    std::vector<pcl::ISMPeak, Eigen::aligned_allocator<pcl::ISMPeak> > strongest_peaks;
-                    vote_list->findStrongestPeaks (strongest_peaks, int(i_class), radius, sigma);
-                    class_peaks.push_back(strongest_peaks[0].density);
+                    type_now = NOTSURE;
                 }
-            }
-            std::cout << "\tpeaks: ";
-            for(const auto& peak: class_peaks)
-            {
-                std::cout << std::setprecision(6) << peak << " ";
-            }
-            std::cout << "\n";
-            
-            std::vector<double>::iterator maxElementIndex = std::max_element(class_peaks.begin(),class_peaks.end());
-            int firstMaxIndex = std::distance(class_peaks.begin(), maxElementIndex);
-            
-            if(class_peaks[firstMaxIndex] > params_.peak_threshold)//std::numeric_limits<double>::epsilon())
-            {
-                type_now = object->size_conjectures[firstMaxIndex];
-                // for(const auto& _in_conj: object->size_conjectures)
-                // {
-                //     if(firstMaxIndex == int(_in_conj))
-                //     {
-                //         type_now = _in_conj;
-                //         break;
-                //     }
-                //     else
-                //     {
-                //         type_now = NOTSURE;
-                //     }
-                // }
-            }
-            else
-            {
-                type_now = NOTSURE;
-            }
+            }   
         }
     }
 
@@ -139,10 +169,18 @@ void ISMClassifier::classify(const ObjectPtr &object)
 
 void ISMClassifier::sizeConjectures(const std::vector<ObjectPtr> &objects_obsved) 
 {
+    if (params_.volumetric_params.use_cone_model)
+        roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_cone);
+        
+    if (params_.volumetric_params.use_barricade_model)
+        roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_barricade);
+
     if (params_.volumetric_params.use_car_model)
         roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_car);
+
     if (params_.volumetric_params.use_human_model)
         roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_human);
+
     if (params_.volumetric_params.use_deer_model)
         roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_deer);
 }

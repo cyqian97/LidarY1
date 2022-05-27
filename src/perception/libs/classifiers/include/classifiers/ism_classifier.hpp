@@ -47,7 +47,11 @@ class ISMClassifier : public BaseClassifier {
 
     virtual std::string name() const { return "ISMClassifier"; }
 
+   //  virtual void setVerbose(const bool _verbose){ verbose = _verbose;}
+
  private:
+   //  bool verbose;
+
     ClassifierParams params_;
     VolumetricModelParams volumetric_params_;
 

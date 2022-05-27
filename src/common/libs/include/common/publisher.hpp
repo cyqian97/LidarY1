@@ -405,6 +405,12 @@ static void publishObjectsMarkers(
             case autosense::PEDESTRIAN:
                 box.color = autosense::common::CYAN.rgbA;
                 break;
+            case autosense::CONE:
+                box.color = autosense::common::RED.rgbA;
+                break;
+            case autosense::BARRICADE:
+                box.color = autosense::common::RED.rgbA;
+                break;
             default:
                 box.color = color;
         }
@@ -937,6 +943,11 @@ static void publishLidarCameraObjects(
     // int index = 0;
     for(const auto& object: objects_array)
     {
+        std::cout << "ID: " <<  object->tracker_id << std::endl;
+        std::cout << "\t width: " <<  object->width << std::endl;
+        std::cout << "\t length: " <<  object->length << std::endl;
+        std::cout << "\t height: " <<  object->height << std::endl;
+        
         perception_msgs::Lidar_camera_object object_msg;
         Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;
         Eigen::Vector3d center = object->ground_center;//local_to_NEU * object->ground_center;
@@ -973,6 +984,9 @@ static void publishLidarCameraObjects(
             break;
         case DEER:
             object_msg.type = uint8_t(6);
+            break;
+        case CONE:
+            object_msg.type = uint8_t(5);
             break;
         default:
             object_msg.type = uint8_t(0);

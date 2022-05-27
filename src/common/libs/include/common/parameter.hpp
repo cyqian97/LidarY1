@@ -21,9 +21,33 @@ static VolumetricModelParams getVolumetricModelParams(
 
     std::string volumetric_ns = ns_prefix + "/VolumetricModels";
 
+    nh.param<bool>(volumetric_ns + "/use_cone_volumetric_model",
+                   params.use_cone_model, false);
+    std::vector<double> volumetric_model(6, 0.);
+    nh.getParam(volumetric_ns + "/cone_volumetric_model", volumetric_model);
+    params.model_cone.model_type = CONE;
+    params.model_cone.l_min = volumetric_model[0];
+    params.model_cone.l_max = volumetric_model[1];
+    params.model_cone.w_min = volumetric_model[2];
+    params.model_cone.w_max = volumetric_model[3];
+    params.model_cone.h_min = volumetric_model[4];
+    params.model_cone.h_max = volumetric_model[5];
+
+    nh.param<bool>(volumetric_ns + "/use_barricade_volumetric_model",
+                   params.use_barricade_model, false);
+    volumetric_model.resize(6, 0.);
+    nh.getParam(volumetric_ns + "/barricade_volumetric_model", volumetric_model);
+    params.model_barricade.model_type = BARRICADE;
+    params.model_barricade.l_min = volumetric_model[0];
+    params.model_barricade.l_max = volumetric_model[1];
+    params.model_barricade.w_min = volumetric_model[2];
+    params.model_barricade.w_max = volumetric_model[3];
+    params.model_barricade.h_min = volumetric_model[4];
+    params.model_barricade.h_max = volumetric_model[5];
+
     nh.param<bool>(volumetric_ns + "/use_car_volumetric_model",
                    params.use_car_model, false);
-    std::vector<double> volumetric_model(6, 0.);
+    volumetric_model.resize(6, 0.);
     nh.getParam(volumetric_ns + "/car_volumetric_model", volumetric_model);
     params.model_car.model_type = CAR;
     params.model_car.l_min = volumetric_model[0];

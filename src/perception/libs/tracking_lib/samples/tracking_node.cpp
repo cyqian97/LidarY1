@@ -25,7 +25,7 @@
 #include "common/transform.hpp"
 #include "common/types/object.hpp"
 #include "common/types/type.h"
-#include "commom/callibration.hpp"
+// #include "commom/callibration.hpp"
 
 #include "object_builders/object_builder_manager.hpp"
 #include "classifiers/classifier_manager.hpp"
@@ -410,6 +410,9 @@ int main(int argc, char **argv) {
         ROS_FATAL("Failed to create classifier.");
         return -1;
     }
+    classifier_worker_->verbose = true;
+    std::cout << "===========verbose===========" << classifier_worker_->verbose << std::endl;
+
     // Init service
     srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);
     

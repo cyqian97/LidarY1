@@ -54,12 +54,14 @@ typedef enum {
     PEDESTRIAN = 0x00,
     CAR = 0x01,
     DEER = 0x02,
-    TRUCK = 0x04,
-    CYCLIST = 0x10,
-    DONTCARE = 0x20,
-    NOTSURE = 0x30,
-    CARE = PEDESTRIAN | CAR | TRUCK | CYCLIST,
-    PEDESTRIAN_CAR = PEDESTRIAN | CAR
+    CONE = 0x03,
+    BARRICADE = 0x04,
+    // TRUCK = 0x05,
+    // CYCLIST = 0x10,
+    // DONTCARE = 0x20,
+    NOTSURE = 0x30
+    // CARE = PEDESTRIAN | CAR | TRUCK | CYCLIST,
+    // PEDESTRIAN_CAR = PEDESTRIAN | CAR
 } ObjectType;
 
 /// @brief Object dynamic properties
@@ -91,6 +93,10 @@ typedef struct {
 } VolumetricModel;
 
 struct VolumetricModelParams {
+    bool use_cone_model;
+    VolumetricModel model_cone;
+    bool use_barricade_model;
+    VolumetricModel model_barricade;
     bool use_car_model;
     VolumetricModel model_car;
     bool use_human_model;
