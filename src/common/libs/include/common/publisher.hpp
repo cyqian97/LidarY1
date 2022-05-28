@@ -31,6 +31,7 @@
 #include "common/types/object.hpp"  // ObjectPtr
 #include "common/types/type.h"
 #include "common/color.hpp"
+#include "common/id_pub_manager.hpp"
 
 namespace autosense {
 namespace common {
