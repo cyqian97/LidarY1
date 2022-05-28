@@ -74,6 +74,7 @@ typedef enum {
 } DynProp;
 
 typedef uint32_t IdType;
+typedef uint8_t IdPubType;
 #define ID_MAX UINT_MAX
 // poses array
 typedef std::vector<Eigen::Vector3f> Trajectory;

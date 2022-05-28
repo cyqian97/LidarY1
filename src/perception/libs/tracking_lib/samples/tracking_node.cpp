@@ -25,6 +25,7 @@
 #include "common/transform.hpp"
 #include "common/types/object.hpp"
 #include "common/types/type.h"
+#include "common/id_pub_manager.hpp"
 
 #include "object_builders/object_builder_manager.hpp"
 #include "classifiers/classifier_manager.hpp"
@@ -74,6 +75,7 @@ ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
 ros::Publisher lidar_camera_pub_;
+autosense::common::IdPubManager<autosense::IdPubType>* id_pub_publisher_ = nullptr;
 
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
@@ -240,11 +242,13 @@ void OnSegmentClouds(
     autosense::common::publishObjectsVelocityArrow(
         tracking_objects_velocity_pub_, header, autosense::common::RED.rgbA,
         tracking_objects_velo);
+
+    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
     autosense::common::publishObjectsTrackerID(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
-        tracking_objects_velo);
+        objects_id_pub_);
     autosense::common::publishLidarCameraObjects(
-        lidar_camera_pub_, header, theta, pub_course_speed_limit, tracking_objects_velo);
+        lidar_camera_pub_, header, theta, pub_course_speed_limit, objects_id_pub_);
     
 }
 
@@ -354,6 +358,15 @@ int main(int argc, char **argv) {
         pub_lidar_camera_topic_);
     private_nh.getParam(param_ns_prefix_ + "/pub_course_speed_limit", pub_course_speed_limit);
     private_nh.getParam(param_ns_prefix_ + "/srv_lidar_camera_name", srv_lidar_camera_name);
+    
+    int pub_lidar_camera_id_start_;
+    int pub_lidar_camera_id_num_;
+    private_nh.param<int>(
+        param_ns_prefix_ + "/pub_lidar_camera_id_start_",
+        pub_lidar_camera_id_start_,1);
+    private_nh.param<int>(
+        param_ns_prefix_ + "/pub_lidar_camera_id_num_",
+        pub_lidar_camera_id_num_,32);
 
     // Control the command line output
     private_nh.getParam(
@@ -411,7 +424,6 @@ int main(int argc, char **argv) {
         return -1;
     }
     classifier_worker_->verbose = true;
-    std::cout << "===========verbose===========" << classifier_worker_->verbose << std::endl;
 
     // Init service
     // srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);
@@ -458,7 +470,12 @@ int main(int argc, char **argv) {
         private_nh.advertise<autosense_msgs::TrackingFixedTrajectoryArray>(
             pub_output_trajectories_topic, 1);
 
+
     lidar_camera_pub_ = private_nh.advertise<perception_msgs::Lidar_camera_objects>(pub_lidar_camera_topic_,1);
+
+    id_pub_publisher_ = 
+        autosense::common::IdPubManager<autosense::IdPubType>::instantiate(
+            pub_lidar_camera_id_start_, pub_lidar_camera_id_num_);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

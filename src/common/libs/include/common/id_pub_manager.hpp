@@ -19,12 +19,11 @@ namespace common {
 template <typename IdPubType_T>
 class IdPubManager {
     public:
-        static IdPubManager creat(IdPubType_T const m)
+        static IdPubManager* instantiate(IdPubType_T const start_id, IdPubType_T const num_id)
         {   
-
-            typename std::vector<IdPubType_T> id_pub_all(m);
-            std::iota(id_pub_all.begin(), id_pub_all.end(), 1);
-            return IdPubManager(m,id_pub_all);
+            typename std::vector<IdPubType_T> id_pub_all(num_id);
+            std::iota(id_pub_all.begin(), id_pub_all.end(), start_id);
+            return (new IdPubManager(id_pub_all));
         }
 
 /**
@@ -33,14 +32,14 @@ class IdPubManager {
  * @param objects_in
  * @return objects_out
  */
-        std::vector<ObjectPtr> onNewObjects(std::vector<ObjectPtr> objects_in)
+        std::vector<ObjectPtr> onNewObjects(const std::vector<ObjectPtr> objects_in)
         {
             std::vector<ObjectPtr> objects_out; //output objects vector
             std::vector<ObjectPtr> _list_prior; // new objects, type != NOTSURE
             std::vector<ObjectPtr> _list_non_prior; // old objects, type == NOTSURE
             std::vector<ObjectPtr> _list_wait; // new objects, type == NOTSURE
 
-            const typename std::map<IdType,IdPubType_T> _copy_map_tracker_pub(map_tracker_pub_);
+            typename std::map<IdType,IdPubType_T> _copy_map_tracker_pub(map_tracker_pub_);
             map_tracker_pub_.clear();
             id_pub_available_ = id_pub_all_;
 
@@ -88,7 +87,8 @@ class IdPubManager {
                 {
                     IdType _tracker_id = (*_list_non_prior.begin())->tracker_id;
                     _iter_tracker_pub = map_tracker_pub_.find(_tracker_id);
-                    _iter_tracker_pub->first = object->tracker_id;
+                    map_tracker_pub_.insert(std::make_pair(object->tracker_id,_iter_tracker_pub->second));
+                    map_tracker_pub_.erase(_iter_tracker_pub);
                     object->tracker_id = _iter_tracker_pub->second;
                     objects_out.push_back(object);
                     _list_non_prior.erase(_list_non_prior.begin());
@@ -123,13 +123,13 @@ class IdPubManager {
             return objects_out;
         }
     private:
-        const IdPubType_T id_pub_max_;
-        const typename std::vector<IdPubType_T> id_pub_all_;
+        // IdPubType_T id_pub_max_;
+        typename std::vector<IdPubType_T> id_pub_all_;
         typename std::vector<IdPubType_T> id_pub_available_;
         typename std::map<IdType,IdPubType_T> map_tracker_pub_;
 
 
-        IdPubManager(IdPubType_T m, typename std::vector<IdPubType_T> all): id_pub_max_(m), id_pub_all_(all){}
+        IdPubManager(typename std::vector<IdPubType_T> all): id_pub_all_(all){}
 
 
         void updateIDPub(const typename std::map<IdType,IdPubType_T>::iterator iter_tracker_pub)
