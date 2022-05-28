@@ -25,7 +25,6 @@
 #include "common/transform.hpp"
 #include "common/types/object.hpp"
 #include "common/types/type.h"
-// #include "commom/callibration.hpp"
 
 #include "object_builders/object_builder_manager.hpp"
 #include "classifiers/classifier_manager.hpp"
@@ -75,7 +74,6 @@ ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
 ros::Publisher lidar_camera_pub_;
-std::map<IdType, uint8_t> canbus_id_mapping;
 
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
