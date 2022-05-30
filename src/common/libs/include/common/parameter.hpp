@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <ros/package.h>
 #include "common/types/type.h"
 
 namespace autosense {
@@ -194,6 +195,7 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
     nh.getParam(ns + "/classifier_type", params.classifier_type);
 
     nh.getParam(ns + "/classifier_model_path", params.classifier_model_path);
+    params.classifier_model_path = ros::package::getPath("tracking_lib") + params.classifier_model_path;
 
     // // If true, save model in model specification&timestamps name
     // nh.getParam(ns + "/classifier_save", params.classifier_save);

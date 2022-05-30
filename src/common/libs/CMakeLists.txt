@@ -11,6 +11,7 @@ add_compile_options(-std=c++14)
 find_package(catkin REQUIRED COMPONENTS
     # ROS core
     roscpp
+    roslib
     # ROS messages
     message_generation
     std_msgs

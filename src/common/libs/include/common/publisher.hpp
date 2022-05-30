@@ -596,16 +596,15 @@ static void publishObjectsTrackerID(
             tracker_id_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
             // Fill in velocity's arrow
             const Eigen::Vector3d &center = objects_array[obj]->ground_center;
-            const Eigen::Vector3d &velocity = objects_array[obj]->velocity;
             const double &yaw_rad = objects_array[obj]->yaw_rad;
             const double &length = objects_array[obj]->length;
             const double &height = objects_array[obj]->height;
             Eigen::Vector3d dir(cos(yaw_rad), sin(yaw_rad), 0);
 
-            // Fill in velocity's label
+            // Fill in tracker ID label
             tracker_id_text.pose.position.x = center[0];
             tracker_id_text.pose.position.y = center[1];
-            tracker_id_text.pose.position.z = center[2];
+            tracker_id_text.pose.position.z = center[2] + height;
             // Eigen::Quaternion q = Eigen::AngleAxisd(yaw_rad,
             // Eigen::Vector3f::UnitZ());
             tracker_id_text.pose.orientation.w = yaw_rad;

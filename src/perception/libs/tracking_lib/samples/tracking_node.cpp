@@ -213,6 +213,15 @@ void OnSegmentClouds(
      *   object state: ground center & yaw & velocity
      *   object size, observed segment & its id
      */
+
+    // can_bus publishers
+    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
+    autosense::common::publishObjectsTrackerID(
+        tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
+        objects_id_pub_);
+    autosense::common::publishLidarCameraObjects(
+        lidar_camera_pub_, header, theta, pub_course_speed_limit, objects_id_pub_);
+
     const std::vector<autosense::ObjectPtr> &tracking_objects_world =
         tracking_worker_->collectTrackingObjectsInWorld();
     autosense::common::publishTrackingObjects(tracking_output_objects_pub_,
@@ -243,12 +252,6 @@ void OnSegmentClouds(
         tracking_objects_velocity_pub_, header, autosense::common::RED.rgbA,
         tracking_objects_velo);
 
-    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
-    autosense::common::publishObjectsTrackerID(
-        tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
-        objects_id_pub_);
-    autosense::common::publishLidarCameraObjects(
-        lidar_camera_pub_, header, theta, pub_course_speed_limit, objects_id_pub_);
     
 }
 

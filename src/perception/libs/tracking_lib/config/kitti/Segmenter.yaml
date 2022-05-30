@@ -11,13 +11,13 @@ detect: {
     ## Horizontal range
     #--- for "Cylinder"
     roi_radius_min_m: 0.,
-    roi_radius_max_m: 30.,
+    roi_radius_max_m: 40.,
     #--- for "Square"
     #roi_radius_min_m: 15.,
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 6.,
+    roi_height_above_m: 8.,
   },
 
   Segmenter: {
@@ -30,7 +30,7 @@ detect: {
     gpf_sensor_height: 1.5,
     # fitting multiple planes, at most 6 segments
     ## default: 1
-    gpf_num_segment: 1,
+    gpf_num_segment: 3,
     #gpf_num_segment: 3,
     # number of iterations
     #gpf_num_iter: 3,
