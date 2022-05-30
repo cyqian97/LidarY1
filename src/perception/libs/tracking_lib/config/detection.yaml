@@ -26,7 +26,6 @@ detect: {
 
   ## Inverted Lidar
   inverted_lidar: true,
-  #true,
 
   ## Spherical Voxel Filter
   use_spherical_voxel_filter: false,

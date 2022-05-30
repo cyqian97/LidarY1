@@ -1,6 +1,19 @@
 ## About this repo
 This repository is created by following the README of https://github.com/AutoLidarPerception/tracking_lib.
 
+## Basic Usage
+### Build the package
+Use the following command to build the packge,
+```
+catkin build -DCMAKE_BUILD_TYPE=Release
+```
+Note that without the flag ```-DCMAKE_BUILD_TYPE=Release```, the code will slow down drastically.
+### Run the Ros nodes
+To run the ros node with all clustering, tracking and classification functions, use the command
+```
+roslaunch tracking_lib track_classify.launch
+```
+
 ## Docker portable image
 A docker image containing the all codes and a test rosbag can be downloaded using the command below,
 ```

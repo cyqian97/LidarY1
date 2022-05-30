@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
     //     pub_pcs_segmented_topic, 1);
 
     pcs_segmented_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
-        "nonground", 1);
+        "/cepton/filtered_points", 1);
 
     pointcloud_sub_ = nh.subscribe<sensor_msgs::PointCloud2>(
         sub_pc_topic, sub_pc_queue_size, OnPointCloud);
