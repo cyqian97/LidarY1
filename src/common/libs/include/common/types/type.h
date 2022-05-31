@@ -214,10 +214,10 @@ struct ClassifierParams {
     int ism_num_clusters;
 
     // Visual classifier model parameters
-    int visual_top;
-    int visual_left;
-    int visual_height;
-    int visual_width;
+    int visual_x1;
+    int visual_x2;
+    int visual_y1;
+    int visual_y2;
 
     Eigen::Matrix3d visual_K_C;
     Eigen::Matrix3d visual_R_Lidar_CameraC;

@@ -8,13 +8,14 @@ VisualClassifier::VisualClassifier() {}
 
 VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(params)
 {
+
     // normal_estimator_.setRadiusSearch (params_.ism_normal_estimator_radius);
 
     
     // pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr _temp_fpfh
     //     (new pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >);
     // fpfh_ = _temp_fpfh;
-    // ROS_INFO_STREAM("Classifier type: " << params_.classifier_type);
+    ROS_INFO_STREAM("Classifier type: " << params_.classifier_type);
     // ROS_INFO_STREAM("ism_vote_sigma_multiplier: " << params_.ism_vote_sigma_multiplier);
     // ROS_INFO_STREAM("ism_fpfh_radius: " << params_.ism_fpfh_radius);
     // fpfh_->setRadiusSearch (params_.ism_fpfh_radius);
@@ -36,8 +37,7 @@ VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(para
 
 VisualClassifier::~VisualClassifier() {}
 
-void VisualClassifier::classify(const ObjectPtr &object,
-                                const darknet_ros_msgs::BoundingBoxes bboxes)
+void VisualClassifier::classify(const ObjectPtr &object)
 {
     ObjectType type_now = NOTSURE;
     
@@ -74,14 +74,14 @@ void VisualClassifier::classify(const ObjectPtr &object,
                 std::cout << "\n";
             }
 
-            auto _x = object->cloud->getMatrixXfMap(3,4,0);
-            Eigen::MatrixXd x = _x.cast <double> ();
-            Eigen::MatrixXd res = autosense::common::calibration::proj(
-                params_.visual_K_C, params_.visual_R_Lidar_CameraC,
-                params_.visual_t_Lidar_CameraC, params_.visual_D_C,
-                x);
+            // auto _x = object->cloud->getMatrixXfMap(3,4,0);
+            // Eigen::MatrixXd x = _x.cast <double> ();
+            // Eigen::MatrixXd res = autosense::common::calibration::proj(
+            //     params_.visual_K_C, params_.visual_R_Lidar_CameraC,
+            //     params_.visual_t_Lidar_CameraC, params_.visual_D_C,
+            //     x);
             
-            
+
             
 
         }
@@ -115,8 +115,7 @@ void VisualClassifier::sizeConjectures(const std::vector<ObjectPtr> &objects_obs
         roi::VolumetricFilter(objects_obsved, params_.volumetric_params.model_deer);
 }
 
-void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved,
-                                    const darknet_ros_msgs::BoundingBoxes bboxes)
+void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved)
 {
     std::vector<ObjectPtr> objects_label_not_fixed;
     std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_fixed;
@@ -142,7 +141,7 @@ void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obs
     std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
     for(const auto& object: objects_label_not_fixed)
     {
-        classify(object,bboxes);
+        classify(object);
 
         it_tracker_history = type_histories.find(object->tracker_id);
 

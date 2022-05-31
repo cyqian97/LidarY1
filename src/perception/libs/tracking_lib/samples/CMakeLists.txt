@@ -40,7 +40,7 @@ add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
 
 ### OpenCV
-find_package(OpenCV)
+find_package(OpenCV 3.4.17 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 ###########

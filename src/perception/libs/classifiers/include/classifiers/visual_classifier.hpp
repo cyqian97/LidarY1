@@ -43,15 +43,16 @@ class VisualClassifier : public BaseClassifier {
     ~VisualClassifier();
 
     /// @brief classify the object using the implicit shape model.
-    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved, 
-                                const darknet_ros_msgs::BoundingBoxes bboxes);
+    virtual void classify_vector(const std::vector<ObjectPtr> &objects_obsved);
 
-    virtual void classify(const ObjectPtr &object,
-                          const darknet_ros_msgs::BoundingBoxes bboxes);
+    virtual void classify(const ObjectPtr &object);
 
     virtual void sizeConjectures(const std::vector<ObjectPtr> &objects_obsved);
 
     virtual std::string name() const { return "VisualClassifier"; }
+
+    void updateBBoxes(darknet_ros_msgs::BoundingBoxes bboxes_new) 
+     { bboxes = bboxes_new; }
 
    //  virtual void setVerbose(const bool _verbose){ verbose = _verbose;}
 
@@ -63,6 +64,9 @@ class VisualClassifier : public BaseClassifier {
 
     std::map<IdType, std::vector<ObjectType>> type_histories;
     std::map<IdType, ObjectType> type_fixed;
+
+
+    darknet_ros_msgs::BoundingBoxes bboxes;
 
   //   pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;  
   //   pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;

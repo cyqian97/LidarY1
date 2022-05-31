@@ -42,7 +42,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 find_package(Eigen3 REQUIRED)
 
 ### OpenCV
-find_package(OpenCV)
+find_package(OpenCV 3.4.17 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 ###################################

@@ -237,14 +237,14 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
     params.volumetric_params =  getVolumetricModelParams(nh, ns_prefix);
 
     //---------------- Visual Classifier Parameters
-    nh.param<int>(ns + "/visual_top",
-                    params.visual_top, 0);
-    nh.param<int>(ns + "/visual_left",
-                    params.visual_left, 0);
-    nh.param<int>(ns + "/visual_height",
-                    params.visual_height, 0);
-    nh.param<int>(ns + "/visual_width",
-                    params.visual_width, 0);
+    nh.param<int>(ns + "/visual_x1",
+                    params.visual_x1, 0);
+    nh.param<int>(ns + "/visual_x2",
+                    params.visual_x2, 0);
+    nh.param<int>(ns + "/visual_y1",
+                    params.visual_y1, 0);
+    nh.param<int>(ns + "/visual_y2",
+                    params.visual_y2, 0);
 
     // callibration parameters for the service
     std::vector<double> K_C_vec(9, 0.);

@@ -17,8 +17,18 @@ namespace classifier {
 static std::unique_ptr<BaseClassifier> createClassifier(
     const ClassifierParams &params) {
     std::unique_ptr<BaseClassifier> classifier_worker;
-    classifier_worker =
-        std::unique_ptr<BaseClassifier>(new ISMClassifier(params));
+    if (params.classifier_type == "implicit_shape_model")
+    {
+        classifier_worker =
+            std::unique_ptr<BaseClassifier>(new ISMClassifier(params));
+        std::cout << "Classifier type: " << "implicit_shape_model" << std::endl;
+    } 
+    else if (params.classifier_type == "visual_classifier")
+    {
+        classifier_worker =
+            std::unique_ptr<BaseClassifier>(new VisualClassifier(params));
+        std::cout << "Classifier type: " << "visual_classifier" << std::endl;
+    }
     return classifier_worker;
 }
 

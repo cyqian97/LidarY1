@@ -5,6 +5,7 @@ detect: {
   sub_pc_queue_size: 1,
 
   pub_pcs_segmented_topic: "/segment/clouds_segmented",
+  pub_non_ground_topic: "/cepton/filtered_points",
 
   ## Important to use roi filter for "Ground remover"
   #use_roi_filter: false,

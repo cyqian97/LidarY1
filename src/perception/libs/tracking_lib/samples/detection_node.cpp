@@ -44,10 +44,14 @@ bool use_roi_filter_;
 bool use_spherical_voxel_filter;
 
 autosense::ROIParams params_roi_;
+
 // ROS Subscriber
 ros::Subscriber pointcloud_sub_;
+
 // ROS Publisher
 ros::Publisher pcs_segmented_pub_;
+ros::Publisher pcs_non_ground_pub_;
+
 /// @note Core components
 boost::shared_ptr<autosense::segmenter::BaseSegmenter> ground_remover_;
 boost::shared_ptr<autosense::segmenter::BaseSegmenter> segmenter_;
@@ -93,6 +97,8 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     *cloud_ground = *cloud_clusters[0];
     *cloud_nonground = *cloud_clusters[1];
 
+
+
     // reset clusters
     cloud_clusters.clear();
     segmenter_->segment(*cloud_nonground, cloud_clusters);
@@ -101,6 +107,16 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
 
     if (verbose) ROS_INFO_STREAM("Cloud processed. Took " << clock.takeRealTime()
                                              << "ms.\n");
+
+    // Convert to ROS data type
+    sensor_msgs::PointCloud2 output;
+    autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
+    *cloud_in = *cloud_nonground;
+    cloud_nonground->clear();
+    pcl_ros::transformPointCloud(*cloud_in,*cloud_nonground,tf_rot_y);
+    pcl::toROSMsg(*cloud_nonground, output);
+    output.header = ros_pc2->header;
+    pcs_non_ground_pub_.publish(output);
 }
 
 int main(int argc, char **argv) {
@@ -121,14 +137,18 @@ int main(int argc, char **argv) {
     /// @brief Load ROS parameters from rosparam server
     private_nh.getParam(param_ns_prefix_ + "/frame_id", frame_id_);
 
-    std::string sub_pc_topic, pub_pcs_segmented_topic;
+    std::string sub_pc_topic, pub_pcs_segmented_topic, pub_non_ground_topic;
     int sub_pc_queue_size;
     private_nh.getParam(param_ns_prefix_ + "/sub_pc_topic", sub_pc_topic);
 
     private_nh.getParam(param_ns_prefix_ + "/sub_pc_queue_size",
                         sub_pc_queue_size);
+
     private_nh.getParam(param_ns_prefix_ + "/pub_pcs_segmented_topic",
                         pub_pcs_segmented_topic);
+
+    private_nh.getParam(param_ns_prefix_ + "/pub_non_ground_topic",
+                        pub_non_ground_topic);
 
     private_nh.getParam(param_ns_prefix_ + "/inverted_lidar",
                         inverted_lidar_);
@@ -164,6 +184,9 @@ int main(int argc, char **argv) {
 
     pcs_segmented_pub_ = nh.advertise<autosense_msgs::PointCloud2Array>(
         pub_pcs_segmented_topic, 1);
+
+    pcs_non_ground_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
+        pub_non_ground_topic, 1);
 
     pointcloud_sub_ = nh.subscribe<sensor_msgs::PointCloud2>(
         sub_pc_topic, sub_pc_queue_size, OnPointCloud);
