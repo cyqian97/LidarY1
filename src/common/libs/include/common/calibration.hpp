@@ -17,7 +17,7 @@
 
 namespace autosense {
 namespace common {
-namespace callibration {
+namespace calibration {
 /**
  * @brief Project the lidar points to the camera 
  * @note

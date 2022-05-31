@@ -9,6 +9,7 @@
 
 #include "classifiers/base_classifier.hpp"
 #include "classifiers/ism_classifier.hpp"
+#include "classifiers/visual_classifier.hpp"
 
 namespace autosense {
 namespace classifier {

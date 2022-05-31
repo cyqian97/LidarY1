@@ -213,6 +213,12 @@ struct ClassifierParams {
     double ism_vote_sigma_multiplier;
     int ism_num_clusters;
 
+    // Visual classifier model parameters
+    int visual_top;
+    int visual_left;
+    int visual_height;
+    int visual_width;
+
 
     // If true, save model in model specification&timestamps name
     bool classifier_save;

@@ -2,8 +2,8 @@
  * Copyright (C) 2019 by AutoSense Organization. All rights reserved.
  * Gary Chan <chenshj35@mail2.sysu.edu.cn>
  */
-#ifndef CLASSIFIERS_INCLUDE_CLASSIFIERS_EUCLIDEAN_CLASSIFIER_HPP_
-#define CLASSIFIERS_INCLUDE_CLASSIFIERS_EUCLIDEAN_CLASSIFIER_HPP_
+#ifndef CLASSIFIERS_INCLUDE_CLASSIFIERS_ISM_CLASSIFIER_HPP_
+#define CLASSIFIERS_INCLUDE_CLASSIFIERS_ISM_CLASSIFIER_HPP_
 
 #include <ros/ros.h>
 #include <string>
@@ -68,4 +68,4 @@ class ISMClassifier : public BaseClassifier {
 }  // namespace ISMClassifier
 }  // namespace autosense
 
-#endif  // CLASSIFIERS_INCLUDE_CLASSIFIERS_EUCLIDEAN_CLASSIFIER_HPP_
+#endif  // CLASSIFIERS_INCLUDE_CLASSIFIERS_ISM_CLASSIFIER_HPP_

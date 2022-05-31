@@ -36,6 +36,8 @@
   <depend>object_builders_lib</depend>
   <depend>common_lib</depend>
   <depend>roi_filters_lib</depend>
+  <depend>darknet_ros_msgs</depend>
+  <!-- <depend>perception_msgs</depend> -->
   <!--   Note that this is equivalent to the following: -->
   <!--   <build_depend>roscpp</build_depend> -->
   <!--   <exec_depend>roscpp</exec_depend> -->

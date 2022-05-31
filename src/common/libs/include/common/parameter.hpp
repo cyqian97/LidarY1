@@ -236,6 +236,16 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
                     params.ism_num_clusters, 5000);
     params.volumetric_params =  getVolumetricModelParams(nh, ns_prefix);
 
+    //---------------- Visual Classifier Parameters
+    nh.param<int>(ns + "/visual_top",
+                    params.visual_top, 0);
+    nh.param<int>(ns + "/visual_left",
+                    params.visual_left, 0);
+    nh.param<int>(ns + "/visual_height",
+                    params.visual_height, 0);
+    nh.param<int>(ns + "/visual_width",
+                    params.visual_width, 0);
+
     //----------------- Random Forest Classifier parameters
     nh.param<double>(ns + "/rf_threshold_to_accept_object",
                      params.rf_threshold_to_accept_object, 1.0);
