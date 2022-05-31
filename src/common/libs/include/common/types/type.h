@@ -219,6 +219,10 @@ struct ClassifierParams {
     int visual_height;
     int visual_width;
 
+    Eigen::Matrix3d visual_K_C;
+    Eigen::Matrix3d visual_R_Lidar_CameraC;
+    Eigen::Vector3d visual_t_Lidar_CameraC;
+    std::vector<double> visual_D_C;//(4, 0.0);
 
     // If true, save model in model specification&timestamps name
     bool classifier_save;

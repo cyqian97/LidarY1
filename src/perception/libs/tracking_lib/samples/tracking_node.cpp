@@ -54,12 +54,12 @@ autosense::TrackingWorkerParams tracking_params_;
 autosense::ClassifierParams classifier_params_;
 
 //ROS service
-ros::ServiceServer srv_pos3d;
+// ros::ServiceServer srv_pos3d;
 std::shared_ptr<std::vector<autosense::PointICloudPtr>> non_ground_copy = nullptr;
-Eigen::Matrix3d K_C;
-Eigen::Matrix3d R_Lidar_CameraC;
-Eigen::Vector3d t_Lidar_CameraC;
-std::vector<double> D_C(4, 0.);
+// Eigen::Matrix3d K_C;
+// Eigen::Matrix3d R_Lidar_CameraC;
+// Eigen::Vector3d t_Lidar_CameraC;
+// std::vector<double> D_C(4, 0.);
 
 // Eigen::MatrixXd K_C;
 // Eigen::MatrixXd R_Lidar_CameraC;
@@ -320,26 +320,26 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
     //         ROS_INFO_STREAM("\t res rows: " << res.rows());    
     //     }
         
-    }
+    // }
 
 }
 
 
-bool srv_pos3d_func(perception_msgs::pos3d::Request &req,
-    perception_msgs::pos3d::Response &res)
-{
+// bool srv_pos3d_func(perception_msgs::pos3d::Request &req,
+//     perception_msgs::pos3d::Response &res)
+// {
     
-    autosense::PointICloudPtr cloud_combined(new autosense::PointICloud);
-    for(const auto& cloud: *non_ground_copy) *cloud_combined += *cloud;
-    auto m = cloud_combined->getMatrixXfMap(3,4,0);
+//     autosense::PointICloudPtr cloud_combined(new autosense::PointICloud);
+//     for(const auto& cloud: *non_ground_copy) *cloud_combined += *cloud;
+//     auto m = cloud_combined->getMatrixXfMap(3,4,0);
 
 
 
-    res.lat = 0.0;
-    res.lon = 1.0;
-    res.height = 2.0;
-    return true;
-}
+//     res.lat = 0.0;
+//     res.lon = 1.0;
+//     res.height = 2.0;
+//     return true;
+// }
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "tracking_node");
@@ -423,26 +423,23 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/verbose", verbose);
 
     // callibration parameters for the service
-    std::vector<double> K_C_vec(9, 0.);
-    private_nh.getParam("callibration/K_C",K_C_vec);
-    K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
-    // K_C = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    // std::vector<double> K_C_vec(9, 0.);
+    // private_nh.getParam("callibration/K_C",K_C_vec);
+    // K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
     
-    std::vector<double> R_Lidar_CameraC_vec(9, 0.);
-    private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
-    R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
-    // R_Lidar_CameraC = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
-
-    std::vector<double> t_Lidar_CameraC_vec(3, 0.);
-    private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
-    t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
-    // t_Lidar_CameraC = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
-    // std::cout << "t_Lidar_CameraC\n" << t_Lidar_CameraC << std::endl;
+    // std::vector<double> R_Lidar_CameraC_vec(9, 0.);
+    // private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
+    // R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    
+    // std::vector<double> t_Lidar_CameraC_vec(3, 0.);
+    // private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
+    // t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
+    // // std::cout << "t_Lidar_CameraC\n" << t_Lidar_CameraC << std::endl;
 
 
-    // std::vector<double> D_C(4, 0.);
-    private_nh.getParam("callibration/t_Lidar_CameraC",D_C);
-    // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
+    // // std::vector<double> D_C(4, 0.);
+    // private_nh.getParam("callibration/t_Lidar_CameraC",D_C);
+    // // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
 
 
     tracking_params_ =
@@ -451,7 +448,7 @@ int main(int argc, char **argv) {
 
     classifier_params_ = 
         autosense::common::getClassfierParams(private_nh,"classifier");
-    // ROS_INFO_STREAM("Classifier type: " << classifier_params_.classifier_type);
+    // ROS_INFO_STREAM("Classifier K_C: " << classifier_params_.visual_K_C);
     // std::cout << "[ped, car, deer]: " << classifier_params_.volumetric_params.use_car_model << ", " << classifier_params_.volumetric_params.use_human_model << ", " << classifier_params_.volumetric_params.use_deer_model << std::endl;
 
     // Init core compoments
@@ -478,7 +475,7 @@ int main(int argc, char **argv) {
     classifier_worker_->verbose = true;
 
     // Init service
-    srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);
+    // srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);
     
     // Init subscribers and publishers
     pcs_segmented_sub_ = nh.subscribe<autosense_msgs::PointCloud2Array>(

@@ -76,8 +76,12 @@ void VisualClassifier::classify(const ObjectPtr &object,
 
             auto _x = object->cloud->getMatrixXfMap(3,4,0);
             Eigen::MatrixXd x = _x.cast <double> ();
-            // Eigen::MatrixXd res = autosense::common::calibration::proj(
-                // K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+            Eigen::MatrixXd res = autosense::common::calibration::proj(
+                params_.visual_K_C, params_.visual_R_Lidar_CameraC,
+                params_.visual_t_Lidar_CameraC, params_.visual_D_C,
+                x);
+            
+            
             
 
         }

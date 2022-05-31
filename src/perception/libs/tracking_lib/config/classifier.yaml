@@ -1,7 +1,7 @@
 classifier: {
 
   Classifier:{
-  classifier_type: "implicit_shape_model",
+  classifier_type: "implicit_shape_model", # "visual_classifier",
   classifier_model_path: "/../classifiers/model_files/trained_ism_model_car_ped.txt",
 
 
@@ -17,6 +17,12 @@ classifier: {
   ism_vote_radius_multiplier: 1.0,
   ism_vote_sigma_multiplier: 10.0,
   ism_num_clusters: 500, 
+
+  # Visual classifier parameters
+  visual_top: 0,
+  visual_left: 0,
+  visual_height: 2000,
+  visual_width: 4000,
 
   },
 
