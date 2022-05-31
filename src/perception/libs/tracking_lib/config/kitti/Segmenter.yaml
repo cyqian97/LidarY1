@@ -30,23 +30,28 @@ detect: {
     gpf_sensor_height: 1.5,
     # fitting multiple planes, at most 6 segments
     ## default: 1
-    gpf_num_segment: 3,
+    gpf_num_segment: 6,
     #gpf_num_segment: 3,
+
     # number of iterations
     #gpf_num_iter: 3,
-    gpf_num_iter: 100,
+    gpf_num_iter: 2,
+
     ## number of points used to estimate the lowest point representative(LPR)
-    # double of senser model???
+    ## Ground planes are expanded for these points
     #gpf_num_lpr: 20,
-    gpf_num_lpr: 100,
+    gpf_num_lpr: 20,
     #gpf_num_lpr: 1280,
+
+    # Points who z < - (gpf_sensor_height+gpf_th_lprs) are not considered in height_average
     gpf_th_lprs: 0.0,
+
     # threshold for points to be considered initial seeds
     gpf_th_seeds: 0.5,
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
-    gpf_th_gnds: 0.15,
+    gpf_th_gnds: 0.25,
 
     ### Ground RANSAC Segmenter
     # 0.3 for better perforamce

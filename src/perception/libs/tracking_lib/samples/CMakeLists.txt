@@ -39,6 +39,10 @@ find_package(PCL 1.8 REQUIRED COMPONENTS
 add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
 
+### OpenCV
+find_package(OpenCV)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 ###########
 ## Build ##
 ###########
@@ -78,6 +82,7 @@ target_link_libraries(${PROJECT_NAME}_gpf_node
 target_link_libraries(${PROJECT_NAME}_tracking_node
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
+    ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}_tracking_compare_node

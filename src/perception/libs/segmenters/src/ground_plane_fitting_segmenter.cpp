@@ -42,6 +42,7 @@ void GroundPlaneFittingSegmenter::extractInitialSeeds(
     int cnt_lpr = 0;
     double height_average = 0.;
     // filter negative obstacles
+    // Points who z < - (gpf_sensor_height+gpf_th_lprs) are not considered in height_average
     bool negative = true;
     for (size_t pt = 0u; pt < points.size() && cnt_lpr < params_.gpf_num_lpr;
          ++pt) {

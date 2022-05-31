@@ -9,10 +9,10 @@
 #include <memory>
 #include <Eigen/Core>
 
-#include "opencv2/opencv.hpp"
-#include "opencv2/core/eigen.hpp"
-#include "opencv2/calib3d.hpp"
-#include "opencv2/core/mat.hpp"
+// #include "opencv2/opencv.hpp"
+// #include "opencv2/core/eigen.hpp"
+// #include "opencv2/calib3d.hpp"
+// #include "opencv2/core/mat.hpp"
 
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
@@ -86,6 +86,7 @@ ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
 ros::Publisher lidar_camera_pub_;
+ros::Publisher pcs_distort_pub_;
 autosense::common::IdPubManager<autosense::IdPubType>* id_pub_publisher_ = nullptr;
 
 /// @note Core components
@@ -96,6 +97,8 @@ std::unique_ptr<autosense::tracking::BaseTrackingWorker> tracking_worker_ =
 std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
     nullptr;
 
+
+std_msgs::Header hd;
 // TODO(chenshengjie): callback function as fast as possible
 void OnSegmentClouds(
     const autosense_msgs::PointCloud2ArrayConstPtr &segments_msg) {
@@ -103,7 +106,7 @@ void OnSegmentClouds(
     const double kTimeStamp = segments_msg->header.stamp.toSec();
     if (verbose) ROS_INFO("Clusters size: %d at %lf.", segments_msg->clouds.size(),
              kTimeStamp);
-
+    hd = segments_msg->header;
     std_msgs::Header header;
     header.frame_id = local_frame_id_;
     header.stamp = segments_msg->header.stamp;
@@ -271,37 +274,53 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
 {
     theta = gps_msg->theta;
     if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
-    // if (nullptr != non_ground_copy) 
-    // {
-    //     if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
+    if (nullptr != non_ground_copy) 
+    {
+        if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
 
-    //     autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
-    //     autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
+        autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
+        autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
 
-    //     for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
-    //     pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
+        for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
+        pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
 
-    //     auto m1 = cloud_combined->getMatrixXfMap(3,4,0);
-    //     auto m2 = m1.topLeftCorner(3,2);
+        auto m = cloud_combined->getMatrixXfMap(3,4,0);
+        Eigen::MatrixXd x = m.cast <double> ();
 
-    //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-    //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-    //     Eigen::MatrixXd x = m2.cast <double> ();
-    //     if(verbose)
-    //     {
-    //         ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-    //         ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-    //     }
-        
-    //     // Eigen::MatrixXd res = autosense::common::callibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+        // auto m2 = m1.topLeftCorner(3,2);
 
+        // ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+        // ROS_INFO_STREAM("\t mat rows: " << m2.rows());
+        // Eigen::MatrixXd x = m2.cast <double> ();
         // if(verbose)
         // {
-        //     ROS_INFO_STREAM("\t res cols: " << res.cols());
-        //     ROS_INFO_STREAM("\t res rows: " << res.rows());    
+        //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+        //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
         // }
         
-    // }
+        Eigen::MatrixXd res = autosense::common::callibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+
+        autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
+
+        for(int i; i < res.cols(); ++i)
+        {
+            autosense::Point p(double(res(1,i)),double(res(2,i)),0.0);
+            cloud_distort->points.push_back(p);
+        }
+
+        sensor_msgs::PointCloud2 output;
+        pcl::toROSMsg(*cloud_distort, output);
+        output.header = hd;
+        pcs_distort_pub_.publish(output);
+
+
+        if(verbose)
+        {
+            ROS_INFO_STREAM("\t res cols: " << res.cols());
+            ROS_INFO_STREAM("\t res rows: " << res.rows());    
+        }
+        
+    }
 
 }
 
@@ -509,6 +528,9 @@ int main(int argc, char **argv) {
     id_pub_publisher_ = 
         autosense::common::IdPubManager<autosense::IdPubType>::instantiate(
             pub_lidar_camera_id_start_, pub_lidar_camera_id_num_);
+
+    pcs_distort_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
+        "/cepton/distort", 1);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

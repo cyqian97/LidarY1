@@ -38,6 +38,11 @@ link_directories(${PCL_LIBRARY_DIRS})
 ### Eigen
 find_package(Eigen3 REQUIRED)
 
+### OpenCV
+
+find_package(OpenCV)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -86,6 +91,7 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
     ${Eigen3_LIBRARIES}
+    ${OpenCV_LIBRARIES}
 )
 
 #############

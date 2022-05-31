@@ -44,7 +44,6 @@ find_package(Eigen3 REQUIRED)
 ### OpenCV
 find_package(OpenCV)
 include_directories(${OpenCV_INCLUDE_DIRS})
-# target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES})
 
 ###################################
 ## catkin specific configuration ##
