@@ -91,6 +91,10 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
 
     // Convert to ROS data type
     sensor_msgs::PointCloud2 output;
+    autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
+    *cloud_in = *cloud_nonground;
+    cloud_nonground->clear();
+    pcl_ros::transformPointCloud(*cloud_in,*cloud_nonground,tf_rot_y);
     pcl::toROSMsg(*cloud_nonground, output);
     output.header = ros_pc2->header;
     pcs_segmented_pub_.publish(output);
