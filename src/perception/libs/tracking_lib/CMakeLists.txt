@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
     # ROS messages
     geometry_msgs
     # 3rd modules for ROS, like Eigen
-    cv_bridge
+    # cv_bridge
     cmake_modules
     # local packages
     common_lib

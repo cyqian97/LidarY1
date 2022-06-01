@@ -72,11 +72,13 @@ add_executable(${PROJECT_NAME}_tracking_compare_node
 target_link_libraries(${PROJECT_NAME}_detection_node
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
+    # ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}_gpf_node
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
+    # ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}_tracking_node
@@ -88,6 +90,7 @@ target_link_libraries(${PROJECT_NAME}_tracking_node
 target_link_libraries(${PROJECT_NAME}_tracking_compare_node
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}
+    # ${OpenCV_LIBRARIES}
 )
 
 #############

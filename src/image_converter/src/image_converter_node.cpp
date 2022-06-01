@@ -5,8 +5,13 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <boost/foreach.hpp>
+#include <pcl_ros/point_cloud.h>
+#include <pcl/point_types.h>
 
 static const std::string OPENCV_WINDOW = "Image window";
+ros::Subscriber pc2_sub;
+// typedef const boost::function< void(const sensor_msgs::PointCloud2 &)>  callback;
 
 class ImageConverter
 {
@@ -14,8 +19,11 @@ class ImageConverter
   image_transport::ImageTransport it_;
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
 
 public:
+
+
   ImageConverter()
     : it_(nh_)
   {
@@ -24,6 +32,7 @@ public:
       &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
+
     cv::namedWindow(OPENCV_WINDOW);
   }
 
@@ -31,6 +40,15 @@ public:
   {
     cv::destroyWindow(OPENCV_WINDOW);
   }
+
+  void onPC2(const sensor_msgs::PointCloud2Ptr& msg)
+  {
+    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr _cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromROSMsg(*msg, *_cloud);
+    cloud = _cloud;
+  }
+
 
   void imageCb(const sensor_msgs::ImageConstPtr& msg)
   {
@@ -46,10 +64,18 @@ public:
     }
 
     // Draw an example circle on the video stream
+
+    // for(const pcl::PointXYZ& pt: cloud->points)
+    if(cloud != nullptr)
+      for(const pcl::PointXYZ& pt: cloud->points)
+        cv::circle(cv_ptr->image, cv::Point(pt.y,pt.x), 2, CV_RGB(255,0,0));
+    //   printf ("\t(%f, %f, %f)\n", pt.x, pt.y, pt.z);
     if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
-      cv::circle(cv_ptr->image, cv::Point(50, 50), 1, CV_RGB(255,0,0));
+      cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
 
     // Update GUI Window
+
+    cv::resize(cv_ptr->image, cv_ptr->image, cv::Size(), 0.5, 0.5);
     cv::imshow(OPENCV_WINDOW, cv_ptr->image);
     cv::waitKey(3);
 
@@ -61,7 +87,10 @@ public:
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "image_converter");
+  ros::NodeHandle nh = ros::NodeHandle();
   ImageConverter ic;
+  pc2_sub = nh.subscribe("/cepton/distort", 1, &ImageConverter::onPC2, &ic);
+  
   ros::spin();
   return 0;
 }

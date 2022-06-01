@@ -26,17 +26,33 @@ namespace calibration {
  * @return
  */
 static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& t, std::vector<double> D_C,
-                    const Eigen::MatrixXd& x) {
+                    const Eigen::MatrixXd& x) {//const Eigen::MatrixXd& x)
+    // Eigen::MatrixXd x(3,2);
+    // x <<-4, 3,
+    //     16, 20,
+    //     -2, 1;
+
     // std::cout << "K: \n" << K << std::endl;
     // std::cout << "R: \n" << R << std::endl;
     // std::cout << "t: \n" << t << std::endl; 
+    // std::cout << "D: \n";
+
+    // for(const auto& d: D_C)
+    //     std::cout << d << "\t";
+    // std::cout << std::endl;
+
     // std::cout << "x: \n" << x << std::endl; 
 
     Eigen::MatrixXd points_undistorted = (K.inverse()*(((K*((R*x).colwise()+t)).colwise().hnormalized()).colwise().homogeneous())).topRows(2);
 
     std::vector<cv::Point2d> points_undistorted_cv(points_undistorted.cols());
     for (int i = 0; i < points_undistorted.cols(); i++)
-        points_undistorted_cv[i] = cv::Point2d(points_undistorted(1,i),points_undistorted(2,i));
+        points_undistorted_cv[i] = cv::Point2d(points_undistorted(0,i),points_undistorted(1,i));
+
+    
+    // std::cout << "points_undistorted: \n" << (((K*((R*x).colwise()+t)).colwise().hnormalized()).colwise().homogeneous()) << std::endl; 
+    // std::cout << "points_undistorted : \n" << points_undistorted << std::endl; 
+    // std::cout << "points_undistorted_cv: \n" << points_undistorted_cv << std::endl; 
         
     std::vector<cv::Point2d> points_distorted_cv;
 
@@ -44,6 +60,9 @@ static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, 
     cv::eigen2cv(K,K_mat);
 
     cv::Mat D_C_cv(4,1,CV_64F,D_C.data());
+
+    // std::cout << "K_mat: \n" << K_mat << std::endl;
+    // std::cout << "D_C_cv: \n" << D_C_cv << std::endl;
 
     
 
@@ -55,17 +74,19 @@ static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, 
 
     // std::cout << "Distort complete" << std::endl;
 
-    Eigen::MatrixXd points_undistort(2,points_undistorted.cols());
+    Eigen::MatrixXd points_distorted(2,points_undistorted.cols());
 
     for (int i = 0; i < points_undistorted.cols(); i++)
     {
-        points_undistort(1,i) = points_distorted_cv[i].x;
-        points_undistort(2,i) = points_distorted_cv[i].y;
+        points_distorted(0,i) = points_distorted_cv[i].x;
+        points_distorted(1,i) = points_distorted_cv[i].y;
     }
 
+
+    // std::cout << "points_distorted: \n" << points_distorted << std::endl; 
     // cv::cv2eigen(dstp,r);
     
-    return points_undistort;
+    return points_distorted;
 }
 }  // namespace callibration
 }  // namespace common
