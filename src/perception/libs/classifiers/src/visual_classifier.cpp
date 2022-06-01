@@ -43,6 +43,8 @@ void VisualClassifier::classify(const ObjectPtr &object)
     
     if(!object->size_conjectures.empty())
     {   
+        // Check is the size fits a traffic blockage
+        // Traffic blockage does not go into further classification
         bool _find_traffic_blockage = false;
         if (!_find_traffic_blockage) 
         {
@@ -65,6 +67,9 @@ void VisualClassifier::classify(const ObjectPtr &object)
             }
         }
         
+        // type_now = object->size_conjectures[0];
+
+        // Visaul classification
         if (!_find_traffic_blockage) 
         {
             if(verbose)
@@ -74,16 +79,54 @@ void VisualClassifier::classify(const ObjectPtr &object)
                 std::cout << "\n";
             }
 
-            // auto _x = object->cloud->getMatrixXfMap(3,4,0);
-            // Eigen::MatrixXd x = _x.cast <double> ();
-            // Eigen::MatrixXd res = autosense::common::calibration::proj(
-            //     params_.visual_K_C, params_.visual_R_Lidar_CameraC,
-            //     params_.visual_t_Lidar_CameraC, params_.visual_D_C,
-            //     x);
+            auto _x = object->cloud->getMatrixXfMap(3,4,0);
+            Eigen::MatrixXd x = _x.cast <double> ();
+            Eigen::MatrixXd res = autosense::common::calibration::proj(
+                params_.visual_K_C, params_.visual_R_Lidar_CameraC,
+                params_.visual_t_Lidar_CameraC, params_.visual_D_C,
+                x);
             
-
-            
-
+            for(int i = 0; i < res.cols(); i++)
+            {
+                // Check if point is inside the cropped image
+                if( res(1,i) < params_.visual_x1 || res(1,i) > params_.visual_x2 ||
+                    res(2,i) < params_.visual_y1 || res(2,i) < params_.visual_y2)
+                    continue;
+                if (bboxes != nullptr)
+                {
+                    std::map<std::string,int> _classes_counts;
+                    std::map<std::string,int>::iterator _it_classes_counts;
+                    int _current_max_count = 0;
+                    std::string _current_max_class;
+                    for(const auto& bbox: bboxes->bounding_boxes)
+                    {
+                        if( res(1,i) > bbox.xmin || res(1,i) < bbox.xmax ||
+                            res(2,i) > bbox.ymin || res(2,i) < bbox.ymax)
+                        {
+                            _it_classes_counts = _classes_counts.find(bbox.Class);
+                            if (_it_classes_counts == _classes_counts.end())
+                            {
+                                _classes_counts.insert(std::make_pair(bbox.Class,1));
+                            }
+                            else
+                            {
+                                _it_classes_counts->second++;
+                            }
+                            if (_it_classes_counts->second > _current_max_count)
+                            {
+                                _current_max_count = _it_classes_counts->second;
+                                _current_max_class = _it_classes_counts->first;
+                            }
+                        }
+                    }
+                    if( _current_max_count > 0.5 * res.cols())
+                    {
+                        std::map<std::string,ObjectType>::iterator _it_coco_class_map_
+                            = coco_class_map_.find(_current_max_class);
+                        if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
+                    }
+                }
+            }
         }
     }
 
