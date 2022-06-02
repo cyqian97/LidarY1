@@ -26,11 +26,14 @@ namespace calibration {
  * @return
  */
 static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& t, std::vector<double> D_C,
-                    const Eigen::MatrixXd& x) {//const Eigen::MatrixXd& x)
-    // Eigen::MatrixXd x(3,2);
-    // x <<-4, 3,
-    //     16, 20,
-    //     -2, 1;
+                    const Eigen::MatrixXd& x, const bool invert_lidar =  true) {//const Eigen::MatrixXd& x)
+
+    // Lidar is mounted inverted.
+    Eigen::Matrix3d rot_y;
+    rot_y <<    -1.0, 0.0, 0.0,
+                0.0, 1.0, 0.0,
+                0.0, 0.0, -1.0;
+
 
     // std::cout << "K: \n" << K << std::endl;
     // std::cout << "R: \n" << R << std::endl;
@@ -42,8 +45,15 @@ static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, 
     // std::cout << std::endl;
 
     // std::cout << "x: \n" << x << std::endl; 
-
-    Eigen::MatrixXd points_undistorted = (K.inverse()*(((K*((R*x).colwise()+t)).colwise().hnormalized()).colwise().homogeneous())).topRows(2);
+    Eigen::MatrixXd points_undistorted;
+    if(invert_lidar)
+    {
+        points_undistorted = (K.inverse()*(((K*((R*rot_y*x).colwise()+t)).colwise().hnormalized()).colwise().homogeneous())).topRows(2);
+    }
+    else
+    {
+        points_undistorted = (K.inverse()*(((K*((R*x).colwise()+t)).colwise().hnormalized()).colwise().homogeneous())).topRows(2);
+    }
 
     std::vector<cv::Point2d> points_undistorted_cv(points_undistorted.cols());
     for (int i = 0; i < points_undistorted.cols(); i++)

@@ -95,8 +95,9 @@ ros::Publisher lidar_camera_pub_;
 
 autosense::common::IdPubManager<autosense::IdPubType>* id_pub_publisher_ = nullptr;
 
+// For projection demonstration only
 ros::Publisher pcs_distort_pub_;
-tf::Transform tf_rot_y;
+// tf::Transform tf_rot_y;
 
 /// @note Core components
 std::unique_ptr<autosense::object_builder::BaseObjectBuilder> object_builder_ =
@@ -129,7 +130,8 @@ void OnSegmentClouds(
         segment_clouds.push_back(cloud);
     }
     non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
-    
+
+    // For projection demonstration only
     if (nullptr != non_ground_copy) 
     {
         if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
@@ -140,12 +142,10 @@ void OnSegmentClouds(
         for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
         pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
 
-
-
-        autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
-        *cloud_in = *cloud_combined;
-        cloud_combined->clear();
-        pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
+        // autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
+        // *cloud_in = *cloud_combined;
+        // cloud_combined->clear();
+        // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
 
         auto m = cloud_combined->getMatrixXfMap(3,4,0);
 
@@ -381,10 +381,11 @@ int main(int argc, char **argv) {
     ros::NodeHandle private_nh = ros::NodeHandle("~");
     ros::AsyncSpinner spiner(1);
 
-    tf_rot_y.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-    tf::Quaternion q;
-    q.setRPY(0, 3.14159265 , 0);
-    tf_rot_y.setRotation(q);
+    // For projection demonstration only
+    // tf_rot_y.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
+    // tf::Quaternion q;
+    // q.setRPY(0, 3.14159265 , 0);
+    // tf_rot_y.setRotation(q);
 
     // Load ROS parameters from rosparam server
     private_nh.getParam(param_ns_prefix_ + "/local_frame_id", local_frame_id_);
@@ -565,6 +566,7 @@ int main(int argc, char **argv) {
         autosense::common::IdPubManager<autosense::IdPubType>::instantiate(
             pub_lidar_camera_id_start_, pub_lidar_camera_id_num_);
 
+    // For projection demonstration only
     pcs_distort_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
         "/cepton/distort", 1);
 
