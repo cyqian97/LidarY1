@@ -8,34 +8,29 @@ VisualClassifier::VisualClassifier() {}
 
 VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(params)
 {
-
-    // normal_estimator_.setRadiusSearch (params_.ism_normal_estimator_radius);
-
-    
-    // pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr _temp_fpfh
-    //     (new pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >);
-    // fpfh_ = _temp_fpfh;
-    ROS_INFO_STREAM("Classifier type: " << params_.classifier_type);
-    // ROS_INFO_STREAM("ism_vote_sigma_multiplier: " << params_.ism_vote_sigma_multiplier);
-    // ROS_INFO_STREAM("ism_fpfh_radius: " << params_.ism_fpfh_radius);
-    // fpfh_->setRadiusSearch (params_.ism_fpfh_radius);
-
-    // ism_.setFeatureEstimator(fpfh_);
-    // ism_.setSamplingSize (params_.ism_sampling_size);  
-    // ism_.setNumberOfClusters(params_.ism_num_clusters);
-
-    // // model_  = new pcl::features::ISMModel;
-
-    // pcl::ism::ImplicitShapeModelEstimation<125, pcl::PointXYZ, pcl::Normal>::ISMModelPtr _temp_model (new pcl::features::ISMModel);
-    // model_=_temp_model;
-    // ROS_INFO_STREAM("Model path: " << params_.classifier_model_path);
-    // model_->loadModelFromfile (params_.classifier_model_path);
-    // ROS_INFO_STREAM( "Model class number: " << model_->classes_.size());
-
-    // std::cout << "[ped, car, deer]: " << params_.volumetric_params.use_car_model << ", " << params_.volumetric_params.use_human_model << ", " << params_.volumetric_params.use_deer_model << std::endl;
+    sub_bboxes_ = nh_.subscribe("/darknet_ros/bounding_boxes", 1, 
+        &VisualClassifier::updateBBoxes, this);
 }
 
 VisualClassifier::~VisualClassifier() {}
+
+void VisualClassifier::updateBBoxes(
+      const boost::shared_ptr<const darknet_ros_msgs::BoundingBoxes> bboxes_msg) 
+{ 
+    std::vector<darknet_ros_msgs::BoundingBox> _bboxes;
+
+    std::map<std::string,ObjectType>::iterator _it_coco_class_map_;
+
+    for(const auto& bbox: bboxes_msg->bounding_boxes)
+    {
+        _it_coco_class_map_ = coco_class_map_.find(bbox.Class);
+        if(_it_coco_class_map_ != coco_class_map_.end()) _bboxes.push_back(bbox);
+    }
+
+    bboxes = boost::make_shared<std::vector<darknet_ros_msgs::BoundingBox>>(_bboxes);
+
+    ROS_INFO_STREAM("Get " << bboxes->size() << " bboxes.");
+}
 
 void VisualClassifier::classify(const ObjectPtr &object)
 {
@@ -43,6 +38,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
     
     if(!object->size_conjectures.empty())
     {   
+        ROS_INFO_STREAM("Enter classify");
         // Check is the size fits a traffic blockage
         // Traffic blockage does not go into further classification
         bool _find_traffic_blockage = false;
@@ -79,13 +75,19 @@ void VisualClassifier::classify(const ObjectPtr &object)
                 std::cout << "\n";
             }
 
+            ROS_INFO_STREAM("Start proj");
+
             auto _x = object->cloud->getMatrixXfMap(3,4,0);
             Eigen::MatrixXd x = _x.cast <double> ();
             Eigen::MatrixXd res = autosense::common::calibration::proj(
                 params_.visual_K_C, params_.visual_R_Lidar_CameraC,
                 params_.visual_t_Lidar_CameraC, params_.visual_D_C,
                 x);
-            
+                                
+            std::map<std::string,int> _classes_counts;
+            std::map<std::string,int>::iterator _it_classes_counts;
+            int _current_max_count = 0;
+            std::string _current_max_class;
             for(int i = 0; i < res.cols(); i++)
             {
                 // Check if point is inside the cropped image
@@ -94,11 +96,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
                     continue;
                 if (bboxes != nullptr)
                 {
-                    std::map<std::string,int> _classes_counts;
-                    std::map<std::string,int>::iterator _it_classes_counts;
-                    int _current_max_count = 0;
-                    std::string _current_max_class;
-                    for(const auto& bbox: bboxes->bounding_boxes)
+                    for(const auto& bbox: *bboxes)
                     {
                         if( res(1,i) > bbox.xmin || res(1,i) < bbox.xmax ||
                             res(2,i) > bbox.ymin || res(2,i) < bbox.ymax)
@@ -119,13 +117,17 @@ void VisualClassifier::classify(const ObjectPtr &object)
                             }
                         }
                     }
-                    if( _current_max_count > 0.5 * res.cols())
-                    {
-                        std::map<std::string,ObjectType>::iterator _it_coco_class_map_
-                            = coco_class_map_.find(_current_max_class);
-                        if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
-                    }
                 }
+            }
+            ROS_INFO_STREAM("current_max_count: " << _current_max_count);
+            ROS_INFO_STREAM("current_total_num: " << res.cols());
+            if( _current_max_count > 0.1 * res.cols())
+            {
+                std::map<std::string,ObjectType>::iterator _it_coco_class_map_
+                    = coco_class_map_.find(_current_max_class);
+                if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
+
+                ROS_INFO_STREAM("type now: " << int(type_now));
             }
         }
     }

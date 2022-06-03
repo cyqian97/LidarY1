@@ -7,7 +7,7 @@ detect: {
     roi_type: "Cylinder",
     #roi_type: "Square",
     # ROI filter needs lidar installed height
-    roi_lidar_height_m: 4.,
+    roi_lidar_height_m: 3.,
     ## Horizontal range
     #--- for "Cylinder"
     roi_radius_min_m: 0.,
@@ -17,7 +17,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 10.,
+    roi_height_above_m: 6.5,
   },
 
   Segmenter: {

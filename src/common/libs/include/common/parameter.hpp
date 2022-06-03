@@ -262,7 +262,7 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
 
 
     // std::vector<double> D_C(4, 0.);
-    nh.getParam("callibration/t_Lidar_CameraC",params.visual_D_C);
+    nh.getParam("callibration/D_C", params.visual_D_C);
     // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
 
 
