@@ -224,6 +224,10 @@ struct ClassifierParams {
     Eigen::Vector3d visual_t_Lidar_CameraC;
     std::vector<double> visual_D_C;//(4, 0.0);
 
+    // The threshold of the ratio between points within the bounding box and the total points.
+
+    double visual_thld_ratio;
+
     // If true, save model in model specification&timestamps name
     bool classifier_save;
 

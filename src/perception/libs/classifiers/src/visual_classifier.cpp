@@ -121,7 +121,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
             }
             ROS_INFO_STREAM("current_max_count: " << _current_max_count);
             ROS_INFO_STREAM("current_total_num: " << res.cols());
-            if( _current_max_count > 0.1 * res.cols())
+            if( _current_max_count > params_.visual_thld_ratio*res.cols())
             {
                 std::map<std::string,ObjectType>::iterator _it_coco_class_map_
                     = coco_class_map_.find(_current_max_class);

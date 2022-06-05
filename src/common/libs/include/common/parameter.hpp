@@ -260,11 +260,12 @@ static ClassifierParams getClassfierParams(const ros::NodeHandle& nh,
     params.visual_t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
     // std::cout << "t_Lidar_CameraC\n" << t_Lidar_CameraC << std::endl;
 
-
     // std::vector<double> D_C(4, 0.);
     nh.getParam("callibration/D_C", params.visual_D_C);
     // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
-
+    
+    nh.param<double>(ns + "/visual_thld_ratio",
+                    params.visual_thld_ratio, 0.5);    
 
     //----------------- Random Forest Classifier parameters
     nh.param<double>(ns + "/rf_threshold_to_accept_object",
