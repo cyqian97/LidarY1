@@ -56,6 +56,7 @@ std::string local_frame_id_, global_frame_id_;    // NOLINT
 int tf_timeout_ms_ = 0;
 double threshold_contian_IoU_ = 0.0;
 double pub_course_speed_limit;
+std::vector<double> offset(3,0.0);
 
 autosense::TrackingWorkerParams tracking_params_;
 autosense::ClassifierParams classifier_params_;
@@ -298,12 +299,16 @@ void OnSegmentClouds(
      */
 
     // can_bus publishers
-    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
+    std::vector<autosense::ObjectPtr> objects_care;
+    for(const auto &object: tracking_objects_velo)
+        if(object->type != autosense::NOTSURE)
+            objects_care.push_back(object);
+    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(objects_care);
     autosense::common::publishObjectsTrackerID(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
         objects_id_pub_);
     autosense::common::publishLidarCameraObjects(
-        lidar_camera_pub_, header, theta, pub_course_speed_limit, objects_id_pub_);
+        lidar_camera_pub_, header, theta, pub_course_speed_limit, offset, objects_id_pub_);
 
     const std::vector<autosense::ObjectPtr> &tracking_objects_world =
         tracking_worker_->collectTrackingObjectsInWorld();
@@ -322,7 +327,7 @@ void OnSegmentClouds(
         tracking_objects_trajectory_pub_, header, pose.inverse(), trajectories);
     autosense::common::publishObjectsMarkers(tracking_objects_pub_, header,
                                              autosense::common::DARKBLUE.rgbA,
-                                             tracking_objects_velo);
+                                             objects_id_pub_);
     // construct tracking-help segmentation results
     std::vector<autosense::PointICloudPtr> objects_cloud;
     for (size_t idx = 0u; idx < tracking_objects_velo.size(); ++idx) {
@@ -442,12 +447,13 @@ int main(int argc, char **argv) {
                              threshold_contian_IoU_, 1.0);
 
     // Publish settings for the Autodrive challenge
-    std::string pub_lidar_camera_topic_, srv_lidar_camera_name;
+    std::string pub_lidar_camera_topic_; //, srv_lidar_camera_name;
     private_nh.getParam(
         param_ns_prefix_ + "/pub_lidar_camera_topic_",
         pub_lidar_camera_topic_);
     private_nh.getParam(param_ns_prefix_ + "/pub_course_speed_limit", pub_course_speed_limit);
-    private_nh.getParam(param_ns_prefix_ + "/srv_lidar_camera_name", srv_lidar_camera_name);
+    private_nh.getParam(param_ns_prefix_ + "/offset", offset);
+    // private_nh.getParam(param_ns_prefix_ + "/srv_lidar_camera_name", srv_lidar_camera_name);
     
     int pub_lidar_camera_id_start_;
     int pub_lidar_camera_id_num_;

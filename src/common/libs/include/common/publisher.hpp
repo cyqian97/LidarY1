@@ -927,6 +927,7 @@ static void publishLidarCameraObjects(
     const std_msgs::Header &header, 
     const double theta,
     const double min_speed,
+    const std::vector<double> offset,
     const std::vector<ObjectPtr> &objects_array)
 {
     perception_msgs::Lidar_camera_objects* objects_msg(
@@ -955,8 +956,8 @@ static void publishLidarCameraObjects(
 
         object_msg.id = object->tracker_id;
         
-        object_msg.lat = center(0);
-        object_msg.lon = center(1);
+        object_msg.lat = center(0)-offset[0];
+        object_msg.lon = center(1)-offset[1];
         object_msg.abs_speed = velocity.norm();
         object_msg.lat_speed = velocity(0);
         object_msg.lon_speed = velocity(1);

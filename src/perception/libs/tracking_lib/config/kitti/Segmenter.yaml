@@ -1,5 +1,5 @@
 detect: {
-  roi: {
+    roi: {
     ## ROI range
     # type: true, float, float, float
     # default: 60.0,999.0,999.0 in SegMatch
