@@ -65,10 +65,11 @@ autosense::ClassifierParams classifier_params_;
 // std::shared_ptr<std::vector<autosense::PointICloudPtr>> non_ground_copy = nullptr;
 
 // For projection demonstration and service
-// Eigen::Matrix3d K_C;
-// Eigen::Matrix3d R_Lidar_CameraC;
-// Eigen::Vector3d t_Lidar_CameraC;
-// std::vector<double> D_C(4, 0.);
+Eigen::Matrix3d K_C;
+Eigen::Matrix3d R_Lidar_CameraC;
+Eigen::Vector3d t_Lidar_CameraC;
+std::vector<double> D_C(4, 0.);
+std::shared_ptr<std::vector<autosense::PointICloudPtr>> non_ground_copy = nullptr;
 
 
 // ROS Subscriber
@@ -98,7 +99,7 @@ ros::Publisher lidar_camera_pub_;
 autosense::common::IdPubManager<autosense::IdPubType>* id_pub_publisher_ = nullptr;
 
 // For projection demonstration only
-// ros::Publisher pcs_distort_pub_;
+ros::Publisher pcs_distort_pub_;
 // tf::Transform tf_rot_y;
 
 /// @note Core components
@@ -114,7 +115,6 @@ std_msgs::Header hd;
 // TODO(chenshengjie): callback function as fast as possible
 void OnSegmentClouds(
     const autosense_msgs::PointCloud2ArrayConstPtr &segments_msg) {
-    // non_ground_copy = std::make_shared<autosense_msgs::PointCloud2Array>(*segments_msg);
     const double kTimeStamp = segments_msg->header.stamp.toSec();
     if (verbose) ROS_INFO("Clusters size: %d at %lf.", segments_msg->clouds.size(),
              kTimeStamp);
@@ -131,64 +131,64 @@ void OnSegmentClouds(
         pcl::fromROSMsg(segments_msg->clouds[i], *cloud);
         segment_clouds.push_back(cloud);
     }
-    // non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
 
     // For projection demonstration only
-    // if (nullptr != non_ground_copy) 
-    // {
-    //     if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
+    non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
+    if (nullptr != non_ground_copy) 
+    {
+        if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
 
-    //     autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
-    //     autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
+        autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
+        autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
 
-    //     for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
-    //     pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
+        for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
+        pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
 
-    //     // autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
-    //     // *cloud_in = *cloud_combined;
-    //     // cloud_combined->clear();
-    //     // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
+        // autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
+        // *cloud_in = *cloud_combined;
+        // cloud_combined->clear();
+        // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
 
-    //     auto m = cloud_combined->getMatrixXfMap(3,4,0);
+        auto m = cloud_combined->getMatrixXfMap(3,4,0);
 
-    //     // auto m2 = m.topLeftCorner(3,2);
-    //     // Eigen::MatrixXd x = m2.cast <double> ();
-    //     Eigen::MatrixXd x = m.cast <double> ();
+        // auto m2 = m.topLeftCorner(3,2);
+        // Eigen::MatrixXd x = m2.cast <double> ();
+        Eigen::MatrixXd x = m.cast <double> ();
 
 
 
-    //     // ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-    //     // ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-    //     // Eigen::MatrixXd x = m2.cast <double> ();
-    //     // if(verbose)
-    //     // {
-    //     //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-    //     //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-    //     // }
+        // ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+        // ROS_INFO_STREAM("\t mat rows: " << m2.rows());
+        // Eigen::MatrixXd x = m2.cast <double> ();
+        // if(verbose)
+        // {
+        //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+        //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
+        // }
         
-    //     Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+        Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
 
-    //     autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
+        autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
 
-    //     for(int i; i < res.cols(); ++i)
-    //     {
-    //         autosense::Point p(double(res(1,i)),double(res(2,i)),0.0);
-    //         cloud_distort->points.push_back(p);
-    //     }
+        for(int i; i < res.cols(); ++i)
+        {
+            autosense::Point p(double(res(1,i)),double(res(2,i)),0.0);
+            cloud_distort->points.push_back(p);
+        }
 
-    //     sensor_msgs::PointCloud2 output;
-    //     pcl::toROSMsg(*cloud_distort, output);
-    //     output.header = hd;
-    //     pcs_distort_pub_.publish(output);
+        sensor_msgs::PointCloud2 output;
+        pcl::toROSMsg(*cloud_distort, output);
+        output.header = hd;
+        pcs_distort_pub_.publish(output);
 
 
-    //     if(verbose)
-    //     {
-    //         ROS_INFO_STREAM("\t res cols: " << res.cols());
-    //         ROS_INFO_STREAM("\t res rows: " << res.rows());    
-    //     }
+        if(verbose)
+        {
+            ROS_INFO_STREAM("\t res cols: " << res.cols());
+            ROS_INFO_STREAM("\t res rows: " << res.rows());    
+        }
         
-    // }
+    }
 
     // current pose
     Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
@@ -345,19 +345,6 @@ void OnGPS(const boost::shared_ptr<const geometry_msgs::Pose2D> &gps_msg)
     if (verbose) ROS_INFO_STREAM("gps theta: " << theta);
 }
 
-// void OnImage(const sensor_msgs::ImageConstPtr& msg)
-// {
-//     try
-//     {
-//     cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-//     }
-//     catch (cv_bridge::Exception& e)
-//     {
-//     ROS_ERROR("cv_bridge exception: %s", e.what());
-//     return;
-//     }
-// }
-
 
 // bool srv_pos3d_func(perception_msgs::pos3d::Request &req,
 //     perception_msgs::pos3d::Response &res)
@@ -382,12 +369,6 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh = ros::NodeHandle();
     ros::NodeHandle private_nh = ros::NodeHandle("~");
     ros::AsyncSpinner spiner(1);
-
-    // For projection demonstration only
-    // tf_rot_y.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-    // tf::Quaternion q;
-    // q.setRPY(0, 3.14159265 , 0);
-    // tf_rot_y.setRotation(q);
 
     // Load ROS parameters from rosparam server
     private_nh.getParam(param_ns_prefix_ + "/local_frame_id", local_frame_id_);
@@ -463,22 +444,22 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/verbose", verbose);
 
     // // For projection demonstration and service
-    // std::vector<double> K_C_vec(9, 0.);
-    // private_nh.getParam("callibration/K_C",K_C_vec);
-    // K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    std::vector<double> K_C_vec(9, 0.);
+    private_nh.getParam("callibration/K_C",K_C_vec);
+    K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
     
-    // std::vector<double> R_Lidar_CameraC_vec(9, 0.);
-    // private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
-    // R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    std::vector<double> R_Lidar_CameraC_vec(9, 0.);
+    private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
+    R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
     
-    // std::vector<double> t_Lidar_CameraC_vec(3, 0.);
-    // private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
-    // t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
+    std::vector<double> t_Lidar_CameraC_vec(3, 0.);
+    private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
+    t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
     // std::cout << "t_Lidar_CameraC\n" << t_Lidar_CameraC << std::endl;
 
 
-    // std::vector<double> D_C(4, 0.);
-    // private_nh.getParam("callibration/D_C",D_C);
+    std::vector<double> D_C(4, 0.);
+    private_nh.getParam("callibration/D_C",D_C);
     // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
 
 
@@ -569,8 +550,8 @@ int main(int argc, char **argv) {
             pub_lidar_camera_id_start_, pub_lidar_camera_id_num_);
 
     // For projection demonstration only
-    // pcs_distort_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
-    //     "/cepton/distort", 1);
+    pcs_distort_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
+        "/cepton/distort", 1);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

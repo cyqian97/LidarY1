@@ -22,6 +22,12 @@ find_package(PCL 1.8 REQUIRED COMPONENTS
 )
 add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
+
+### OpenCV
+find_package(OpenCV 3.4.17 REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -159,6 +165,7 @@ add_executable(${PROJECT_NAME}_node src/image_converter_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 #############
