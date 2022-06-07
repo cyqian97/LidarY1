@@ -57,6 +57,7 @@ int tf_timeout_ms_ = 0;
 double threshold_contian_IoU_ = 0.0;
 double pub_course_speed_limit;
 std::vector<double> offset(3,0.0);
+bool care_object_only;
 
 autosense::TrackingWorkerParams tracking_params_;
 autosense::ClassifierParams classifier_params_;
@@ -299,11 +300,16 @@ void OnSegmentClouds(
      */
 
     // can_bus publishers
-    std::vector<autosense::ObjectPtr> objects_care;
-    for(const auto &object: tracking_objects_velo)
-        if(object->type != autosense::NOTSURE)
-            objects_care.push_back(object);
-    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(objects_care);
+    if(care_object_only)
+    {
+        std::vector<autosense::ObjectPtr> objects_care;
+        for(const auto &object: tracking_objects_velo)
+            if(object->type != autosense::NOTSURE)
+                objects_care.push_back(object);
+                tracking_objects_velo = objects_care;
+    }
+
+    std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
     autosense::common::publishObjectsTrackerID(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
         objects_id_pub_);
@@ -453,6 +459,8 @@ int main(int argc, char **argv) {
         pub_lidar_camera_topic_);
     private_nh.getParam(param_ns_prefix_ + "/pub_course_speed_limit", pub_course_speed_limit);
     private_nh.getParam(param_ns_prefix_ + "/offset", offset);
+    private_nh.getParam(
+        param_ns_prefix_ + "/care_object_only", care_object_only);
     // private_nh.getParam(param_ns_prefix_ + "/srv_lidar_camera_name", srv_lidar_camera_name);
     
     int pub_lidar_camera_id_start_;

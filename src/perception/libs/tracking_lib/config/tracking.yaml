@@ -33,6 +33,8 @@ tracking: {
   pub_lidar_camera_id_num_: 16,
   srv_lidar_camera_name: "/bbox_to_centers",
 
+  care_object_only: false,
+
   # objects with speeds below this limit will have course = 0
   pub_course_speed_limit: 0.2,
 

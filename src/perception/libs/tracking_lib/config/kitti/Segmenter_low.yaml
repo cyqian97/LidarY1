@@ -17,7 +17,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 6.5,
+    roi_height_above_m: 5.5,
   },
 
   Segmenter: {
@@ -51,7 +51,7 @@ detect: {
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
-    gpf_th_gnds: 0.25,
+    gpf_th_gnds: 0.15,
 
     ### Ground RANSAC Segmenter
     # 0.3 for better perforamce
