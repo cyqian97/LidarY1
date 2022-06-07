@@ -36,7 +36,7 @@ tracking: {
   care_object_only: false,
 
   # objects with speeds below this limit will have course = 0
-  pub_course_speed_limit: 0.2,
+  pub_course_speed_limit: 9999.9,
 
   # lidar's position wrt the cart ground center in meters
   offset: [0.0, 0.2667, 1.18745],

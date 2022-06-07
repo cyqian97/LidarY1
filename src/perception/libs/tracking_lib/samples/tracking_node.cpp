@@ -308,11 +308,19 @@ void OnSegmentClouds(
                 objects_care.push_back(object);
                 tracking_objects_velo = objects_care;
     }
-
     std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
     autosense::common::publishObjectsTrackerID(
         tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
         objects_id_pub_);
+
+    // for(const auto& object: objects_id_pub_)
+    // {
+    //     std::cout << "ID: " <<  object->tracker_id << std::endl;
+    //     std::cout << "\t width: " <<  object->width << std::endl;
+    //     std::cout << "\t length: " <<  object->length << std::endl;
+    //     std::cout << "\t height: " <<  object->height << std::endl;
+    // }
+
     autosense::common::publishLidarCameraObjects(
         lidar_camera_pub_, header, theta, pub_course_speed_limit, offset, objects_id_pub_);
 
@@ -526,7 +534,7 @@ int main(int argc, char **argv) {
         ROS_FATAL("Failed to create classifier.");
         return -1;
     }
-    classifier_worker_->verbose = true;
+    classifier_worker_->verbose = verbose;
 
     // Init service
     // srv_pos3d = nh.advertiseService(srv_lidar_camera_name, srv_pos3d_func);

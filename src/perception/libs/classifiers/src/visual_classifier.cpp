@@ -43,7 +43,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
     
     if(!object->size_conjectures.empty())
     {   
-        ROS_INFO_STREAM("Enter classify");
+        // ROS_INFO_STREAM("Enter classify");
         // Check is the size fits a traffic blockage
         // Traffic blockage does not go into further classification
         bool _find_traffic_blockage = false;
@@ -81,7 +81,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
 
             if (bboxes != nullptr)
             {
-                ROS_INFO_STREAM("Start proj");
+                // ROS_INFO_STREAM("Start proj");
 
                 auto _x = object->cloud->getMatrixXfMap(3,4,0);
                 Eigen::MatrixXd x = _x.cast <double> ();
