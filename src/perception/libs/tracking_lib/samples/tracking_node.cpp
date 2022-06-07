@@ -45,6 +45,7 @@
 #include "tracking/tracking_worker_manager.hpp"
 
 bool verbose;
+bool visualize;
 
 // std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
 // std::map<autosense::IdType, autosense::ObjectType> type_fixed;
@@ -309,52 +310,57 @@ void OnSegmentClouds(
                 tracking_objects_velo = objects_care;
     }
     std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
-    autosense::common::publishObjectsTrackerID(
-        tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
-        objects_id_pub_);
-
-    // for(const auto& object: objects_id_pub_)
-    // {
-    //     std::cout << "ID: " <<  object->tracker_id << std::endl;
-    //     std::cout << "\t width: " <<  object->width << std::endl;
-    //     std::cout << "\t length: " <<  object->length << std::endl;
-    //     std::cout << "\t height: " <<  object->height << std::endl;
-    // }
 
     autosense::common::publishLidarCameraObjects(
         lidar_camera_pub_, header, theta, pub_course_speed_limit, offset, objects_id_pub_);
 
-    const std::vector<autosense::ObjectPtr> &tracking_objects_world =
-        tracking_worker_->collectTrackingObjectsInWorld();
-    autosense::common::publishTrackingObjects(tracking_output_objects_pub_,
-                                              header, tracking_objects_world);
-    // publish fixed trajectory for classification
-    const std::vector<autosense::FixedTrajectory> &fixed_trajectories =
-        tracking_worker_->collectFixedTrajectories();
-    autosense::common::publishTrackingFixedTrajectories(
-        tracking_output_trajectories_pub_, header, fixed_trajectories);
+    if(visualize)
+    {
+        autosense::common::publishObjectsTrackerID(
+            tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
+            objects_id_pub_);
 
-    // visualize tracking process results, Object Trajectories
-    const std::map<autosense::IdType, autosense::Trajectory> &trajectories =
-        tracking_worker_->collectTrajectories();
-    autosense::common::publishObjectsTrajectory(
-        tracking_objects_trajectory_pub_, header, pose.inverse(), trajectories);
-    autosense::common::publishObjectsMarkers(tracking_objects_pub_, header,
-                                             autosense::common::DARKBLUE.rgbA,
-                                             objects_id_pub_);
-    // construct tracking-help segmentation results
-    std::vector<autosense::PointICloudPtr> objects_cloud;
-    for (size_t idx = 0u; idx < tracking_objects_velo.size(); ++idx) {
-        objects_cloud.push_back(tracking_objects_velo[idx]->cloud);
+        // for(const auto& object: objects_id_pub_)
+        // {
+        //     std::cout << "ID: " <<  object->tracker_id << std::endl;
+        //     std::cout << "\t width: " <<  object->width << std::endl;
+        //     std::cout << "\t length: " <<  object->length << std::endl;
+        //     std::cout << "\t height: " <<  object->height << std::endl;
+        // }
+
+
+
+        const std::vector<autosense::ObjectPtr> &tracking_objects_world =
+            tracking_worker_->collectTrackingObjectsInWorld();
+        autosense::common::publishTrackingObjects(tracking_output_objects_pub_,
+                                                header, tracking_objects_world);
+        // publish fixed trajectory for classification
+        const std::vector<autosense::FixedTrajectory> &fixed_trajectories =
+            tracking_worker_->collectFixedTrajectories();
+        autosense::common::publishTrackingFixedTrajectories(
+            tracking_output_trajectories_pub_, header, fixed_trajectories);
+
+        // visualize tracking process results, Object Trajectories
+        const std::map<autosense::IdType, autosense::Trajectory> &trajectories =
+            tracking_worker_->collectTrajectories();
+        autosense::common::publishObjectsTrajectory(
+            tracking_objects_trajectory_pub_, header, pose.inverse(), trajectories);
+        autosense::common::publishObjectsMarkers(tracking_objects_pub_, header,
+                                                autosense::common::DARKBLUE.rgbA,
+                                                objects_id_pub_);
+        // construct tracking-help segmentation results
+        std::vector<autosense::PointICloudPtr> objects_cloud;
+        for (size_t idx = 0u; idx < tracking_objects_velo.size(); ++idx) {
+            objects_cloud.push_back(tracking_objects_velo[idx]->cloud);
+        }
+        autosense::common::publishClustersCloud<autosense::PointI>(
+            tracking_objects_cloud_pub_, header, objects_cloud);
+        // Velocity value and direction
+        autosense::common::publishObjectsVelocityArrow(
+            tracking_objects_velocity_pub_, header, autosense::common::RED.rgbA,
+            tracking_objects_velo);
     }
-    autosense::common::publishClustersCloud<autosense::PointI>(
-        tracking_objects_cloud_pub_, header, objects_cloud);
-    // Velocity value and direction
-    autosense::common::publishObjectsVelocityArrow(
-        tracking_objects_velocity_pub_, header, autosense::common::RED.rgbA,
-        tracking_objects_velo);
 
-    
 }
 
 
@@ -483,6 +489,8 @@ int main(int argc, char **argv) {
     // Control the command line output
     private_nh.getParam(
         param_ns_prefix_ + "/verbose", verbose);
+    private_nh.getParam(
+        param_ns_prefix_ + "/visualize", visualize);
 
     // // For projection demonstration and service
     // std::vector<double> K_C_vec(9, 0.);
