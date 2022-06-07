@@ -1,5 +1,5 @@
 detect: {
-  roi: {
+    roi: {
     ## ROI range
     # type: true, float, float, float
     # default: 60.0,999.0,999.0 in SegMatch
@@ -17,7 +17,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 12.0,
+    roi_height_above_m: 10.0,
   },
 
   Segmenter: {
@@ -51,7 +51,7 @@ detect: {
     #gpf_th_seeds: 0.5,
     # ground points threshold distance from the plane <== large to guarantee safe removal
     #gpf_th_gnds: 0.23,
-    gpf_th_gnds: 0.25,
+    gpf_th_gnds: 0.15,
 
     ### Ground RANSAC Segmenter
     # 0.3 for better perforamce
@@ -81,7 +81,7 @@ detect: {
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30000
-    rec_min_cluster_size: 5,
+    rec_min_cluster_size: 20,
     #rec_min_cluster_size: 50,
     rec_max_cluster_size: 30000,
     ## Clusters merged between regions
