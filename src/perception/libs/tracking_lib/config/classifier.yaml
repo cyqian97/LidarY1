@@ -19,11 +19,11 @@ classifier: {
   ism_num_clusters: 500, 
 
   # Visual classifier parameters
-  visual_x1: 0,
-  visual_x2: 4000,
-  visual_y1: 0,
-  visual_y2: 2000,
-  visual_thld_ratio: 0.2,
+  visual_x1: 1500,
+  visual_x2: 2500,
+  visual_y1: 600,
+  visual_y2: 1500,
+  visual_thld_ratio: 0.5,
 
   },
 

@@ -945,10 +945,10 @@ static void publishLidarCameraObjects(
     // int index = 0;
     for(const auto& object: objects_array)
     {
-        std::cout << "ID: " <<  object->tracker_id << std::endl;
-        std::cout << "\t width: " <<  object->width << std::endl;
-        std::cout << "\t length: " <<  object->length << std::endl;
-        std::cout << "\t height: " <<  object->height << std::endl;
+        // std::cout << "ID: " <<  object->tracker_id << std::endl;
+        // std::cout << "\t width: " <<  object->width << std::endl;
+        // std::cout << "\t length: " <<  object->length << std::endl;
+        // std::cout << "\t height: " <<  object->height << std::endl;
         
         perception_msgs::Lidar_camera_object object_msg;
         Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;

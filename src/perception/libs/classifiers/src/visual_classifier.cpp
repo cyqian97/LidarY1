@@ -10,6 +10,11 @@ VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(para
 {
     sub_bboxes_ = nh_.subscribe("/darknet_ros/bounding_boxes", 1, 
         &VisualClassifier::updateBBoxes, this);
+    ROS_INFO_STREAM("params_.visual_x1: " << params_.visual_x1);
+    ROS_INFO_STREAM("params_.visual_x2: " << params_.visual_x2 << std::endl);
+    ROS_INFO_STREAM("params_.visual_y1: " << params_.visual_y1 << std::endl);
+    ROS_INFO_STREAM("params_.visual_y2: " << params_.visual_y2 << std::endl);
+    
 }
 
 VisualClassifier::~VisualClassifier() {}
@@ -70,36 +75,38 @@ void VisualClassifier::classify(const ObjectPtr &object)
         {
             if(verbose)
             {
-                std::cout << "Tracker ID: " << object->tracker_id << ", size conj:";
-                for(const auto& i_class: object->size_conjectures) std::cout << int(i_class) << " ";
-                std::cout << "\n";
+                ROS_INFO_STREAM("Tracker ID: " << object->tracker_id << ", size conj:");
+                for(const auto& i_class: object->size_conjectures) ROS_INFO_STREAM("\t" << int(i_class));
             }
 
-            ROS_INFO_STREAM("Start proj");
-
-            auto _x = object->cloud->getMatrixXfMap(3,4,0);
-            Eigen::MatrixXd x = _x.cast <double> ();
-            Eigen::MatrixXd res = autosense::common::calibration::proj(
-                params_.visual_K_C, params_.visual_R_Lidar_CameraC,
-                params_.visual_t_Lidar_CameraC, params_.visual_D_C,
-                x);
-                                
-            std::map<std::string,int> _classes_counts;
-            std::map<std::string,int>::iterator _it_classes_counts;
-            int _current_max_count = 0;
-            std::string _current_max_class;
-            for(int i = 0; i < res.cols(); i++)
+            if (bboxes != nullptr)
             {
-                // Check if point is inside the cropped image
-                if( res(1,i) < params_.visual_x1 || res(1,i) > params_.visual_x2 ||
-                    res(2,i) < params_.visual_y1 || res(2,i) < params_.visual_y2)
-                    continue;
-                if (bboxes != nullptr)
+                ROS_INFO_STREAM("Start proj");
+
+                auto _x = object->cloud->getMatrixXfMap(3,4,0);
+                Eigen::MatrixXd x = _x.cast <double> ();
+                Eigen::MatrixXd res = autosense::common::calibration::proj(
+                    params_.visual_K_C, params_.visual_R_Lidar_CameraC,
+                    params_.visual_t_Lidar_CameraC, params_.visual_D_C,
+                    x);
+                                    
+                std::map<std::string,int> _classes_counts;
+                std::map<std::string,int>::iterator _it_classes_counts;
+                int _current_max_count = 0;
+                int _in_window_count = 0;
+                std::string _current_max_class;
+                for(int i = 0; i < res.cols(); i++)
                 {
+                    // Check if point is inside the cropped image
+                    if( res(0,i) < params_.visual_x1 || res(0,i) > params_.visual_x2 ||
+                        res(1,i) < params_.visual_y1 || res(1,i) > params_.visual_y2)
+                        continue;
+                    _in_window_count++;
+
                     for(const auto& bbox: *bboxes)
                     {
-                        if( res(1,i) > bbox.xmin || res(1,i) < bbox.xmax ||
-                            res(2,i) > bbox.ymin || res(2,i) < bbox.ymax)
+                        if( res(0,i) > bbox.xmin || res(0,i) < bbox.xmax ||
+                            res(1,i) > bbox.ymin || res(1,i) < bbox.ymax)
                         {
                             _it_classes_counts = _classes_counts.find(bbox.Class);
                             if (_it_classes_counts == _classes_counts.end())
@@ -118,16 +125,16 @@ void VisualClassifier::classify(const ObjectPtr &object)
                         }
                     }
                 }
-            }
-            ROS_INFO_STREAM("current_max_count: " << _current_max_count);
-            ROS_INFO_STREAM("current_total_num: " << res.cols());
-            if( _current_max_count > params_.visual_thld_ratio*res.cols())
-            {
-                std::map<std::string,ObjectType>::iterator _it_coco_class_map_
-                    = coco_class_map_.find(_current_max_class);
-                if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
+                ROS_INFO_STREAM("current_max_count: " << _current_max_count);
+                ROS_INFO_STREAM("current_total_num: " << _in_window_count);
+                if( _current_max_count > params_.visual_thld_ratio*_in_window_count)
+                {
+                    std::map<std::string,ObjectType>::iterator _it_coco_class_map_
+                        = coco_class_map_.find(_current_max_class);
+                    if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
 
-                ROS_INFO_STREAM("type now: " << int(type_now));
+                    ROS_INFO_STREAM("type now: " << int(type_now));
+                }
             }
         }
     }
