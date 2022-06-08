@@ -1,5 +1,7 @@
 detect: {
     roi: {
+    # after give all non-ground points to the projection node, futher filter the points for tracking
+    use_second_roi_filter: false, 
     ## ROI range
     # type: true, float, float, float
     # default: 60.0,999.0,999.0 in SegMatch

@@ -150,6 +150,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/image_converter_node.cpp)
+add_executable(${PROJECT_NAME}_rviz src/image_converter_rviz.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -166,6 +167,11 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}_rviz
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 #############

@@ -944,27 +944,25 @@ static void publishLidarCameraObjects(
 
     // int index = 0;
     for(const auto& object: objects_array)
-    {
-        std::cout << "ID: " <<  object->tracker_id << std::endl;
-        std::cout << "\t width: " <<  object->width << std::endl;
-        std::cout << "\t length: " <<  object->length << std::endl;
-        std::cout << "\t height: " <<  object->height << std::endl;
-        
+    {        
         perception_msgs::Lidar_camera_object object_msg;
         Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;
         Eigen::Vector3d center = object->ground_center;//local_to_NEU * object->ground_center;
 
         object_msg.id = object->tracker_id;
         
-        object_msg.lat = center(0)-offset[0];
-        object_msg.lon = center(1)-offset[1];
-        object_msg.abs_speed = velocity.norm();
-        object_msg.lat_speed = velocity(0);
-        object_msg.lon_speed = velocity(1);
+        object_msg.lat = center(0)+offset[0];
+        object_msg.lon = center(1)+offset[1];
+        object_msg.abs_speed = 0.0;
+        object_msg.lat_speed = 0.0;
+        object_msg.lon_speed = 0.0;
 
         double course = 0;
         if(velocity.norm() > min_speed)
         {
+            object_msg.abs_speed = velocity.norm();
+            object_msg.lat_speed = velocity(0);
+            object_msg.lon_speed = velocity(1);
             course = acos(velocity(1)/velocity.norm()) * 180.0 / 3.14159265358979323846;
             if (velocity(0)<0)
             {

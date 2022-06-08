@@ -109,7 +109,7 @@ struct VolumetricModelParams {
 /*------------------------------ Parameter type ------------------------------*/
 struct ROIParams {
     std::string type;
-
+    bool use_second_roi_filter;
     float roi_lidar_height_m;
     // Horizontal range
     float roi_radius_min_m;
@@ -117,6 +117,7 @@ struct ROIParams {
     // Vertical range
     float roi_height_below_m;
     float roi_height_above_m;
+    float roi_height_above_m_second;
 };  // struct ROIParams for ROI filter parameters
 
 struct SegmenterParams {
