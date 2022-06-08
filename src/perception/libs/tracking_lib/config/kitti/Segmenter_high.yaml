@@ -19,7 +19,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 10.0,
+    roi_height_above_m: 15.0,
     roi_height_above_m_second: 5.5,
   },
 
@@ -43,7 +43,7 @@ detect: {
     ## number of points used to estimate the lowest point representative(LPR)
     ## Ground planes are expanded for these points
     #gpf_num_lpr: 20,
-    gpf_num_lpr: 20,
+    gpf_num_lpr: 5,
     #gpf_num_lpr: 1280,
 
     # Points who z < - (gpf_sensor_height+gpf_th_lprs) are not considered in height_average

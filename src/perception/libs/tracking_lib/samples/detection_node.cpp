@@ -44,6 +44,7 @@ bool use_roi_filter_;
 bool use_spherical_voxel_filter;
 
 autosense::ROIParams params_roi_;
+autosense::ROIParams params_roi_second;
 
 // ROS Subscriber
 ros::Subscriber pointcloud_sub_;
@@ -77,6 +78,8 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     }
 
     if (use_roi_filter_) {
+
+        std::cout << "first:" << params_roi_.roi_height_above_m << std::endl;
         autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud);
     }
 
@@ -107,8 +110,8 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
 
     if(params_roi_.use_second_roi_filter)
     {
-        params_roi_.roi_height_above_m = params_roi_.roi_height_above_m_second;
-        autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud_nonground);
+        std::cout << "second:" << params_roi_second.roi_height_above_m << std::endl;
+        autosense::roi::applyROIFilter<autosense::PointI>(params_roi_second, cloud_nonground);
     }
 
 
@@ -167,6 +170,9 @@ int main(int argc, char **argv) {
                            use_roi_filter_, false);
 
     params_roi_ = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
+    params_roi_second = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
+    if(params_roi_.use_second_roi_filter) 
+        params_roi_second.roi_height_above_m = params_roi_.roi_height_above_m_second;;
 
     // Ground remover & non-ground segmenter
     std::string ground_remover_type, non_ground_segmenter_type;
