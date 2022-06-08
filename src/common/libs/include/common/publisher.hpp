@@ -990,6 +990,9 @@ static void publishLidarCameraObjects(
         case CONE:
             object_msg.type = uint8_t(5);
             break;
+        case BARRICADE:
+            object_msg.type = uint8_t(5);
+            break;
         default:
             object_msg.type = uint8_t(0);
             break;
