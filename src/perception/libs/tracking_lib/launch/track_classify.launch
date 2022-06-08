@@ -4,7 +4,7 @@
     <!-- Launch detection_node -->
     <node name="detection_node" pkg="tracking_lib" type="tracking_lib_detection_node" output="screen">
         <rosparam command="load" file="$(find tracking_lib)/config/detection.yaml"/>
-        <rosparam command="load" file="$(find tracking_lib)/config/kitti/Segmenter_low.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/kitti/Segmenter_high.yaml"/>
     </node>
 
     <!-- Launch tracking_node -->

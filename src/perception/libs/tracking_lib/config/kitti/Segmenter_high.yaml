@@ -17,7 +17,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 10.0,
+    roi_height_above_m: 15.0,
   },
 
   Segmenter: {
@@ -81,7 +81,7 @@ detect: {
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30000
-    rec_min_cluster_size: 20,
+    rec_min_cluster_size: 5,
     #rec_min_cluster_size: 50,
     rec_max_cluster_size: 30000,
     ## Clusters merged between regions
