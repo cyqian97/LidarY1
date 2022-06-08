@@ -102,6 +102,9 @@ static ROIParams getRoiParams(const ros::NodeHandle& nh,
     // Vertical range
     nh.getParam(ns + "/roi_height_below_m", params.roi_height_below_m);
     nh.getParam(ns + "/roi_height_above_m", params.roi_height_above_m);
+    
+    nh.getParam(ns + "/use_second_roi_filter", params.use_second_roi_filter);
+    nh.getParam(ns + "/roi_height_above_m_second", params.roi_height_above_m_second);
 
     return params;
 }

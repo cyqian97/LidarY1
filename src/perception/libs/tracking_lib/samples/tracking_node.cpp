@@ -320,13 +320,13 @@ void OnSegmentClouds(
             tracking_objects_tracker_id_pub_, header, autosense::common::RED.rgbA,
             objects_id_pub_);
 
-        // for(const auto& object: objects_id_pub_)
-        // {
-        //     std::cout << "ID: " <<  object->tracker_id << std::endl;
-        //     std::cout << "\t width: " <<  object->width << std::endl;
-        //     std::cout << "\t length: " <<  object->length << std::endl;
-        //     std::cout << "\t height: " <<  object->height << std::endl;
-        // }
+        for(const auto& object: objects_id_pub_)
+        {
+            std::cout << "ID: " <<  object->tracker_id << " [l, w, h]: " <<  
+                object->length << '\t' << 
+                object->width << "\t" << 
+                object->height << std::endl;
+        }
 
 
 

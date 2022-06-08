@@ -16,5 +16,6 @@
     </node>
 
     <!-- Launch rviz for visualization -->
-    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tracking_lib)/rviz/demo.rviz"/> -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tracking_lib)/rviz/demo.rviz"/>
+    <node name="image_converter_rviz" pkg="image_converter_lidar" type="image_converter_lidar_rviz" />
 </launch>
