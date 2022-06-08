@@ -29,7 +29,7 @@ classifier: {
 
   VolumetricModels: {
     use_cone_volumetric_model: true,
-    cone_volumetric_model: [0.5, 1.3, 0.0, 0.5, 0.0, 1.2],  #l_min,l_max,w_min,w_max,h_min,h_max
+    cone_volumetric_model: [0.6, 1.0, 0.2, 0.5, 0.7, 1.2],  #l_min,l_max,w_min,w_max,h_min,h_max
     use_barricade_volumetric_model: true,
     barricade_volumetric_model: [2.5, 3.5, 0.0, 0.5, 1.5, 2.0],
     use_car_volumetric_model: true,

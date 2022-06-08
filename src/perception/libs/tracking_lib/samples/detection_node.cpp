@@ -97,6 +97,19 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     *cloud_ground = *cloud_clusters[0];
     *cloud_nonground = *cloud_clusters[1];
 
+    // Convert to ROS data type
+    sensor_msgs::PointCloud2 output;
+    autosense::PointICloudPtr cloud_out(new autosense::PointICloud);
+    pcl_ros::transformPointCloud(*cloud_nonground,*cloud_out,tf_rot_y);
+    pcl::toROSMsg(*cloud_out, output);
+    output.header = ros_pc2->header;
+    pcs_non_ground_pub_.publish(output);
+
+    if(params_roi_.use_second_roi_filter)
+    {
+        params_roi_.roi_height_above_m = params_roi_.roi_height_above_m_second;
+        autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud_nonground);
+    }
 
 
     // reset clusters
@@ -108,15 +121,6 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     if (verbose) ROS_INFO_STREAM("Cloud processed. Took " << clock.takeRealTime()
                                              << "ms.\n");
 
-    // Convert to ROS data type
-    sensor_msgs::PointCloud2 output;
-    autosense::PointICloudPtr cloud_in(new autosense::PointICloud);
-    *cloud_in = *cloud_nonground;
-    cloud_nonground->clear();
-    pcl_ros::transformPointCloud(*cloud_in,*cloud_nonground,tf_rot_y);
-    pcl::toROSMsg(*cloud_nonground, output);
-    output.header = ros_pc2->header;
-    pcs_non_ground_pub_.publish(output);
 }
 
 int main(int argc, char **argv) {
@@ -161,6 +165,7 @@ int main(int argc, char **argv) {
     /// @note Important to use roi filter for "Ground remover"
     private_nh.param<bool>(param_ns_prefix_ + "/use_roi_filter",
                            use_roi_filter_, false);
+
     params_roi_ = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
 
     // Ground remover & non-ground segmenter

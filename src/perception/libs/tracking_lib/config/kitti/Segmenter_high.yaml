@@ -1,5 +1,7 @@
 detect: {
     roi: {
+    # after give all non-ground points to the projection node, futher filter the points for tracking
+    use_second_roi_filter: true, 
     ## ROI range
     # type: true, float, float, float
     # default: 60.0,999.0,999.0 in SegMatch
@@ -17,7 +19,8 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 15.0,
+    roi_height_above_m: 10.0,
+    roi_height_above_m_second: 5.5,
   },
 
   Segmenter: {
