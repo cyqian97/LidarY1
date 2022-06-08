@@ -20,7 +20,7 @@ detect: {
     # Vertical range
     roi_height_below_m: 0.,
     roi_height_above_m: 15.0,
-    roi_height_above_m_second: 5.5,
+    roi_height_above_m_second: 15.0,
   },
 
   Segmenter: {

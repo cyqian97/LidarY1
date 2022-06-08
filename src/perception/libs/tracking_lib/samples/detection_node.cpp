@@ -78,8 +78,6 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     }
 
     if (use_roi_filter_) {
-
-        std::cout << "first:" << params_roi_.roi_height_above_m << std::endl;
         autosense::roi::applyROIFilter<autosense::PointI>(params_roi_, cloud);
     }
 
@@ -110,7 +108,6 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
 
     if(params_roi_.use_second_roi_filter)
     {
-        std::cout << "second:" << params_roi_second.roi_height_above_m << std::endl;
         autosense::roi::applyROIFilter<autosense::PointI>(params_roi_second, cloud_nonground);
     }
 
