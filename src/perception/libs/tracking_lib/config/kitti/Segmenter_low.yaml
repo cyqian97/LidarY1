@@ -13,13 +13,17 @@ detect: {
     ## Horizontal range
     #--- for "Cylinder"
     roi_radius_min_m: 0.,
-    roi_radius_max_m: 50.,
+    roi_radius_max_m: 60.,
     #--- for "Square"
     #roi_radius_min_m: 15.,
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 5.0,
+    roi_height_above_m: 6.0,
+
+    roi_height_above_m_second: 4.0,
+    roi_radius_max_m_second: 30.,
+    roi_radius_min_m_second: 0.,
   },
 
   Segmenter: {
@@ -94,7 +98,7 @@ detect: {
     ## Merge corresponding ground box overlap IoU threshold
     # type: float
     # default: 0., merge if there is overlap
-    rec_region_merge_tolerance: 0.01,
+    rec_region_merge_tolerance: 0.002,
 
     ### Euclidean Cluster Segmenter
     # 0.2,5,30000 in online_learning

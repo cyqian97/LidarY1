@@ -16,5 +16,5 @@
     </node>
 
     <!-- Launch rviz for visualization -->
-    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tracking_lib)/rviz/demo.rviz"/> -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tracking_lib)/rviz/demo.rviz"/>
 </launch>

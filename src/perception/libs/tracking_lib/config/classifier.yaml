@@ -6,7 +6,7 @@ classifier: {
 
 
   # label fixing
-  fix_frame_lim: 3, # number of consecutive valid classifications to fix the label
+  fix_frame_lim: 5, # number of consecutive valid classifications to fix the label
   abort_frame_lim: 30, # fix the label to NOTSURE if label has not been fixed after this number of frames
   peak_threshold: 0.00035,
 
@@ -19,22 +19,22 @@ classifier: {
   ism_num_clusters: 500, 
 
   # Visual classifier parameters
-  visual_x1: 1500,
-  visual_x2: 2500,
-  visual_y1: 600,
-  visual_y2: 1500,
+  visual_x1: 0,
+  visual_x2: 4000,
+  visual_y1: 0,
+  visual_y2: 2000,
   visual_thld_ratio: 0.5,
 
   },
 
   VolumetricModels: {
-    use_cone_volumetric_model: true,
-    cone_volumetric_model: [0.6, 1.0, 0.2, 0.5, 0.7, 1.2],  #l_min,l_max,w_min,w_max,h_min,h_max
-    use_barricade_volumetric_model: true,
-    barricade_volumetric_model: [2.5, 3.5, 0.0, 0.5, 1.5, 2.0],
+    use_cone_volumetric_model: false,
+    cone_volumetric_model: [0.4, 1.2, 0.1, 0.6, 0.6, 1.2],  #l_min,l_max,w_min,w_max,h_min,h_max
+    use_barricade_volumetric_model: false,
+    barricade_volumetric_model: [1.0, 4., 0.0, 0.5, 1.0, 2.5],
     use_car_volumetric_model: true,
-    car_volumetric_model: [3.0, 7.0, 0.5, 4.0, 0.8, 2.5],
-    use_human_volumetric_model: true,
+    car_volumetric_model: [1.5, 7.0, 0.3, 4.0, 0.8, 2.5],
+    use_human_volumetric_model: false,
     human_volumetric_model: [0.3, 1.5, 0.3, 1.0, 1.0, 2.5],
     use_deer_volumetric_model: false,
     deer_volumetric_model: [3.0, 7.0, 0.5, 4.0, 0.8, 2.5],

@@ -105,6 +105,8 @@ static ROIParams getRoiParams(const ros::NodeHandle& nh,
     
     nh.getParam(ns + "/use_second_roi_filter", params.use_second_roi_filter);
     nh.getParam(ns + "/roi_height_above_m_second", params.roi_height_above_m_second);
+    nh.getParam(ns + "/roi_radius_max_m_second", params.roi_radius_max_m_second);
+    nh.getParam(ns + "/roi_radius_min_m_second", params.roi_radius_min_m_second);
 
     return params;
 }

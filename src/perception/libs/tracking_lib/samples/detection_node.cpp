@@ -172,8 +172,11 @@ int main(int argc, char **argv) {
     params_roi_ = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
     params_roi_second = autosense::common::getRoiParams(private_nh, param_ns_prefix_);
     if(params_roi_.use_second_roi_filter) 
-        params_roi_second.roi_height_above_m = params_roi_.roi_height_above_m_second;;
-
+    {
+        params_roi_second.roi_height_above_m = params_roi_.roi_height_above_m_second;
+        params_roi_second.roi_radius_max_m = params_roi_.roi_radius_max_m_second;
+        params_roi_second.roi_radius_min_m = params_roi_.roi_radius_min_m_second;
+    }
     // Ground remover & non-ground segmenter
     std::string ground_remover_type, non_ground_segmenter_type;
     private_nh.param<std::string>(param_ns_prefix_ + "/ground_remover_type",

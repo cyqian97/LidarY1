@@ -118,6 +118,8 @@ struct ROIParams {
     float roi_height_below_m;
     float roi_height_above_m;
     float roi_height_above_m_second;
+    float roi_radius_min_m_second;
+    float roi_radius_max_m_second;
 };  // struct ROIParams for ROI filter parameters
 
 struct SegmenterParams {

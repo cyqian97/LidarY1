@@ -13,14 +13,14 @@ detect: {
     ## Horizontal range
     #--- for "Cylinder"
     roi_radius_min_m: 0.,
-    roi_radius_max_m: 50.,
+    roi_radius_max_m: 40.,
     #--- for "Square"
     #roi_radius_min_m: 15.,
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
     roi_height_above_m: 15.0,
-    roi_height_above_m_second: 5.5,
+    roi_height_above_m_second: 5.0,
   },
 
   Segmenter: {

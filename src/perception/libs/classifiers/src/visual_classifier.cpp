@@ -127,11 +127,18 @@ void VisualClassifier::classify(const ObjectPtr &object)
                 }
                 ROS_INFO_STREAM("current_max_count: " << _current_max_count);
                 ROS_INFO_STREAM("current_total_num: " << _in_window_count);
-                if( _current_max_count > params_.visual_thld_ratio*_in_window_count)
+                if( _current_max_count > params_.visual_thld_ratio * _in_window_count)
                 {
                     std::map<std::string,ObjectType>::iterator _it_coco_class_map_
                         = coco_class_map_.find(_current_max_class);
-                    if (_it_coco_class_map_ != coco_class_map_.end()) type_now = _it_coco_class_map_->second;
+                    if (_it_coco_class_map_ != coco_class_map_.end()) 
+                    {
+                        auto iter_conjectures = std::find(
+                            object->size_conjectures.begin(),object->size_conjectures.end(),
+                            _it_coco_class_map_->second);
+                        if(iter_conjectures != object->size_conjectures.end())
+                            type_now = _it_coco_class_map_->second;   
+                    }
 
                     ROS_INFO_STREAM("type now: " << int(type_now));
                 }
