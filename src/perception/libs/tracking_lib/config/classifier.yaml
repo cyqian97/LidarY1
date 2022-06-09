@@ -33,7 +33,7 @@ classifier: {
     use_barricade_volumetric_model: false,
     barricade_volumetric_model: [1.0, 4., 0.0, 0.5, 1.0, 2.5],
     use_car_volumetric_model: true,
-    car_volumetric_model: [1.5, 7.0, 0.3, 4.0, 0.8, 2.5],
+    car_volumetric_model: [3.3, 7.0, 0.3, 4.0, 1.0, 2.5],
     use_human_volumetric_model: false,
     human_volumetric_model: [0.3, 1.5, 0.3, 1.0, 1.0, 2.5],
     use_deer_volumetric_model: false,
