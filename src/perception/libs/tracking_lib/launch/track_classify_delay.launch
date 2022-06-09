@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+    <!-- Launch detection_node -->
+
+    <arg name="node_start_delay" default="5.0" />  
+
+    <node name="detection_node" pkg="tracking_lib" type="tracking_lib_detection_node" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+        <rosparam command="load" file="$(find tracking_lib)/config/detection.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/kitti/Segmenter_low.yaml"/>
+    </node>
+
+    <!-- Launch tracking_node -->
+    <node  name="tracking_node" pkg="tracking_lib" type="tracking_lib_tracking_node" output="screen"  launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+        <rosparam command="load" file="$(find tracking_lib)/config/tracking.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/classifier.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/callibration.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/kitti/TrackingWorker.yaml"/>
+    </node>
+
+    <!-- Launch rviz for visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tracking_lib)/rviz/demo.rviz"/>
+</launch>

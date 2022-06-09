@@ -159,6 +159,50 @@ static void squareROIFilter(float radius_min,
     }
 }
 
+// /**
+//  * @brief forward radius_max(/m), left/right radius_min separately
+//  * @note Velodyne Coordinate
+//  *          |x(forward)
+//  *      C   |   D
+//  *          |
+//  *  y---------------
+//  *          |
+//  *      B   |   A
+//  */
+// template <typename PointT>
+// static void squareROIFilter(float radius_min,
+//                             float radius_max,
+//                             float z_limit_min,
+//                             float z_limit_max,
+//                             typename pcl::PointCloud<PointT>::Ptr cloud) {
+//     if (cloud->size()) {
+//         typename pcl::PointCloud<PointT>::Ptr cloud_in(
+//             new pcl::PointCloud<PointT>);
+//         *cloud_in = *cloud;
+//         cloud->clear();
+
+//         const float forward = radius_max;
+//         const float back = -radius_max;
+//         const float left = -radius_min;
+//         const float right = radius_min;
+
+//         for (size_t pt = 0u; pt < cloud_in->size(); ++pt) {
+//             const PointT& point = cloud_in->points[pt];
+//             // Step 1: filter out a large part
+//             if (point.y > left && point.y < right) {
+//                 // Step 2: filter out small part
+//                 if (point.z > z_limit_min && point.z < z_limit_max) {
+//                     // Step 3: almost not filter out
+//                     if (point.x > back && point.x < forward) {
+//                         cloud->points.push_back(point);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
 template <typename PointT>
 static void applyROIFilter(const ROIParams& params,
                            typename pcl::PointCloud<PointT>::Ptr cloud) {

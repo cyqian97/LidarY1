@@ -117,9 +117,19 @@ struct ROIParams {
     // Vertical range
     float roi_height_below_m;
     float roi_height_above_m;
+
+    // seocond filter
     float roi_height_above_m_second;
     float roi_radius_min_m_second;
     float roi_radius_max_m_second;
+
+    // Rect filter
+    float roi_rect_left;
+    float roi_rect_right;
+
+    float roi_dist_min;
+    float roi_dist_max;
+
 };  // struct ROIParams for ROI filter parameters
 
 struct SegmenterParams {
