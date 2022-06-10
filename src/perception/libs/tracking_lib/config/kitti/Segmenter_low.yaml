@@ -13,7 +13,7 @@ detect: {
     ## Horizontal range
     #--- for "Cylinder"
     roi_radius_min_m: 0.,
-    roi_radius_max_m: 60.,
+    roi_radius_max_m: 40., # Deer 20.0, car 45.0
     #--- for "Square"
     #roi_radius_min_m: 15.,
     #roi_radius_max_m: 120.,
@@ -87,7 +87,7 @@ detect: {
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30000
-    rec_min_cluster_size: 20,
+    rec_min_cluster_size: 10,
     #rec_min_cluster_size: 50,
     rec_max_cluster_size: 30000,
     ## Clusters merged between regions

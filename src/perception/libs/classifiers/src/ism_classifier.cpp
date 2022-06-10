@@ -63,6 +63,16 @@ void ISMClassifier::classify(const ObjectPtr &object)
                 _find_traffic_blockage = true;
             }
         }
+        if (!_find_traffic_blockage) 
+        {
+            auto iter_conjectures = std::find(
+                object->size_conjectures.begin(),object->size_conjectures.end(),autosense::DEER);
+            if(iter_conjectures != object->size_conjectures.end())
+            {
+                type_now = autosense::DEER;
+                _find_traffic_blockage = true;
+            }
+        }
         
         if (!_find_traffic_blockage) 
         {

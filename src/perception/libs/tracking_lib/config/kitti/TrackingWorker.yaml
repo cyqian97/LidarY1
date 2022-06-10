@@ -8,7 +8,7 @@ tracking: {
   TrackingWorker: {
       ##----------------- Matcher: tracker<->observed object association
       matcher_method_name: "hungarian_matcher",
-      matcher_match_distance_maximum: 4.0,
+      matcher_match_distance_maximum: 0.5,
       # motion consistency
       matcher_location_distance_weight: 0.6,
       matcher_direction_distance_weight: 0.2,

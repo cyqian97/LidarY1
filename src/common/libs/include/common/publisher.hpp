@@ -413,6 +413,9 @@ static void publishObjectsMarkers(
             case autosense::BARRICADE:
                 box.color = autosense::common::RED.rgbA;
                 break;
+            case autosense::DEER:
+                box.color = autosense::common::RED.rgbA;
+                break;
             default:
                 box.color = color;
         }
@@ -956,6 +959,7 @@ static void publishLidarCameraObjects(
         object_msg.abs_speed = 0.0;
         object_msg.lat_speed = 0.0;
         object_msg.lon_speed = 0.0;
+        object_msg.course = 0.0;
 
         double course = 0;
         if(velocity.norm() > min_speed)
@@ -968,10 +972,10 @@ static void publishLidarCameraObjects(
             {
                 course = 360.0 - course;
             }
-        }
-        object_msg.course = course + theta;//course
+            object_msg.course = fmod(course + theta,360.0);
+        }//course
 
-        object_msg.width = (object->length + object->width)/2;
+        object_msg.width = std::max(object->length, object->width);
         object_msg.height = object->height;
         // convert typeID to canbus type
         switch (object->type)

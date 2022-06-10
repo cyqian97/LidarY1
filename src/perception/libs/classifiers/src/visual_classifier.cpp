@@ -33,8 +33,6 @@ void VisualClassifier::updateBBoxes(
     }
 
     bboxes = boost::make_shared<std::vector<darknet_ros_msgs::BoundingBox>>(_bboxes);
-
-    ROS_INFO_STREAM("Get " << bboxes->size() << " bboxes.");
 }
 
 void VisualClassifier::classify(const ObjectPtr &object)
@@ -64,6 +62,16 @@ void VisualClassifier::classify(const ObjectPtr &object)
             if(iter_conjectures != object->size_conjectures.end())
             {
                 type_now = autosense::BARRICADE;
+                _find_traffic_blockage = true;
+            }
+        }
+        if (!_find_traffic_blockage) 
+        {
+            auto iter_conjectures = std::find(
+                object->size_conjectures.begin(),object->size_conjectures.end(),autosense::DEER);
+            if(iter_conjectures != object->size_conjectures.end())
+            {
+                type_now = autosense::DEER;
                 _find_traffic_blockage = true;
             }
         }
@@ -105,8 +113,8 @@ void VisualClassifier::classify(const ObjectPtr &object)
 
                     for(const auto& bbox: *bboxes)
                     {
-                        if( res(0,i) > bbox.xmin || res(0,i) < bbox.xmax ||
-                            res(1,i) > bbox.ymin || res(1,i) < bbox.ymax)
+                        if( res(0,i) > bbox.xmin && res(0,i) < bbox.xmax &&
+                            res(1,i) > bbox.ymin && res(1,i) < bbox.ymax)
                         {
                             _it_classes_counts = _classes_counts.find(bbox.Class);
                             if (_it_classes_counts == _classes_counts.end())
@@ -125,6 +133,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
                         }
                     }
                 }
+                ROS_INFO_STREAM("Tracker ID: " << object->tracker_id << ", size conj:");
                 ROS_INFO_STREAM("current_max_count: " << _current_max_count);
                 ROS_INFO_STREAM("current_total_num: " << _in_window_count);
                 if( _current_max_count > params_.visual_thld_ratio * _in_window_count)
