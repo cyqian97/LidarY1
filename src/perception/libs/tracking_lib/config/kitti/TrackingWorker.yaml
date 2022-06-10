@@ -10,7 +10,7 @@ tracking: {
       matcher_method_name: "hungarian_matcher",
       matcher_match_distance_maximum: 0.5,
       # motion consistency
-      matcher_location_distance_weight: 0.6,
+      matcher_location_distance_weight: 1.,
       matcher_direction_distance_weight: 0.2,
       # appearance consistency
       matcher_bbox_size_distance_weight: 0.1,

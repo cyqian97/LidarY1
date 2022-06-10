@@ -32,11 +32,11 @@ classifier: {
     cone_volumetric_model: [0.4, 1.2, 0.1, 0.6, 0.6, 1.2],  #l_min,l_max,w_min,w_max,h_min,h_max
     use_barricade_volumetric_model: false,
     barricade_volumetric_model: [1.0, 4., 0.0, 0.5, 1.0, 2.5],
-    use_car_volumetric_model: true,
+    use_car_volumetric_model: false,
     car_volumetric_model: [1.5, 7.0, 0.3, 4.0, 0.7, 2.5],
     use_human_volumetric_model: false,
     human_volumetric_model: [0.3, 1.5, 0.3, 1.0, 1.5, 2.5],
-    use_deer_volumetric_model: false,
+    use_deer_volumetric_model: true,
     deer_volumetric_model: [.7, 2.3, 0.2, 0.5, 0.8, 1.1],
   }
 
