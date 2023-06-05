@@ -8,8 +8,8 @@
 #include <boost/foreach.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
-#include "'/target_detection'/BoundingBox.h"
-#include "'/target_detection'/BoundingBoxes.h"
+#include "perception_msgs/yolo_box.h"
+#include "perception_msgs/yolo_boxes.h"
 
 class ImageConverter
 {
@@ -19,7 +19,7 @@ class ImageConverter
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
-  boost::shared_ptr<std::vector<'/target_detection'::BoundingBox>> bboxes = nullptr;
+  boost::shared_ptr<std::vector<perception_msgs::yolo_box>> bboxes = nullptr;
 
 public:
 

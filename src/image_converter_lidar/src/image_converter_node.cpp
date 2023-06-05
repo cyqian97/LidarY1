@@ -8,8 +8,8 @@
 #include <boost/foreach.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
-#include "perception_msgs/BoundingBox.h"
-#include "perception_msgs/BoundingBoxes.h"
+#include "perception_msgs/yolo_box.h"
+#include "perception_msgs/yolo_boxes.h"
 
 static const std::string OPENCV_WINDOW = "Image window";
 ros::Subscriber pc2_sub;
@@ -23,7 +23,7 @@ class ImageConverter
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
-  boost::shared_ptr<std::vector<perception_msgs::BoundingBox>> bboxes = nullptr;
+  boost::shared_ptr<std::vector<perception_msgs::yolo_box>> bboxes = nullptr;
 
 public:
 
@@ -56,13 +56,13 @@ public:
   }
 
   void updateBBoxes(
-      const boost::shared_ptr<const perception_msgs::BoundingBoxes> bboxes_msg) 
+      const boost::shared_ptr<const perception_msgs::yolo_boxes> bboxes_msg) 
   { 
-    std::vector<'/target_detection'::BoundingBox> _bboxes;
+    std::vector<perception_msgs::yolo_box> _bboxes;
 
     for(const auto& bbox: bboxes_msg->bounding_boxes) _bboxes.push_back(bbox);
 
-    bboxes = boost::make_shared<std::vector<perception_msgs::BoundingBox>>(_bboxes);
+    bboxes = boost::make_shared<std::vector<perception_msgs::yolo_box>>(_bboxes);
 
     ROS_INFO_STREAM("Get " << bboxes->size() << " bboxes.");
   }

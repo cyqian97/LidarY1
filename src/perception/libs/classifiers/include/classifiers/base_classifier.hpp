@@ -13,7 +13,7 @@
 
 namespace autosense {
 namespace classifier {
-
+typedef int16_t ClassificationType;
 class BaseClassifier {
  public:
     /// @brief classify the object    

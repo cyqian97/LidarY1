@@ -8,7 +8,7 @@ VisualClassifier::VisualClassifier() {}
 
 VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(params)
 {
-    sub_bboxes_ = nh_.subscribe('/target_detection', 1, 
+    sub_bboxes_ = nh_.subscribe("/target_detection", 1, 
         &VisualClassifier::updateBBoxes, this);
     ROS_INFO_STREAM("params_.visual_x1: " << params_.visual_x1);
     ROS_INFO_STREAM("params_.visual_x2: " << params_.visual_x2 << std::endl);
@@ -20,19 +20,20 @@ VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(para
 VisualClassifier::~VisualClassifier() {}
 
 void VisualClassifier::updateBBoxes(
-      const boost::shared_ptr<const perception_msgs::BoundingBoxes> bboxes_msg) 
+      const boost::shared_ptr<const perception_msgs::yolo_boxes> bboxes_msg) 
 { 
-    std::vector<perception_msgs::BoundingBox> _bboxes;
+    std::vector<perception_msgs::yolo_box> _bboxes;
 
-    std::map<std::string,ObjectType>::iterator _it_coco_class_map_;
+    std::map<ClassificationType,ObjectType>::iterator _it_coco_class_map_;
 
-    for(const auto& bbox: bboxes_msg->bounding_boxes)
+    for(const perception_msgs::yolo_box& bbox: bboxes_msg->bounding_boxes)
     {
-        _it_coco_class_map_ = coco_class_map_.find(bbox.Class);
+        ClassificationType t_ = bbox.obj_class[0];
+        _it_coco_class_map_ = coco_class_map_.find(t_);
         if(_it_coco_class_map_ != coco_class_map_.end()) _bboxes.push_back(bbox);
     }
 
-    bboxes = boost::make_shared<std::vector<perception_msgs::BoundingBox>>(_bboxes);
+    bboxes = boost::make_shared<std::vector<perception_msgs::yolo_box>>(_bboxes);
 }
 
 void VisualClassifier::classify(const ObjectPtr &object)
@@ -98,11 +99,11 @@ void VisualClassifier::classify(const ObjectPtr &object)
                     params_.visual_t_Lidar_CameraC, params_.visual_D_C,
                     x);
                                     
-                std::map<std::string,int> _classes_counts;
-                std::map<std::string,int>::iterator _it_classes_counts;
+                std::map<ClassificationType,int> _classes_counts;
+                std::map<ClassificationType,int>::iterator _it_classes_counts;
                 int _current_max_count = 0;
                 int _in_window_count = 0;
-                std::string _current_max_class;
+                ClassificationType _current_max_class;
                 for(int i = 0; i < res.cols(); i++)
                 {
                     // Check if point is inside the cropped image
@@ -116,10 +117,12 @@ void VisualClassifier::classify(const ObjectPtr &object)
                         if( res(0,i) > bbox.xmin && res(0,i) < bbox.xmax &&
                             res(1,i) > bbox.ymin && res(1,i) < bbox.ymax)
                         {
-                            _it_classes_counts = _classes_counts.find(bbox.Class);
+                            
+                            ClassificationType t_ = bbox.obj_class[0];
+                            _it_classes_counts = _classes_counts.find(t_);
                             if (_it_classes_counts == _classes_counts.end())
                             {
-                                _classes_counts.insert(std::make_pair(bbox.Class,1));
+                                _classes_counts.insert(std::make_pair(t_,1));
                             }
                             else
                             {
@@ -138,7 +141,7 @@ void VisualClassifier::classify(const ObjectPtr &object)
                 ROS_INFO_STREAM("current_total_num: " << _in_window_count);
                 if( _current_max_count > params_.visual_thld_ratio * _in_window_count)
                 {
-                    std::map<std::string,ObjectType>::iterator _it_coco_class_map_
+                    std::map<ClassificationType,ObjectType>::iterator _it_coco_class_map_
                         = coco_class_map_.find(_current_max_class);
                     if (_it_coco_class_map_ != coco_class_map_.end()) 
                     {
