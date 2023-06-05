@@ -28,6 +28,49 @@ namespace calibration {
 static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& t, std::vector<double> D_C,
                     const Eigen::MatrixXd& x, const bool invert_lidar =  true) {//const Eigen::MatrixXd& x)
 
+    // Convert Eigne points to cv points
+    std::vector<cv::Point3f> points_lidar(x.cols());
+    for (int i = 0; i < x.cols(); i++)
+        points_lidar[i] = cv::Point3f(x(0,i),x(1,i),x(2,i));
+
+    // Project the points
+    std::vector<cv::Point2d> points_distorted_cv;
+
+    cv::Mat R_mat(3,3,CV_64F);
+    cv::eigen2cv(R,R_mat);
+    
+    cv::Mat t_mat(3,1,CV_64F);
+    cv::eigen2cv(t,t_mat);
+
+    cv::Mat K_mat(3,3,CV_64F);
+    cv::eigen2cv(K,K_mat);
+
+    cv::Mat D_C_cv(5,1,CV_64F,D_C.data());
+
+
+    cv::projectPoints(points_lidar, R_mat, t_mat, K_mat, D_C_cv, points_distorted_cv);
+
+    // std::cout << "Distort complete" << std::endl;
+
+    
+    Eigen::MatrixXd points_distorted(2,x.cols());
+
+    for (int i = 0; i < x.cols(); i++)
+    {
+        points_distorted(0,i) = points_distorted_cv[i].x;
+        points_distorted(1,i) = points_distorted_cv[i].y;
+    }
+
+
+    // std::cout << "points_distorted: \n" << points_distorted << std::endl; 
+    // cv::cv2eigen(dstp,r);
+    
+    return points_distorted;
+}
+
+static Eigen::MatrixXd projFisheye(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& t, std::vector<double> D_C,
+                    const Eigen::MatrixXd& x, const bool invert_lidar =  true) {//const Eigen::MatrixXd& x)
+
     // Lidar is mounted inverted.
     Eigen::Matrix3d rot_y;
     rot_y <<    -1.0, 0.0, 0.0,
@@ -98,6 +141,7 @@ static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, 
     
     return points_distorted;
 }
+
 }  // namespace callibration
 }  // namespace common
 }  // namespace autosense
