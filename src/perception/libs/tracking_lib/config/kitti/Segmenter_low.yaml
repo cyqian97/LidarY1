@@ -19,7 +19,7 @@ detect: {
     #roi_radius_max_m: 120.,
     # Vertical range
     roi_height_below_m: 0.,
-    roi_height_above_m: 6.0,
+    roi_height_above_m: 8.0,
 
     roi_height_above_m_second: 4.0,
     roi_radius_max_m_second: 30.,
@@ -77,13 +77,13 @@ detect: {
     # default: 14
     rec_region_size: 14,
     #rec_region_size: 7,
-    rec_region_sizes: [4, 5, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5],
+    rec_region_sizes: [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     # the same as euclidean distance tolerence for ECE
     rec_region_initial_tolerance: 0.1,
     ## increase euclidean distance tolerence between adjacent region
     # type: float
     # default: 0.2
-    rec_region_delta_tolerance: 0.05,
+    rec_region_delta_tolerance: 0.01,
     ## minimum/maximum cluster's point number
     # type: int
     # default: 5/30000

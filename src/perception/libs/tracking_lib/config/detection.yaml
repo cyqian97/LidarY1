@@ -1,7 +1,7 @@
 detect: {
-  frame_id: "cepton_10627",
+  frame_id: "cepton2",
 
-  sub_pc_topic: "/cepton/points",
+  sub_pc_topic: "/cepton2/points_221341",
   sub_pc_queue_size: 1,
 
   pub_pcs_segmented_topic: "/segment/clouds_segmented",
@@ -26,10 +26,10 @@ detect: {
   #non_ground_segmenter_type: "EuclideanSegmenter",
 
   ## Inverted Lidar
-  inverted_lidar: true,
+  inverted_lidar: false,
 
   ## Spherical Voxel Filter
   use_spherical_voxel_filter: false,
 
-  verbose: false,
+  verbose: true,
 }

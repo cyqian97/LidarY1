@@ -119,7 +119,7 @@ std_msgs::Header hd;
 void OnSegmentClouds(
     const autosense_msgs::PointCloud2ArrayConstPtr &segments_msg) {
     const double kTimeStamp = segments_msg->header.stamp.toSec();
-    if (verbose) ROS_INFO("Clusters size: %d at %lf.", segments_msg->clouds.size(),
+    if (verbose) ROS_INFO("Tracking: Clusters size: %d at %lf.", segments_msg->clouds.size(),
              kTimeStamp);
     hd = segments_msg->header;
     std_msgs::Header header;
@@ -152,7 +152,9 @@ void OnSegmentClouds(
         // cloud_combined->clear();
         // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
 
+        if(verbose) ROS_INFO_STREAM("Before================================");
         auto m = cloud_combined->getMatrixXfMap(3,4,0);
+        if(verbose) ROS_INFO_STREAM("After================================");
 
         // auto m2 = m.topLeftCorner(3,2);
         // Eigen::MatrixXd x = m2.cast <double> ();
@@ -170,17 +172,23 @@ void OnSegmentClouds(
         // }
         
         Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+        if(verbose) ROS_INFO_STREAM("After Proj================================");
+        if(verbose) ROS_INFO_STREAM("res cols:" << res.cols() << " rows: " << res.rows());
 
         autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
 
         for(int i; i < res.cols(); ++i)
         {
-            autosense::Point p(double(res(1,i)),double(res(2,i)),0.0);
+            autosense::Point p(double(res(0,i)),double(res(1,i)),0.0);
             cloud_distort->points.push_back(p);
         }
 
         sensor_msgs::PointCloud2 output;
+        
+        if(verbose) ROS_INFO_STREAM("Before To ROS Message================================");
         pcl::toROSMsg(*cloud_distort, output);
+        
+        if(verbose) ROS_INFO_STREAM("Before Pub ROS Message================================");
         output.header = hd;
         pcs_distort_pub_.publish(output);
 

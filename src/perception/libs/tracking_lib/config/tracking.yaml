@@ -1,6 +1,6 @@
 tracking: {
-  local_frame_id: "cepton_10627",
-  global_frame_id: "cepton_10627",
+  local_frame_id: "cepton2",
+  global_frame_id: "cepton2",
   # Query Ros TF timeout in ms. ros::Duration time.
   # type: int
   # default: 10
@@ -41,7 +41,7 @@ tracking: {
   # lidar's position wrt the cart ground center in meters
   offset: [0.0, 0.2667, 1.18745],
   
-  verbose: false,
+  verbose: true,
   visualize: true,
 
 }
