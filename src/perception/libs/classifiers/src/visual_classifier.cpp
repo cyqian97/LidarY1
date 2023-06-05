@@ -8,7 +8,7 @@ VisualClassifier::VisualClassifier() {}
 
 VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(params)
 {
-    sub_bboxes_ = nh_.subscribe("/darknet_ros/bounding_boxes", 1, 
+    sub_bboxes_ = nh_.subscribe('/target_detection', 1, 
         &VisualClassifier::updateBBoxes, this);
     ROS_INFO_STREAM("params_.visual_x1: " << params_.visual_x1);
     ROS_INFO_STREAM("params_.visual_x2: " << params_.visual_x2 << std::endl);
@@ -20,9 +20,9 @@ VisualClassifier::VisualClassifier(const ClassifierParams& params): params_(para
 VisualClassifier::~VisualClassifier() {}
 
 void VisualClassifier::updateBBoxes(
-      const boost::shared_ptr<const darknet_ros_msgs::BoundingBoxes> bboxes_msg) 
+      const boost::shared_ptr<const perception_msgs::BoundingBoxes> bboxes_msg) 
 { 
-    std::vector<darknet_ros_msgs::BoundingBox> _bboxes;
+    std::vector<perception_msgs::BoundingBox> _bboxes;
 
     std::map<std::string,ObjectType>::iterator _it_coco_class_map_;
 
@@ -32,7 +32,7 @@ void VisualClassifier::updateBBoxes(
         if(_it_coco_class_map_ != coco_class_map_.end()) _bboxes.push_back(bbox);
     }
 
-    bboxes = boost::make_shared<std::vector<darknet_ros_msgs::BoundingBox>>(_bboxes);
+    bboxes = boost::make_shared<std::vector<perception_msgs::BoundingBox>>(_bboxes);
 }
 
 void VisualClassifier::classify(const ObjectPtr &object)

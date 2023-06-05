@@ -64,7 +64,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>darknet_ros_msgs</exec_depend>
+  <exec_depend>perception_msgs</exec_depend>
 
 
   <build_depend>pcl_ros</build_depend>

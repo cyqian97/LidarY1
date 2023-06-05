@@ -18,8 +18,8 @@
 #include "common/calibration.hpp"
 #include "roi_filters/roi.hpp"  
 #include "classifiers/base_classifier.hpp"   
-#include "darknet_ros_msgs/BoundingBox.h"
-#include "darknet_ros_msgs/BoundingBoxes.h"
+#include "perception_msgs/BoundingBox.h"
+#include "perception_msgs/BoundingBoxes.h"
 
 // #include <pcl/io/pcd_io.h>
 // #include <pcl/features/normal_3d.h>
@@ -52,7 +52,7 @@ class VisualClassifier : public BaseClassifier {
     virtual std::string name() const { return "VisualClassifier"; }
 
     virtual void updateBBoxes(
-      const boost::shared_ptr<const darknet_ros_msgs::BoundingBoxes> bboxes_msg);
+      const boost::shared_ptr<const perception_msgs::BoundingBoxes> bboxes_msg);
 
    //  virtual void setVerbose(const bool _verbose){ verbose = _verbose;}
 
@@ -66,7 +66,7 @@ class VisualClassifier : public BaseClassifier {
     std::map<IdType, std::vector<ObjectType>> type_histories;
     std::map<IdType, ObjectType> type_fixed;
 
-    boost::shared_ptr<std::vector<darknet_ros_msgs::BoundingBox>> bboxes = nullptr;
+    boost::shared_ptr<std::vector<perception_msgs::BoundingBox>> bboxes = nullptr;
 
     std::map<std::string, ObjectType> coco_class_map_{{"person", PEDESTRIAN}, {"car", CAR}, {"truck",CAR},
        {"cat", DEER}, {"dog", DEER}, {"horse", DEER}, {"sheep", DEER}, {"cow", DEER}, {"elephant", DEER}, {"bear", DEER}, {"zebra", DEER}, {"giraffe",DEER}};

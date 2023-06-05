@@ -8,8 +8,8 @@
 #include <boost/foreach.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
-#include "darknet_ros_msgs/BoundingBox.h"
-#include "darknet_ros_msgs/BoundingBoxes.h"
+#include "perception_msgs/BoundingBox.h"
+#include "perception_msgs/BoundingBoxes.h"
 
 static const std::string OPENCV_WINDOW = "Image window";
 ros::Subscriber pc2_sub;
@@ -23,7 +23,7 @@ class ImageConverter
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
-  boost::shared_ptr<std::vector<darknet_ros_msgs::BoundingBox>> bboxes = nullptr;
+  boost::shared_ptr<std::vector<perception_msgs::BoundingBox>> bboxes = nullptr;
 
 public:
 
@@ -36,7 +36,7 @@ public:
       &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
-    sub_bboxes_ = nh_.subscribe("/darknet_ros/bounding_boxes", 1, 
+    sub_bboxes_ = nh_.subscribe("/target_detection", 1, 
     &ImageConverter::updateBBoxes, this);
 
     cv::namedWindow(OPENCV_WINDOW);
@@ -56,13 +56,13 @@ public:
   }
 
   void updateBBoxes(
-      const boost::shared_ptr<const darknet_ros_msgs::BoundingBoxes> bboxes_msg) 
+      const boost::shared_ptr<const perception_msgs::BoundingBoxes> bboxes_msg) 
   { 
-    std::vector<darknet_ros_msgs::BoundingBox> _bboxes;
+    std::vector<'/target_detection'::BoundingBox> _bboxes;
 
     for(const auto& bbox: bboxes_msg->bounding_boxes) _bboxes.push_back(bbox);
 
-    bboxes = boost::make_shared<std::vector<darknet_ros_msgs::BoundingBox>>(_bboxes);
+    bboxes = boost::make_shared<std::vector<perception_msgs::BoundingBox>>(_bboxes);
 
     ROS_INFO_STREAM("Get " << bboxes->size() << " bboxes.");
   }

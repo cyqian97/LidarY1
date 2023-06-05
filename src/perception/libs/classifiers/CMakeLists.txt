@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
     common_lib
     roi_filters_lib
     object_builders_lib
-    darknet_ros_msgs
+    perception_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -61,7 +61,7 @@ find_package(Eigen3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    CATKIN_DEPENDS roscpp common_lib roi_filters_lib object_builders_lib darknet_ros_msgs
+    CATKIN_DEPENDS roscpp common_lib roi_filters_lib object_builders_lib perception_msgs
     #  DEPENDS system_lib
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}

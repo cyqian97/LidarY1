@@ -8,8 +8,8 @@
 #include <boost/foreach.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
-#include "darknet_ros_msgs/BoundingBox.h"
-#include "darknet_ros_msgs/BoundingBoxes.h"
+#include "'/target_detection'/BoundingBox.h"
+#include "'/target_detection'/BoundingBoxes.h"
 
 class ImageConverter
 {
@@ -19,7 +19,7 @@ class ImageConverter
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
-  boost::shared_ptr<std::vector<darknet_ros_msgs::BoundingBox>> bboxes = nullptr;
+  boost::shared_ptr<std::vector<'/target_detection'::BoundingBox>> bboxes = nullptr;
 
 public:
 

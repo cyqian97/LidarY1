@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
-  darknet_ros_msgs
+  perception_msgs
 )
 
 find_package(PCL 1.8 REQUIRED COMPONENTS
