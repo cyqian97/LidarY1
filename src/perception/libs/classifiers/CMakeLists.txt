@@ -43,6 +43,11 @@ find_package(PCL 1.8 REQUIRED COMPONENTS
 
 add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
+
+# OpenCV
+find_package(OpenCV 4.2.0 REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 ### Eigen
 find_package(Eigen3 REQUIRED)
 

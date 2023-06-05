@@ -41,7 +41,7 @@ find_package(Eigen3 REQUIRED)
 
 ### OpenCV
 
-find_package(OpenCV 3.4.17 REQUIRED)
+find_package(OpenCV 4.2.0 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 ###################################
