@@ -152,9 +152,7 @@ void OnSegmentClouds(
         // cloud_combined->clear();
         // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
 
-        if(verbose) ROS_INFO_STREAM("Before================================");
         auto m = cloud_combined->getMatrixXfMap(3,4,0);
-        if(verbose) ROS_INFO_STREAM("After================================");
 
         // auto m2 = m.topLeftCorner(3,2);
         // Eigen::MatrixXd x = m2.cast <double> ();
@@ -172,12 +170,9 @@ void OnSegmentClouds(
         // }
         
         Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
-        if(verbose) ROS_INFO_STREAM("After Proj================================");
-        if(verbose) ROS_INFO_STREAM("res cols:" << res.cols() << " rows: " << res.rows());
-
         autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
 
-        for(int i; i < res.cols(); ++i)
+        for(int i = 0; i < res.cols(); ++i)
         {
             autosense::Point p(double(res(0,i)),double(res(1,i)),0.0);
             cloud_distort->points.push_back(p);
@@ -185,20 +180,10 @@ void OnSegmentClouds(
 
         sensor_msgs::PointCloud2 output;
         
-        if(verbose) ROS_INFO_STREAM("Before To ROS Message================================");
         pcl::toROSMsg(*cloud_distort, output);
         
-        if(verbose) ROS_INFO_STREAM("Before Pub ROS Message================================");
         output.header = hd;
         pcs_distort_pub_.publish(output);
-
-
-        if(verbose)
-        {
-            ROS_INFO_STREAM("\t res cols: " << res.cols());
-            ROS_INFO_STREAM("\t res rows: " << res.rows());    
-        }
-        
     }
 
     // current pose

@@ -50,9 +50,12 @@ public:
   void onPC2(const sensor_msgs::PointCloud2Ptr& msg)
   {
     
+    ROS_INFO_STREAM("Received point clouds.");
     pcl::PointCloud<pcl::PointXYZ>::Ptr _cloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromROSMsg(*msg, *_cloud);
     cloud = _cloud;
+    
+    ROS_INFO_STREAM("Cloud size: " << cloud->size());
   }
 
   void updateBBoxes(
@@ -85,7 +88,10 @@ public:
     // for(const pcl::PointXYZ& pt: cloud->points)
     if(cloud != nullptr)
       for(const pcl::PointXYZ& pt: cloud->points)
-        cv::circle(cv_ptr->image, cv::Point(pt.y,pt.x), 2, CV_RGB(255,0,0));
+      {
+        cv::circle(cv_ptr->image, cv::Point(pt.x,pt.y), 2, CV_RGB(255,0,0));
+        // ROS_INFO_STREAM("Point at " << pt.y << ", " << pt.x);
+      }
 
     if(bboxes != nullptr)
       for(const auto& bbox: *bboxes)

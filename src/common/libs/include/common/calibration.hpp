@@ -36,10 +36,12 @@ static Eigen::MatrixXd proj(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, 
     std::vector<cv::Point2f> points_distorted_cv;
 
     cv::Mat R_mat(3,3,CV_64F);
-    cv::eigen2cv(R,R_mat);
+    Eigen::Matrix3d RR = R.inverse();
+    cv::eigen2cv(RR,R_mat);
     
     cv::Mat t_mat(3,1,CV_64F);
-    cv::eigen2cv(t,t_mat);
+    Eigen::Vector3d tt = -t;
+    cv::eigen2cv(tt,t_mat);
 
     cv::Mat K_mat(3,3,CV_64F);
     cv::eigen2cv(K,K_mat);
