@@ -18,8 +18,8 @@
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
-#include "perception_msgs/Lidar_camera_object.h"
-#include "perception_msgs/Lidar_camera_objects.h"
+#include "perception_msgs/Object.h"
+#include "perception_msgs/Objects.h"
 #include "perception_msgs/pos3d.h"
 #include <geometry_msgs/Pose2D.h>
 #include <sensor_msgs/Image.h>
@@ -97,7 +97,7 @@ ros::Publisher tracking_objects_cloud_pub_;
 ros::Publisher tracking_objects_velocity_pub_;
 ros::Publisher tracking_objects_tracker_id_pub_;
 ros::Publisher tracking_objects_trajectory_pub_;
-ros::Publisher lidar_camera_pub_;
+ros::Publisher lidar_camera_pub_; // Publish the final message for canbus scoring
 
 autosense::common::IdPubManager<autosense::IdPubType>* id_pub_publisher_ = nullptr;
 
@@ -566,7 +566,7 @@ int main(int argc, char **argv) {
             pub_output_trajectories_topic, 1);
 
 
-    lidar_camera_pub_ = private_nh.advertise<perception_msgs::Lidar_camera_objects>(pub_lidar_camera_topic_,1);
+    lidar_camera_pub_ = private_nh.advertise<perception_msgs::Objects>(pub_lidar_camera_topic_,1);
 
     id_pub_publisher_ = 
         autosense::common::IdPubManager<autosense::IdPubType>::instantiate(

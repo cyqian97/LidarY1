@@ -21,8 +21,8 @@
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
 
-#include "perception_msgs/Lidar_camera_object.h"
-#include "perception_msgs/Lidar_camera_objects.h"
+#include "perception_msgs/Object.h"
+#include "perception_msgs/Objects.h"
 #include "perception_msgs/Objects.h"
 
 #include "common/common.hpp"
@@ -933,11 +933,11 @@ static void publishLidarCameraObjects(
     const std::vector<double> offset,
     const std::vector<ObjectPtr> &objects_array)
 {
-    perception_msgs::Lidar_camera_objects* objects_msg(
-            new perception_msgs::Lidar_camera_objects);
+    perception_msgs::Objects* objects_msg(
+            new perception_msgs::Objects);
     objects_msg->stamp = header.stamp;
-    // perception_msgs::Lidar_camera_object[] object_msg_list 
-    //     = new perception_msgs::Lidar_camera_object[objects_array.size()];
+    // perception_msgs::Object[] object_msg_list 
+    //     = new perception_msgs::Object[objects_array.size()];
     
     
     Eigen::Matrix3d local_to_NEU;
@@ -948,7 +948,7 @@ static void publishLidarCameraObjects(
     // int index = 0;
     for(const auto& object: objects_array)
     {        
-        perception_msgs::Lidar_camera_object object_msg;
+        perception_msgs::Object object_msg;
         Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;
         Eigen::Vector3d center = object->ground_center;//local_to_NEU * object->ground_center;
 
@@ -1018,6 +1018,7 @@ static void publishLidarCameraObjects(
             object_msg.dynamic_prop = uint8_t(0);
             break;
         }
+        object_msg.relative_lane = uint8_t(1);
         objects_msg->list.push_back(object_msg);
         // object_msg_list[index] = object_msg;
         // index++;
