@@ -206,7 +206,7 @@ namespace autosense
                     objects_label_not_fixed.push_back(object);
                 }
             }
-
+            std::cout << "111111111111111111111111111111" << std::endl;
             // Project each cloud to camera frame
             std::vector<Eigen::MatrixXd> objects_projected;
             for (const auto &object : objects_label_not_fixed)
@@ -219,96 +219,101 @@ namespace autosense
                 objects_projected.push_back(res);
             }
 
-            for (const auto &bbox : *bboxes)
+            std::cout << "22222222222222222222222222222222222" << std::endl;
+            if (bboxes != nullptr && bboxes->size() > 0)
             {
-                std::cout << "BBOX:" << bbox.obj_class[0] << std::endl;
-                // Map the class to what we need
-                std::map<ClassificationType, ObjectType>::iterator _it_coco_class_map_ =
-                    coco_class_map_.find(bbox.obj_class[0]);
-                ObjectType type_now = _it_coco_class_map_->second;
-                if (_it_coco_class_map_->second == PEDESTRIAN ||
-                    _it_coco_class_map_->second == CAR ||
-                    _it_coco_class_map_->second == DEER)
+                for (const auto &bbox : *bboxes)
                 {
-                    std::vector<int> obj_in_ids;
-                    std::vector<double> obj_in_sizes;
-
-                    for (int i_obj = 0; i_obj < objects_label_not_fixed.size(); i_obj++)
+                    std::cout << "BBOX:" << bbox.obj_class[0] << std::endl;
+                    // Map the class to what we need
+                    std::map<ClassificationType, ObjectType>::iterator _it_coco_class_map_ =
+                        coco_class_map_.find(bbox.obj_class[0]);
+                    ObjectType type_now = _it_coco_class_map_->second;
+                    if (_it_coco_class_map_->second == PEDESTRIAN ||
+                        _it_coco_class_map_->second == CAR ||
+                        _it_coco_class_map_->second == DEER)
                     {
+                        std::vector<int> obj_in_ids;
+                        std::vector<double> obj_in_sizes;
 
-                        int _in_box_count = 0;
-                        int _in_window_count = 0;
-
-                        Eigen::MatrixXd res = objects_projected[i_obj];
-                        double _obj_x_min = res(0, 0);
-                        double _obj_x_max = res(0, 0);
-                        double _obj_y_min = res(1, 0);
-                        double _obj_y_max = res(1, 0);
-
-                        for (int i = 0; i < res.cols(); i++)
+                        for (int i_obj = 0; i_obj < objects_label_not_fixed.size(); i_obj++)
                         {
-                            if (res(0, i) < _obj_x_min)
-                                _obj_x_min = res(0, i);
-                            if (res(0, i) > _obj_x_max)
-                                _obj_x_max = res(0, i);
-                            if (res(1, i) < _obj_y_min)
-                                _obj_y_min = res(1, i);
-                            if (res(1, i) > _obj_y_max)
-                                _obj_y_max = res(1, i);
-                            // Check if point is inside the cropped image
-                            if (res(0, i) < params_.visual_x1 || res(0, i) > params_.visual_x2 ||
-                                res(1, i) < params_.visual_y1 || res(1, i) > params_.visual_y2)
-                                continue;
 
-                            _in_window_count++;
+                            int _in_box_count = 0;
+                            int _in_window_count = 0;
 
-                            if (res(0, i) > bbox.xmin + params_.visual_x1 && res(0, i) < bbox.xmax + params_.visual_x1 &&
-                                res(1, i) > bbox.ymin + params_.visual_y1 && res(1, i) < bbox.ymax + params_.visual_y1)
-                                _in_box_count++;
+                            Eigen::MatrixXd res = objects_projected[i_obj];
+                            double _obj_x_min = res(0, 0);
+                            double _obj_x_max = res(0, 0);
+                            double _obj_y_min = res(1, 0);
+                            double _obj_y_max = res(1, 0);
+
+                            for (int i = 0; i < res.cols(); i++)
+                            {
+                                if (res(0, i) < _obj_x_min)
+                                    _obj_x_min = res(0, i);
+                                if (res(0, i) > _obj_x_max)
+                                    _obj_x_max = res(0, i);
+                                if (res(1, i) < _obj_y_min)
+                                    _obj_y_min = res(1, i);
+                                if (res(1, i) > _obj_y_max)
+                                    _obj_y_max = res(1, i);
+                                // Check if point is inside the cropped image
+                                if (res(0, i) < params_.visual_x1 || res(0, i) > params_.visual_x2 ||
+                                    res(1, i) < params_.visual_y1 || res(1, i) > params_.visual_y2)
+                                    continue;
+
+                                _in_window_count++;
+
+                                if (res(0, i) > bbox.xmin + params_.visual_x1 && res(0, i) < bbox.xmax + params_.visual_x1 &&
+                                    res(1, i) > bbox.ymin + params_.visual_y1 && res(1, i) < bbox.ymax + params_.visual_y1)
+                                    _in_box_count++;
+                            }
+                            if (_in_box_count > params_.visual_thld_ratio * _in_window_count)
+                            {
+                                std::cout << "\tid " << i_obj << std::endl;
+                                std::cout << "\tratio " << (double)_in_box_count / (double)_in_window_count << std::endl;
+                                std::cout << "\tsize " << (_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min) << std::endl;
+
+                                obj_in_ids.push_back(i_obj);
+                                obj_in_sizes.push_back((_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min));
+                            }
                         }
-                        if (_in_box_count > params_.visual_thld_ratio * _in_window_count)
+
+                        double max_size = 0;
+                        int obj_id_select = -1;
+                        for (int i = 0; i < obj_in_ids.size(); i++)
                         {
-                            std::cout << "\tid " << i_obj << std::endl;
-                            std::cout << "\tratio " << (double)_in_box_count / (double)_in_window_count << std::endl;
-                            std::cout << "\tsize " << (_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min) << std::endl;
+                            if (obj_in_sizes[i] > max_size)
+                            {
+                                max_size = obj_in_sizes[i];
+                                obj_id_select = obj_in_ids[i];
+                            }
+                        }
 
-                            obj_in_ids.push_back(i_obj);
-                            obj_in_sizes.push_back((_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min));
-                        }
-                    }
-
-                    double max_size = 0;
-                    int obj_id_select = -1;
-                    for (int i = 0; i < obj_in_ids.size(); i++)
-                    {
-                        if (obj_in_sizes[i] > max_size)
+                        std::cout << "\tselect id " << obj_id_select << std::endl;
+                        if (obj_id_select > 0)
                         {
-                            max_size = obj_in_sizes[i];
-                            obj_id_select = obj_in_ids[i];
+                            objects_label_not_fixed[obj_id_select]->type = type_now;
+                            std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =
+                                type_histories.find(objects_label_not_fixed[obj_id_select]->tracker_id);
+                            if (it_tracker_history != type_histories.end())
+                            {
+                                it_tracker_history->second.push_back(type_now);
+                            }
+                            else
+                            {
+                                std::vector<ObjectType> _temp_history{type_now};
+                                type_histories.insert(std::make_pair(objects_label_not_fixed[obj_id_select]->tracker_id, _temp_history));
+                            }
+                            objects_label_not_fixed.erase(objects_label_not_fixed.begin() + obj_id_select);
+                            objects_projected.erase(objects_projected.begin() + obj_id_select);
                         }
-                    }
-
-                    std::cout << "\tselect id " << obj_id_select << std::endl;
-                    if (obj_id_select > 0)
-                    {
-                        objects_label_not_fixed[obj_id_select]->type = type_now;
-                        std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =
-                            type_histories.find(objects_label_not_fixed[obj_id_select]->tracker_id);
-                        if (it_tracker_history != type_histories.end())
-                        {
-                            it_tracker_history->second.push_back(type_now);
-                        }
-                        else
-                        {
-                            std::vector<ObjectType> _temp_history{type_now};
-                            type_histories.insert(std::make_pair(objects_label_not_fixed[obj_id_select]->tracker_id, _temp_history));
-                        }
-                        objects_label_not_fixed.erase(objects_label_not_fixed.begin() + obj_id_select);
-                        objects_projected.erase(objects_projected.begin() + obj_id_select);
                     }
                 }
             }
 
+            std::cout << "33333333333333333333333333333333333333333333333" << std::endl;
             // Size based classification
             // Get possible types from size
             sizeConjectures(objects_label_not_fixed);
@@ -354,6 +359,7 @@ namespace autosense
                 }
             }
 
+            std::cout << "444444444444444444444444444444444444444444444444444" << std::endl;
             // Manager historyt based class fixing
             std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
             for (const auto &object : objects_label_not_fixed)
@@ -391,6 +397,7 @@ namespace autosense
                     }
                 }
             }
+            std::cout << "555555555555555555555555555555555555555555" << std::endl;
         }
 
     } // classifier

@@ -283,7 +283,10 @@ void OnSegmentClouds(
                     << clock_tracking.takeRealTime() << "ms.");
 
 
+    
+    std::cout << "Before classify================================" << std::endl;
     classifier_worker_->classify_vector(tracking_objects_velo);
+    std::cout << "after classify==================================" << std::endl;
 
 
 

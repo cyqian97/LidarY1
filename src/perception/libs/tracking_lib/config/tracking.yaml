@@ -41,7 +41,7 @@ tracking: {
   # lidar's position wrt the cart ground center in meters
   offset: [0.0, 0.2667, 1.18745],
   
-  verbose: false,
+  verbose: true,
   visualize: true,
 
 }
