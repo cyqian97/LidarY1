@@ -71,7 +71,7 @@ class VisualClassifier : public BaseClassifier {
    //  std::map<std::string, ObjectType> coco_class_map_{{"person", PEDESTRIAN}, {"car", CAR}, {"truck",CAR},
    //     {"cat", DEER}, {"dog", DEER}, {"horse", DEER}, {"sheep", DEER}, {"cow", DEER}, {"elephant", DEER}, {"bear", DEER}, {"zebra", DEER}, {"giraffe",DEER}};
 
-       std::map<ClassificationType, ObjectType> coco_class_map_{{0, PEDESTRIAN}, {2, CAR}};
+       std::map<ClassificationType, ObjectType> coco_class_map_{{0, PEDESTRIAN}, {2, CAR}, {7,CAR},{16, DEER}, {17, DEER}, {18, DEER}, {19, DEER}};
 
   //   pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator_;  
   //   pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::Histogram<125> >::Ptr fpfh_;
