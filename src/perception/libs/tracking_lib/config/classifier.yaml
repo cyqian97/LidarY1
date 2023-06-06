@@ -23,7 +23,7 @@ classifier: {
   visual_x2: 5472,
   visual_y1: 0,
   visual_y2: 3648,
-  visual_thld_ratio: 0.5,
+  visual_thld_ratio: 0.5, 
 
   },
 

@@ -300,7 +300,7 @@ void OnSegmentClouds(
         for(const auto &object: tracking_objects_velo)
             if(object->type != autosense::NOTSURE)
                 objects_care.push_back(object);
-                tracking_objects_velo = objects_care;
+        tracking_objects_velo = objects_care;
     }
     std::vector<autosense::ObjectPtr> objects_id_pub_ = id_pub_publisher_->onNewObjects(tracking_objects_velo);
 
