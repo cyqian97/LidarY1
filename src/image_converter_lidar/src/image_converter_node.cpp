@@ -95,7 +95,7 @@ public:
 
     if(bboxes != nullptr)
       for(const auto& bbox: *bboxes)
-        cv::rectangle(cv_ptr->image,cv::Point(bbox.xmin,bbox.ymin),cv::Point(bbox.xmax,bbox.ymax),CV_RGB(255,0,0),3);
+        cv::rectangle(cv_ptr->image,cv::Point(bbox.xmin+1000,bbox.ymin+1000),cv::Point(bbox.xmax+1000,bbox.ymax+1000),CV_RGB(255,0,0),3);
 
 
     //   printf ("\t(%f, %f, %f)\n", pt.x, pt.y, pt.z);

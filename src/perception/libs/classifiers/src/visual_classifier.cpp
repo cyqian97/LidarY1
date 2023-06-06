@@ -114,8 +114,8 @@ void VisualClassifier::classify(const ObjectPtr &object)
 
                     for(const auto& bbox: *bboxes)
                     {
-                        if( res(0,i) > bbox.xmin && res(0,i) < bbox.xmax &&
-                            res(1,i) > bbox.ymin && res(1,i) < bbox.ymax)
+                        if( res(0,i) > bbox.xmin+1000 && res(0,i) < bbox.xmax+1000 &&
+                            res(1,i) > bbox.ymin+1000 && res(1,i) < bbox.ymax+1000)
                         {
                             
                             ClassificationType t_ = bbox.obj_class[0];
