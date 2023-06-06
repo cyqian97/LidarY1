@@ -205,16 +205,108 @@ namespace autosense
                     objects_label_not_fixed.push_back(object);
                 }
             }
-            sizeConjectures(objects_label_not_fixed);
-            // for(const auto& object: objects_obsved)
-            // {
-            //     ROS_INFO_STREAM("Object type: " << int(object->size_conjectures.size()));
-            // }
 
+            // Get possible types from size
+            sizeConjectures(objects_label_not_fixed);
+
+            // Project each cloud to camera frame
+            std::vector<Eigen::MatrixXd> objects_projected;
+            for (const auto &object : objects_label_not_fixed)
+            {
+                auto _x = object->cloud->getMatrixXfMap(3, 4, 0);
+                Eigen::MatrixXd x = _x.cast<double>();
+                Eigen::MatrixXd res = autosense::common::calibration::proj(
+                    params_.visual_K_C, params_.visual_R_Lidar_CameraC,
+                    params_.visual_t_Lidar_CameraC, params_.visual_D_C, x);
+                objects_projected.push_back(res);
+            }
+
+            for (const auto &bbox : *bboxes)
+            {
+                // Map the class to what we need
+                std::map<ClassificationType, ObjectType>::iterator _it_coco_class_map_ =
+                    coco_class_map_.find(bbox.obj_class[0]);
+                ObjectType type_now = _it_coco_class_map_.second();
+                if (_it_coco_class_map_.second() == PEDESTRIAN ||
+                    _it_coco_class_map_.second() == CAR ||
+                    _it_coco_class_map_.second() == DEER ||)
+                {
+                    std::vector<int> obj_in_ids;
+                    std::vector<double> obj_in_sizes;
+
+                    for (int i_obj = 0; i_obj < objects_label_not_fixed.size(); i_obj++)
+                    {
+
+                        int _in_box_count = 0;
+                        int _in_window_count = 0;
+
+                        Eigen::MatrixXd res = objects_projected[i_obj];
+                        double _obj_x_min = res(0, 0);
+                        double _obj_x_max = res(0, 0);
+                        double _obj_y_min = res(1, 0);
+                        double _obj_y_max = res(1, 0);
+
+                        for (int i = 0; i < res.cols(); i++)
+                        {
+                            if (res(0, i) < _obj_x_min)
+                                _obj_x_min = res(0, i);
+                            if (res(0, i) > _obj_x_max)
+                                _obj_x_max = res(0, i);
+                            if (res(1, i) < _obj_y_min)
+                                _obj_y_min = res(1, i);
+                            if (res(1, i) > _obj_y_max)
+                                _obj_y_max = res(1, i);
+                            // Check if point is inside the cropped image
+                            if (res(0, i) < params_.visual_x1 || res(0, i) > params_.visual_x2 ||
+                                res(1, i) < params_.visual_y1 || res(1, i) > params_.visual_y2)
+                                continue;
+
+                            _in_window_count++;
+
+                            if (res(0, i) > bbox.xmin + params_.visual_x1 && res(0, i) < bbox.xmax + params_.visual_x1 &&
+                                res(1, i) > bbox.ymin + params_.visual_y1 && res(1, i) < bbox.ymax + params_.visual_y1)
+                                _in_box_count++;
+                        }
+                        if (_in_box_count > params_.visual_thld_ratio * _in_window_count)
+                        {
+                            obj_in_ids.push_back(i_obj);
+                            obj_in_sizes.push_back((_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min));
+                        }
+                    }
+
+                    double max_size = 0;
+                    int obj_id_select = -1;
+                    for (int i = 0; i < obj_in_ids.size(); i++)
+                    {
+                        if (obj_in_sizes[i] > max_size)
+                        {
+                            max_size = obj_in_sizes[i];
+                            obj_id_select = obj_in_ids[i];
+                        }
+                    }
+                    if (obj_id_select > 0)
+                    {
+                        std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =
+                            type_histories.find(objects_label_not_fixed[obj_id_select]->tracker_id);
+                        if (it_tracker_history != type_histories.end())
+                        {
+                            it_tracker_history->second.push_back(type_now);
+                        }
+                        else
+                        {
+                            std::vector<ObjectType> _temp_history{type_now};
+                            type_histories.insert(std::make_pair(object->tracker_id, _temp_history));
+                        }
+                        objects_label_not_fixed.erase (myvector.begin()+5);
+                    }
+                }
+            }
+
+            // Manager historyt based class fixing
             std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
             for (const auto &object : objects_label_not_fixed)
             {
-                classify(object);
+                // classify(object);
 
                 it_tracker_history = type_histories.find(object->tracker_id);
 
