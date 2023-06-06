@@ -191,6 +191,7 @@ namespace autosense
 
         void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obsved)
         {
+            // Assign type to objects whose types are already fixed
             std::vector<ObjectPtr> objects_label_not_fixed;
             std::map<autosense::IdType, autosense::ObjectType>::iterator it_tracker_fixed;
             for (const auto &object : objects_obsved)
@@ -205,9 +206,6 @@ namespace autosense
                     objects_label_not_fixed.push_back(object);
                 }
             }
-
-            // Get possible types from size
-            sizeConjectures(objects_label_not_fixed);
 
             // Project each cloud to camera frame
             std::vector<Eigen::MatrixXd> objects_projected;
@@ -226,10 +224,10 @@ namespace autosense
                 // Map the class to what we need
                 std::map<ClassificationType, ObjectType>::iterator _it_coco_class_map_ =
                     coco_class_map_.find(bbox.obj_class[0]);
-                ObjectType type_now = _it_coco_class_map_.second();
-                if (_it_coco_class_map_.second() == PEDESTRIAN ||
-                    _it_coco_class_map_.second() == CAR ||
-                    _it_coco_class_map_.second() == DEER ||)
+                ObjectType type_now = _it_coco_class_map_->second;
+                if (_it_coco_class_map_->second == PEDESTRIAN ||
+                    _it_coco_class_map_->second == CAR ||
+                    _it_coco_class_map_->second == DEER)
                 {
                     std::vector<int> obj_in_ids;
                     std::vector<double> obj_in_sizes;
@@ -295,10 +293,54 @@ namespace autosense
                         else
                         {
                             std::vector<ObjectType> _temp_history{type_now};
-                            type_histories.insert(std::make_pair(object->tracker_id, _temp_history));
+                            type_histories.insert(std::make_pair(objects_label_not_fixed[obj_id_select]->tracker_id, _temp_history));
                         }
-                        objects_label_not_fixed.erase (myvector.begin()+5);
+                        objects_label_not_fixed.erase(objects_label_not_fixed.begin() + obj_id_select);
+                        objects_projected.erase(objects_projected.begin() + obj_id_select);
                     }
+                }
+            }
+
+            // Size based classification
+            // Get possible types from size
+            sizeConjectures(objects_label_not_fixed);
+
+            for (const auto &object : objects_label_not_fixed)
+            {
+
+                bool _find_traffic_blockage = false;
+                ObjectType type_now = NOTSURE;
+
+                if (!_find_traffic_blockage)
+                {
+                    auto iter_conjectures = std::find(
+                        object->size_conjectures.begin(), object->size_conjectures.end(), autosense::CONE);
+                    if (iter_conjectures != object->size_conjectures.end())
+                    {
+                        type_now = autosense::CONE;
+                        _find_traffic_blockage = true;
+                    }
+                }
+                if (!_find_traffic_blockage)
+                {
+                    auto iter_conjectures = std::find(
+                        object->size_conjectures.begin(), object->size_conjectures.end(), autosense::BARRICADE);
+                    if (iter_conjectures != object->size_conjectures.end())
+                    {
+                        type_now = autosense::BARRICADE;
+                        _find_traffic_blockage = true;
+                    }
+                }
+                std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =
+                    type_histories.find(object->tracker_id);
+                if (it_tracker_history != type_histories.end())
+                {
+                    it_tracker_history->second.push_back(type_now);
+                }
+                else
+                {
+                    std::vector<ObjectType> _temp_history{type_now};
+                    type_histories.insert(std::make_pair(object->tracker_id, _temp_history));
                 }
             }
 
