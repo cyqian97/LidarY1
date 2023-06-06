@@ -211,7 +211,7 @@ static void applyROIFilter(const ROIParams& params,
     const float roi_z_limit_min =
         (-1.0) * (params.roi_lidar_height_m + params.roi_height_below_m);
     const float roi_z_limit_max =
-        params.roi_height_above_m - params.roi_lidar_height_m;
+        params.roi_height_above_m + params.roi_lidar_height_m;
 
     if (params.type == "Cylinder") {
         cylinderROIFilter<PointI>(roi_radius_min, roi_radius_max,

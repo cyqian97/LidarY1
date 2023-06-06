@@ -39,6 +39,8 @@ void VisualClassifier::updateBBoxes(
 void VisualClassifier::classify(const ObjectPtr &object)
 {
     ObjectType type_now = NOTSURE;
+
+    if (bboxes != nullptr)
     
     if(!object->size_conjectures.empty())
     {   
@@ -216,6 +218,8 @@ void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obs
 
         it_tracker_history = type_histories.find(object->tracker_id);
 
+
+        // Since history will not grow after the type is fixed, any object with history longer than abort_frame_lim will be NOTSURE
         if (it_tracker_history->second.size()>params_.abort_frame_lim)
         {
             type_fixed.insert(std::make_pair(object->tracker_id, NOTSURE)); 
@@ -228,7 +232,8 @@ void VisualClassifier::classify_vector(const std::vector<ObjectPtr> &objects_obs
             bool is_label_stable = true;
             for(const auto& _temp_type: type_history_last) 
             {
-                if(_temp_type == NOTSURE || _temp_type != type_history_last[0])
+                if(_temp_type == NOTSURE || _temp_type == NOTSURE || 
+                _temp_type == NOTSURE || _temp_type != type_history_last[0])
                 {
                     is_label_stable = false;
                     break;

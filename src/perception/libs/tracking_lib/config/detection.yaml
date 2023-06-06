@@ -31,5 +31,5 @@ detect: {
   ## Spherical Voxel Filter
   use_spherical_voxel_filter: false,
 
-  verbose: true,
+  verbose: false,
 }
