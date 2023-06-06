@@ -6,7 +6,7 @@ classifier: {
 
 
   # label fixing
-  fix_frame_lim: 5, # number of consecutive valid classifications to fix the label
+  fix_frame_lim: 1, # number of consecutive valid classifications to fix the label
   abort_frame_lim: 200, # fix the label to NOTSURE if label has not been fixed after this number of frames
 
   # Implicit Shape Model (ISM) Parameters
@@ -19,10 +19,10 @@ classifier: {
   peak_threshold: 0.00035,
 
   # Visual classifier parameters
-  visual_x1: 0,
-  visual_x2: 5472,
-  visual_y1: 0,
-  visual_y2: 3648,
+  visual_x1: 1000,
+  visual_x2: 4000,
+  visual_y1: 1000,
+  visual_y2: 3000,
   visual_thld_ratio: 0.5, 
 
   },

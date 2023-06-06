@@ -221,6 +221,7 @@ namespace autosense
 
             for (const auto &bbox : *bboxes)
             {
+                std::cout << "BBOX:" << bbox.obj_class[0] << std::endl;
                 // Map the class to what we need
                 std::map<ClassificationType, ObjectType>::iterator _it_coco_class_map_ =
                     coco_class_map_.find(bbox.obj_class[0]);
@@ -267,6 +268,10 @@ namespace autosense
                         }
                         if (_in_box_count > params_.visual_thld_ratio * _in_window_count)
                         {
+                            std::cout << "\tid " << i_obj << std::endl;
+                            std::cout << "\tratio " << (double)_in_box_count / (double)_in_window_count << std::endl;
+                            std::cout << "\tsize " << (_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min) << std::endl;
+
                             obj_in_ids.push_back(i_obj);
                             obj_in_sizes.push_back((_obj_x_max - _obj_x_min) * (_obj_y_max - _obj_y_min));
                         }
@@ -282,8 +287,11 @@ namespace autosense
                             obj_id_select = obj_in_ids[i];
                         }
                     }
+
+                    std::cout << "\tselect id " << obj_id_select << std::endl;
                     if (obj_id_select > 0)
                     {
+                        objects_label_not_fixed[obj_id_select]->type = type_now;
                         std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =
                             type_histories.find(objects_label_not_fixed[obj_id_select]->tracker_id);
                         if (it_tracker_history != type_histories.end())
@@ -319,6 +327,7 @@ namespace autosense
                     {
                         type_now = autosense::CONE;
                         _find_traffic_blockage = true;
+                        object->type = autosense::CONE;
                     }
                 }
                 if (!_find_traffic_blockage)
@@ -329,6 +338,7 @@ namespace autosense
                     {
                         type_now = autosense::BARRICADE;
                         _find_traffic_blockage = true;
+                        object->type = autosense::BARRICADE;
                     }
                 }
                 std::map<IdType, std::vector<ObjectType>>::iterator it_tracker_history =

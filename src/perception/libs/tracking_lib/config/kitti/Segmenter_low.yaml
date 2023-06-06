@@ -22,7 +22,7 @@ detect: {
     roi_height_above_m: 20.0,
 
     roi_height_above_m_second: 4.0,
-    roi_radius_max_m_second: 100.,
+    roi_radius_max_m_second: 50.,
     roi_radius_min_m_second: 0.,
   },
 
