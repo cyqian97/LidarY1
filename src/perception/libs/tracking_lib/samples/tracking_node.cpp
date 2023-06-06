@@ -219,47 +219,47 @@ void OnSegmentClouds(
         tracking_worker_->collectExpectedObjects(kTimeStamp, *velo2world);
     std::vector<autosense::ObjectPtr> obsv_objects(objects.begin(),
                                                    objects.end());
-    /// @note Tracking 就靠粗分割进行初始化
-    if (!expected_objects.empty()) {
-        /// @note 通过Tracking信息提升分割：过/欠分割,
-        /// 主要目的是因为遮挡等造成的过分割
-        // TODO(chenshengjie): 能否结合一些历史做一下当前完整修饰
-        for (size_t expected_idx = 0u; expected_idx < expected_objects.size();
-             ++expected_idx) {
-            autosense::common::bbox::GroundBox gbox_expected;
-            autosense::common::bbox::toGroundBox(expected_objects[expected_idx],
-                                                 &gbox_expected);
+    // /// @note Tracking 就靠粗分割进行初始化
+    // if (!expected_objects.empty()) {
+    //     /// @note 通过Tracking信息提升分割：过/欠分割,
+    //     /// 主要目的是因为遮挡等造成的过分割
+    //     // TODO(chenshengjie): 能否结合一些历史做一下当前完整修饰
+    //     for (size_t expected_idx = 0u; expected_idx < expected_objects.size();
+    //          ++expected_idx) {
+    //         autosense::common::bbox::GroundBox gbox_expected;
+    //         autosense::common::bbox::toGroundBox(expected_objects[expected_idx],
+    //                                              &gbox_expected);
 
-            autosense::ObjectPtr object_merged(new autosense::Object);
+    //         autosense::ObjectPtr object_merged(new autosense::Object);
 
-            for (size_t obsv_idx = 0u; obsv_idx < objects.size(); ++obsv_idx) {
-                autosense::common::bbox::GroundBox gbox_obsv;
-                autosense::common::bbox::toGroundBox(objects[obsv_idx],
-                                                     &gbox_obsv);
+    //         for (size_t obsv_idx = 0u; obsv_idx < objects.size(); ++obsv_idx) {
+    //             autosense::common::bbox::GroundBox gbox_obsv;
+    //             autosense::common::bbox::toGroundBox(objects[obsv_idx],
+    //                                                  &gbox_obsv);
 
-                // combining all connected components within an expected
-                // object’s bounding box into a new one
-                if (autosense::common::bbox::groundBoxOverlap(
-                        gbox_expected, gbox_obsv, threshold_contian_IoU_)) {
-                    *object_merged->cloud += *objects[obsv_idx]->cloud;
-                    obsv_objects[obsv_idx]->cloud->clear();
-                }
-            }
-            // build merged object
-            object_builder_->build(object_merged);
-            // maintain tracking-help segmented objects
-            obsv_objects.push_back(object_merged);
-        }
-        // remove all connected components at once
-        auto iter = obsv_objects.begin();
-        for (; iter != obsv_objects.end();) {
-            if ((*iter)->cloud->empty()) {
-                iter = obsv_objects.erase(iter);
-            } else {
-                ++iter;
-            }
-        }
-    }
+    //             // combining all connected components within an expected
+    //             // object’s bounding box into a new one
+    //             if (autosense::common::bbox::groundBoxOverlap(
+    //                     gbox_expected, gbox_obsv, threshold_contian_IoU_)) {
+    //                 *object_merged->cloud += *objects[obsv_idx]->cloud;
+    //                 obsv_objects[obsv_idx]->cloud->clear();
+    //             }
+    //         }
+    //         // build merged object
+    //         object_builder_->build(object_merged);
+    //         // maintain tracking-help segmented objects
+    //         obsv_objects.push_back(object_merged);
+    //     }
+    //     // remove all connected components at once
+    //     auto iter = obsv_objects.begin();
+    //     for (; iter != obsv_objects.end();) {
+    //         if ((*iter)->cloud->empty()) {
+    //             iter = obsv_objects.erase(iter);
+    //         } else {
+    //             ++iter;
+    //         }
+    //     }
+    // }
 
     // visualize expected objects
     autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
