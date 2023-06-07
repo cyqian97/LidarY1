@@ -104,6 +104,47 @@ static void publishBBoxes(const ros::Publisher &publisher,
     publisher.publish(bboxes);
 }
 
+
+static void publishBBoxes(const ros::Publisher &publisher,
+                          const std_msgs::Header &header,
+                          const tf2::Transform &trans,
+                          const std::vector<ObjectPtr> &objects_array) {
+    vision_msgs::BoundingBox3DArray bboxes;
+    for (ObjectPtr ptr : objects_array) {
+        // 3. Create a tf2::Transform object
+        tf2::Vector3 v2(ptr->ground_center[0], ptr->ground_center[1],
+                        ptr->ground_center[2]);
+        tf2::Quaternion r2;
+        r2.setRPY(0, 0, ptr->yaw_rad);
+        tf2::Transform trans_obj(r2, v2);
+
+        // ROS_INFO_STREAM("lidar: " << ptr->ground_center[0] << " " <<
+        // ptr->ground_center[1] << " " << ptr->ground_center[2]);
+        // tf2::Transform v_mid = trans_gps_lidar * trans_obj;
+        // ROS_INFO_STREAM("gps: " << v_mid.getOrigin()[0] << " " <<
+        // v_mid.getOrigin()[1] << " " << v_mid.getOrigin()[2]);
+
+        // 4. Multiply all transforms
+        tf2::Transform v_out = trans * trans_obj;
+        // ROS_INFO_STREAM("car: " << v_out.getOrigin()[0]
+        // -odom.pose.pose.position.x << " "
+        //             << v_out.getOrigin()[1] -odom.pose.pose.position.y<< " "
+        //             << v_out.getOrigin()[2] -odom.pose.pose.position.z);
+
+        // 5. Convert tf2::Transform to geometry_msgs::Pose
+        vision_msgs::BoundingBox3D bbox;
+        tf2::toMsg(v_out, bbox.center);
+
+        bbox.size.x = ptr->length;
+        bbox.size.y = ptr->width;
+        bbox.size.z = ptr->height;
+
+        bboxes.boxes.push_back(bbox);
+    }
+    publisher.publish(bboxes);
+}
+
+
 template <typename PointT>
 static void publishCloud(const ros::Publisher &publisher,
                          const std_msgs::Header &header,

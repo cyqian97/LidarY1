@@ -46,6 +46,7 @@
 
 #include <nav_msgs/Odometry.h>
 #include <vision_msgs/BoundingBox3DArray.h>
+#include "tracking/pose_listener.hpp"
 
 bool verbose;
 bool visualize;
@@ -123,7 +124,7 @@ std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
 
 std_msgs::Header hd;
 
-
+PoseListener pose_listener;
 void OnNavOdom(const nav_msgs::Odometry odom_) {
     odom = odom_;
     // ROS_INFO_STREAM(" UTM: " << odom.pose.pose.position.x << ", " <<
@@ -202,7 +203,7 @@ void OnSegmentClouds(
     }
 
     // current pose
-    Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4d pose = pose_listener.trans;
     auto status = autosense::common::transform::getVelodynePose(
         *tf_listener_, local_frame_id_, global_frame_id_, kTimeStamp, &pose);
     if (!status) {
@@ -299,9 +300,7 @@ void OnSegmentClouds(
 
 
     
-    std::cout << "Before classify================================" << std::endl;
     classifier_worker_->classify_vector(tracking_objects_velo);
-    std::cout << "after classify==================================" << std::endl;
 
 
 
@@ -311,7 +310,7 @@ void OnSegmentClouds(
      *   object size, observed segment & its id
      */
 
-    autosense::common::publishBBoxes(bbox_pub_, header, odom, tracking_objects_velo);
+    autosense::common::publishBBoxes(bbox_pub_, header, pose_listener.trans_tf2, tracking_objects_velo);
     
     // can_bus publishers
     if(care_object_only)
@@ -609,8 +608,8 @@ int main(int argc, char **argv) {
     bbox_pub_ =
         nh.advertise<vision_msgs::BoundingBox3DArray>(pub_bbox_topic, 1);
 
-    nav_sub_ = nh.subscribe<nav_msgs::Odometry>(sub_nav_topic,
-                                                sub_nav_queue_size, OnNavOdom);
+    nav_sub_ = nh.subscribe<nav_msgs::Odometry>(
+        sub_nav_topic, sub_nav_queue_size, &PoseListener::callbackLidarEigne, &pose_listener);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

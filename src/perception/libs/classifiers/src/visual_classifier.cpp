@@ -206,7 +206,7 @@ namespace autosense
                     objects_label_not_fixed.push_back(object);
                 }
             }
-            std::cout << "111111111111111111111111111111" << std::endl;
+            
             // Project each cloud to camera frame
             std::vector<Eigen::MatrixXd> objects_projected;
             for (const auto &object : objects_label_not_fixed)
@@ -219,7 +219,7 @@ namespace autosense
                 objects_projected.push_back(res);
             }
 
-            std::cout << "22222222222222222222222222222222222" << std::endl;
+
             if (bboxes != nullptr && bboxes->size() > 0)
             {
                 for (const auto &bbox : *bboxes)
@@ -312,8 +312,6 @@ namespace autosense
                     }
                 }
             }
-
-            std::cout << "33333333333333333333333333333333333333333333333" << std::endl;
             // Size based classification
             // Get possible types from size
             sizeConjectures(objects_label_not_fixed);
@@ -358,8 +356,6 @@ namespace autosense
                     type_histories.insert(std::make_pair(object->tracker_id, _temp_history));
                 }
             }
-
-            std::cout << "444444444444444444444444444444444444444444444444444" << std::endl;
             // Manager historyt based class fixing
             std::map<autosense::IdType, std::vector<autosense::ObjectType>>::iterator it_tracker_history;
             for (const auto &object : objects_label_not_fixed)
@@ -397,7 +393,6 @@ namespace autosense
                     }
                 }
             }
-            std::cout << "555555555555555555555555555555555555555555" << std::endl;
         }
 
     } // classifier
