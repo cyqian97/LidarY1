@@ -6,36 +6,103 @@
 #ifndef COMMON_INCLUDE_COMMON_PUBLISHER_HPP_
 #define COMMON_INCLUDE_COMMON_PUBLISHER_HPP_
 
+#include <math.h>
 #include <pcl/common/common.h>  // pcl::getMinMax3D
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>  // std_msgs, sensor_msgs
 #include <std_msgs/ColorRGBA.h>       // std_msgs::ColorRGBA
 #include <std_msgs/Header.h>
 #include <visualization_msgs/MarkerArray.h>  // visualization_msgs::MarkerArray
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <math.h>
 
+#include <algorithm>
+#include <map>
+#include <vector>
+
+#include "common/calibration.hpp"
+#include "common/color.hpp"
+#include "common/common.hpp"
+#include "common/geometry.hpp"  // common::geometry::calcYaw4DirectionVector
+#include "common/id_pub_manager.hpp"
 #include "common/msgs/autosense_msgs/PointCloud2Array.h"
 #include "common/msgs/autosense_msgs/TrackingFixedTrajectoryArray.h"
 #include "common/msgs/autosense_msgs/TrackingObjectArray.h"
-
-#include "perception_msgs/Object.h"
-#include "perception_msgs/Objects.h"
-#include "perception_msgs/Objects.h"
-
-#include "common/common.hpp"
-#include "common/geometry.hpp"      // common::geometry::calcYaw4DirectionVector
 #include "common/transform.hpp"     // common::transform::transformPointCloud
 #include "common/types/object.hpp"  // ObjectPtr
 #include "common/types/type.h"
-#include "common/color.hpp"
-#include "common/id_pub_manager.hpp"
-#include "common/calibration.hpp"
+#include "perception_msgs/Object.h"
+#include "perception_msgs/Objects.h"
+
+#include <vision_msgs/BoundingBox3D.h>
+#include <vision_msgs/BoundingBox3DArray.h>
+#include <nav_msgs/Odometry.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace autosense {
 namespace common {
+
+static void publishBBoxes(const ros::Publisher &publisher,
+                          const std_msgs::Header &header,
+                          const nav_msgs::Odometry &odom,
+                          const std::vector<ObjectPtr> &objects_array) {
+    vision_msgs::BoundingBox3DArray bboxes;
+    for (ObjectPtr ptr : objects_array) {
+        // TODO: need to verify whether the transform is active or passive in
+        // each step
+        // 1. Create a tf2::Transform from odom
+        tf2::Transform trans_odom;
+        tf2::fromMsg(odom.pose.pose, trans_odom);
+        // tf2::Vector3 a = trans_odom.getRotation().getAxis();
+        // ROS_INFO_STREAM("axis: " << a[0] << " " << a[1] << " " << a[2]);
+        // ROS_INFO_STREAM("angle: " <<
+        // trans_odom.getRotation().getAngle()/3.14159*180);
+
+        // 2. TODO:Create a tf2::Transform for lidar-gps transform
+        tf2::Vector3 v1(4, 0, 1.5);
+        tf2::Quaternion r1;
+        r1.setRPY(0, 0, -3.14159 / 2 + 3.14159 / 90);
+        tf2::Transform trans_gps_lidar(r1, v1);
+
+        // tf2::Vector3 v3(0,0,0);
+        // tf2::Quaternion r3;
+        // r3.setRPY(0, 0, 0);
+        // tf2::Transform trans_test(r3,v3);
+        // tf2::Transform v_test = trans_gps_lidar * trans_test;
+        // tf2::Vector3 p_test = v_test.getOrigin();
+        // ROS_INFO_STREAM("lidar: " << p_test[0] << " " << p_test[1] << " " <<
+        // p_test[2]);
+
+        // 3. Create a tf2::Transform object
+        tf2::Vector3 v2(ptr->ground_center[0], ptr->ground_center[1],
+                        ptr->ground_center[2]);
+        tf2::Quaternion r2;
+        r2.setRPY(0, 0, ptr->yaw_rad);
+        tf2::Transform trans_obj(r2, v2);
+
+        // ROS_INFO_STREAM("lidar: " << ptr->ground_center[0] << " " <<
+        // ptr->ground_center[1] << " " << ptr->ground_center[2]);
+        // tf2::Transform v_mid = trans_gps_lidar * trans_obj;
+        // ROS_INFO_STREAM("gps: " << v_mid.getOrigin()[0] << " " <<
+        // v_mid.getOrigin()[1] << " " << v_mid.getOrigin()[2]);
+
+        // 4. Multiply all transforms
+        tf2::Transform v_out = trans_odom * trans_gps_lidar * trans_obj;
+        // ROS_INFO_STREAM("car: " << v_out.getOrigin()[0]
+        // -odom.pose.pose.position.x << " "
+        //             << v_out.getOrigin()[1] -odom.pose.pose.position.y<< " "
+        //             << v_out.getOrigin()[2] -odom.pose.pose.position.z);
+
+        // 5. Convert tf2::Transform to geometry_msgs::Pose
+        vision_msgs::BoundingBox3D bbox;
+        tf2::toMsg(v_out, bbox.center);
+
+        bbox.size.x = ptr->length;
+        bbox.size.y = ptr->width;
+        bbox.size.z = ptr->height;
+
+        bboxes.boxes.push_back(bbox);
+    }
+    publisher.publish(bboxes);
+}
 
 template <typename PointT>
 static void publishCloud(const ros::Publisher &publisher,
@@ -175,7 +242,8 @@ static void publishPointCloudArray(const ros::Publisher &publisher,
 
         return;
     } else {
-        // ROS_INFO_STREAM("Publishing " << segment_array.size() << " segments.");
+        // ROS_INFO_STREAM("Publishing " << segment_array.size() << "
+        // segments.");
 
         autosense_msgs::PointCloud2Array segments_msg;
         std::vector<sensor_msgs::PointCloud2> clouds;
@@ -392,7 +460,7 @@ static void publishObjectsMarkers(
 
         // double x_short;
         // double x_long;
-        
+
         // if (width > length){
         //     x_short = length;
         //     x_long = width;
@@ -400,7 +468,7 @@ static void publishObjectsMarkers(
         //     x_short = width;
         //     x_long = length;
         // }
-        switch(objects_array[obj]->type){
+        switch (objects_array[obj]->type) {
             case autosense::CAR:
                 box.color = autosense::common::WHITE.rgbA;
                 break;
@@ -421,14 +489,13 @@ static void publishObjectsMarkers(
         }
         // if (objects_array[obj]->type == autosense::CAR){
         //     box.color = autosense::common::WHITE.rgbA;
-        // } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short < 1.0 && height > 1.0 && height < 2){
+        // } else if(x_long > 0.5 && x_long < 1.5 && x_long > 0.3 && x_short
+        // < 1.0 && height > 1.0 && height < 2){
         //     box.color = autosense::common::CYAN.rgbA;
         // } else {
         //     box.color = color;
         // }
-        
-        
-        
+
         object_markers.markers.push_back(box);
 
         // direction
@@ -548,7 +615,7 @@ static void publishObjectsVelocityArrow(
                 // fixed：表示普通方式输出，不采用科学计数法。
                 vel_str << std::fixed << std::setprecision(2)
                         << std::setfill('0') << vel_scalar;
-                vel_text.text = vel_str.str() + " m/s " ;
+                vel_text.text = vel_str.str() + " m/s ";
             }
             vel_text.scale.z = 0.7;
             vel_text.color = color;
@@ -562,12 +629,11 @@ static void publishObjectsVelocityArrow(
     }
 }
 
-static void publishObjectsTrackerID(
-    const ros::Publisher &publisher,
-    const std_msgs::Header &header,
-    const std_msgs::ColorRGBA &color,
-    const std::vector<ObjectPtr> &objects_array,
-    const bool &is_offline_keep_alive = true) {
+static void publishObjectsTrackerID(const ros::Publisher &publisher,
+                                    const std_msgs::Header &header,
+                                    const std_msgs::ColorRGBA &color,
+                                    const std::vector<ObjectPtr> &objects_array,
+                                    const bool &is_offline_keep_alive = true) {
     // clear all markers before
     visualization_msgs::MarkerArray empty_markers;
     visualization_msgs::Marker clear_marker;
@@ -612,7 +678,8 @@ static void publishObjectsTrackerID(
             // Eigen::Quaternion q = Eigen::AngleAxisd(yaw_rad,
             // Eigen::Vector3f::UnitZ());
             tracker_id_text.pose.orientation.w = yaw_rad;
-            tracker_id_text.text = std::to_string(objects_array[obj]->tracker_id) ;
+            tracker_id_text.text =
+                std::to_string(objects_array[obj]->tracker_id);
             tracker_id_text.scale.z = 2;
             tracker_id_text.color = color;
             if (!is_offline_keep_alive) {
@@ -917,7 +984,6 @@ static void publishTrackingFixedTrajectories(
     }
 }
 
-
 /**
  * @brief publish dynamic object canbus messages
  * All distance and velocities should be in the NEU frame.
@@ -927,96 +993,90 @@ static void publishTrackingFixedTrajectories(
  */
 static void publishLidarCameraObjects(
     const ros::Publisher &publisher,
-    const std_msgs::Header &header, 
+    const std_msgs::Header &header,
     const double theta,
     const double min_speed,
     const std::vector<double> offset,
-    const std::vector<ObjectPtr> &objects_array)
-{
-    perception_msgs::Objects* objects_msg(
-            new perception_msgs::Objects);
+    const std::vector<ObjectPtr> &objects_array) {
+    perception_msgs::Objects *objects_msg(new perception_msgs::Objects);
     objects_msg->stamp = header.stamp;
-    // perception_msgs::Object[] object_msg_list 
+    // perception_msgs::Object[] object_msg_list
     //     = new perception_msgs::Object[objects_array.size()];
-    
-    
+
     Eigen::Matrix3d local_to_NEU;
-    local_to_NEU << cos(theta), sin(theta), 0,
-                    -sin(theta), cos(theta), 0,
-                    0, 0, 0;
+    local_to_NEU << cos(theta), sin(theta), 0, -sin(theta), cos(theta), 0, 0, 0,
+        0;
 
     // int index = 0;
-    for(const auto& object: objects_array)
-    {        
+    for (const auto &object : objects_array) {
         perception_msgs::Object object_msg;
-        Eigen::Vector3d velocity = object->velocity;//local_to_NEU * object->velocity;
-        Eigen::Vector3d center = object->ground_center;//local_to_NEU * object->ground_center;
+        Eigen::Vector3d velocity =
+            object->velocity;  // local_to_NEU * object->velocity;
+        Eigen::Vector3d center =
+            object->ground_center;  // local_to_NEU * object->ground_center;
 
         object_msg.id = object->tracker_id;
-        
-        object_msg.lat = center(0)+offset[0];
-        object_msg.lon = center(1)+offset[1];
+
+        object_msg.lat = center(0) + offset[0];
+        object_msg.lon = center(1) + offset[1];
         object_msg.abs_speed = 0.0;
         object_msg.lat_speed = 0.0;
         object_msg.lon_speed = 0.0;
         object_msg.course = 0.0;
 
         double course = 0;
-        if(velocity.norm() > min_speed)
-        {
+        if (velocity.norm() > min_speed) {
             object_msg.abs_speed = velocity.norm();
             object_msg.lat_speed = velocity(0);
             object_msg.lon_speed = velocity(1);
-            course = acos(velocity(1)/velocity.norm()) * 180.0 / 3.14159265358979323846;
-            if (velocity(0)<0)
-            {
+            course = acos(velocity(1) / velocity.norm()) * 180.0 /
+                     3.14159265358979323846;
+            if (velocity(0) < 0) {
                 course = 360.0 - course;
             }
-            object_msg.course = fmod(course + theta,360.0);
-        }//course
+            object_msg.course = fmod(course + theta, 360.0);
+        }  // course
 
         object_msg.width = std::max(object->length, object->width);
         object_msg.height = object->height;
         // convert typeID to canbus type
-        switch (object->type)
-        {
-        case CAR:
-            object_msg.type = uint8_t(1);
-            break;
-        case PEDESTRIAN:
-            object_msg.type = uint8_t(4);
-            break;
-        case DEER:
-            object_msg.type = uint8_t(6);
-            break;
-        case CONE:
-            object_msg.type = uint8_t(5);
-            break;
-        case BARRICADE:
-            object_msg.type = uint8_t(5);
-            break;
-        default:
-            object_msg.type = uint8_t(0);
-            break;
+        switch (object->type) {
+            case CAR:
+                object_msg.type = uint8_t(1);
+                break;
+            case PEDESTRIAN:
+                object_msg.type = uint8_t(4);
+                break;
+            case DEER:
+                object_msg.type = uint8_t(6);
+                break;
+            case CONE:
+                object_msg.type = uint8_t(5);
+                break;
+            case BARRICADE:
+                object_msg.type = uint8_t(5);
+                break;
+            default:
+                object_msg.type = uint8_t(0);
+                break;
         }
 
-        switch (object->dyn_prop)
-        {
-        case FIXED:
-            object_msg.dynamic_prop = uint8_t(1);
-            break;
-        case STOPPED:
-            object_msg.dynamic_prop = uint8_t(2);
-            break;
-        case SAME:
-            object_msg.dynamic_prop = uint8_t(3);
-            break;
-        case OPPOSITE:
-            object_msg.dynamic_prop = uint8_t(4);
-            break;
-        default:
-            object_msg.dynamic_prop = uint8_t(0);
-            break;
+        switch (object->dyn_prop) {
+            case FIXED:
+                object_msg.dynamic_prop = uint8_t(1);
+                break;
+            case STOPPED:
+                object_msg.dynamic_prop = uint8_t(2);
+                break;
+            case SAME:
+                object_msg.dynamic_prop = uint8_t(3);
+                break;
+            case OPPOSITE:
+                object_msg.dynamic_prop = uint8_t(4);
+                break;
+            default:
+                object_msg.dynamic_prop = uint8_t(0);
+                break;
         }
         object_msg.relative_lane = uint8_t(1);
         objects_msg->list.push_back(object_msg);

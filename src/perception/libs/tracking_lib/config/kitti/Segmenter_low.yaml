@@ -79,7 +79,7 @@ detect: {
     #rec_region_size: 7,
     rec_region_sizes: [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     # the same as euclidean distance tolerence for ECE
-    rec_region_initial_tolerance: 0.1,
+    rec_region_initial_tolerance: 0.2,
     ## increase euclidean distance tolerence between adjacent region
     # type: float
     # default: 0.2

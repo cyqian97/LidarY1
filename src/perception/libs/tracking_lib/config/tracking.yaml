@@ -6,6 +6,11 @@ tracking: {
   # default: 10
   tf_timeout_ms: 1,
 
+  
+  sub_nav_topic: "/navsat/odom",
+  sub_nav_queue_size: 1,
+  pub_bbox_topic: "/lidar/bboxes",
+
   # segmented point clouds directly from segment node
   sub_pcs_segmented_topic: "/segment/clouds_segmented",
   sub_pcs_queue_size: 1,
