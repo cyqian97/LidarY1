@@ -31,6 +31,9 @@
 
 #include "roi_filters/roi.hpp"  // roi::applyROIFilter
 
+#include "nav_msgs/Odometry.h"
+#include <mutex>
+
 const std::string param_ns_prefix_ = "detect";  // NOLINT
 std::string frame_id_;                          // NOLINT
 
@@ -48,6 +51,7 @@ autosense::ROIParams params_roi_second;
 
 // ROS Subscriber
 ros::Subscriber pointcloud_sub_;
+ros::Subscriber nav_sub_;
 
 // ROS Publisher
 ros::Publisher pcs_segmented_pub_;
@@ -56,6 +60,13 @@ ros::Publisher pcs_non_ground_pub_;
 /// @note Core components
 boost::shared_ptr<autosense::segmenter::BaseSegmenter> ground_remover_;
 boost::shared_ptr<autosense::segmenter::BaseSegmenter> segmenter_;
+
+
+
+// void OnOdom(const nav_msgs::Odometry odom_)
+// {
+
+// }
 
 void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     autosense::common::Clock clock;
@@ -199,6 +210,12 @@ int main(int argc, char **argv) {
 
     pointcloud_sub_ = nh.subscribe<sensor_msgs::PointCloud2>(
         sub_pc_topic, sub_pc_queue_size, OnPointCloud);
+
+    // std::string sub_nav_topic;
+    // private_nh.getParam(param_ns_prefix_ + "/sub_nav_topic",
+    //                     sub_nav_topic);
+    // nav_sub_ = nh.subscribe<nav_msgs::Odometry>(sub_nav_topic, 1, );
+
 
     spiner.start();
     ROS_INFO("detection_node started...");

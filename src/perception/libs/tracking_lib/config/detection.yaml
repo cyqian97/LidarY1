@@ -3,6 +3,7 @@ detect: {
 
   sub_pc_topic: "/cepton2/points_221341",
   sub_pc_queue_size: 1,
+  sub_nav_topic: "/navsat/odom",
 
   pub_pcs_segmented_topic: "/segment/clouds_segmented",
   pub_non_ground_topic: "/cepton/filtered_points",

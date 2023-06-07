@@ -378,8 +378,6 @@ namespace autosense
                         // Fix label that comes from visual detection, since visual detection may miss objects
                         // For Lidar only detections, since we are not very confident, we donot fix them
                         if (_temp_type == NOTSURE ||
-                            _temp_type == CONE ||
-                            _temp_type == BARRICADE ||
                             _temp_type != type_history_last[0])
                         {
                             is_label_stable = false;

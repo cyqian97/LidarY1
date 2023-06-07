@@ -49,6 +49,10 @@
 #include "tracking/pose_listener.hpp"
 #include "tracking/utm_filter.hpp"
 
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
+
 bool verbose;
 bool visualize;
 bool use_utm_filter;
@@ -142,11 +146,13 @@ void OnSegmentClouds(
     hd = segments_msg->header;
     std_msgs::Header header;
     header.frame_id = local_frame_id_;
-    header.stamp = segments_msg->header.stamp;
+    header.stamp = hd.stamp;
+    std::cout << "Delay: " << ros::Time::now().toSec() - header.stamp.toSec() << "s" << std::endl;
+    // header.stamp = segments_msg->header.stamp;
     // current pose, get as early as possible to sync with Lidar results
     Eigen::Matrix4d pose = pose_listener.trans;
     tf2::Transform trans_tf2 = pose_listener.trans_tf2;
-
+    // header.stamp
     // initial coarse segments directly from segment node or after classified by
     // learning node
     std::vector<autosense::PointICloudPtr> segment_clouds;
@@ -207,12 +213,12 @@ void OnSegmentClouds(
     //     pcs_distort_pub_.publish(output);
     // }
 
-    auto status = autosense::common::transform::getVelodynePose(
-        *tf_listener_, local_frame_id_, global_frame_id_, kTimeStamp, &pose);
-    if (!status) {
-        ROS_WARN("Failed to fetch current pose, tracking skipped...");
-        return;
-    }
+    // auto status = autosense::common::transform::getVelodynePose(
+    //     *tf_listener_, local_frame_id_, global_frame_id_, kTimeStamp, &pose);
+    // if (!status) {
+    //     ROS_WARN("Failed to fetch current pose, tracking skipped...");
+    //     return;
+    // }
     auto velo2world = std::make_shared<Eigen::Matrix4d>(pose);
 
     // object builder
