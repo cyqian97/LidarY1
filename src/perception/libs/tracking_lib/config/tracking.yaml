@@ -48,5 +48,6 @@ tracking: {
   
   verbose: true,
   visualize: true,
+  use_utm_filter: false,
 
 }

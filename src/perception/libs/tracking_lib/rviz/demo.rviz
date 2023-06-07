@@ -62,7 +62,7 @@ Visualization Manager:
       Displays:
         - Class: rviz/Image
           Enabled: true
-          Image Topic: /camera/center/image_raw
+          Image Topic: /camera_center_hd/image_raw
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -268,5 +268,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1900
-  X: -1
-  Y: -20
+  X: 0
+  Y: 0

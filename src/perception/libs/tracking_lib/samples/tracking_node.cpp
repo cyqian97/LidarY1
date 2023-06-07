@@ -47,9 +47,11 @@
 #include <nav_msgs/Odometry.h>
 #include <vision_msgs/BoundingBox3DArray.h>
 #include "tracking/pose_listener.hpp"
+#include "tracking/utm_filter.hpp"
 
 bool verbose;
 bool visualize;
+bool use_utm_filter;
 
 nav_msgs::Odometry odom;
 ros::Subscriber nav_sub_;
@@ -141,6 +143,9 @@ void OnSegmentClouds(
     std_msgs::Header header;
     header.frame_id = local_frame_id_;
     header.stamp = segments_msg->header.stamp;
+    // current pose, get as early as possible to sync with Lidar results
+    Eigen::Matrix4d pose = pose_listener.trans;
+    tf2::Transform trans_tf2 = pose_listener.trans_tf2;
 
     // initial coarse segments directly from segment node or after classified by
     // learning node
@@ -152,58 +157,56 @@ void OnSegmentClouds(
     }
 
     // For projection demonstration only
-    non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
-    if (nullptr != non_ground_copy) 
-    {
-        if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
+    // non_ground_copy = std::make_shared<std::vector<autosense::PointICloudPtr>>(segment_clouds);
+    // if (nullptr != non_ground_copy) 
+    // {
+    //     if(verbose) ROS_INFO_STREAM("copied cloud size: " << non_ground_copy->size());
 
-        autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
-        autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
+    //     autosense::PointICloudPtr cloud_combined_I(new autosense::PointICloud);
+    //     autosense::PointCloudPtr cloud_combined(new autosense::PointCloud);
 
-        for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
-        pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
+    //     for(const auto& cloud: *non_ground_copy) *cloud_combined_I += *cloud;
+    //     pcl::copyPointCloud(*cloud_combined_I, *cloud_combined);
 
-        // autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
-        // *cloud_in = *cloud_combined;
-        // cloud_combined->clear();
-        // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
+    //     // autosense::PointCloudPtr cloud_in(new autosense::PointCloud);
+    //     // *cloud_in = *cloud_combined;
+    //     // cloud_combined->clear();
+    //     // pcl_ros::transformPointCloud(*cloud_in,*cloud_combined,tf_rot_y);
 
-        auto m = cloud_combined->getMatrixXfMap(3,4,0);
+    //     auto m = cloud_combined->getMatrixXfMap(3,4,0);
 
-        // auto m2 = m.topLeftCorner(3,2);
-        // Eigen::MatrixXd x = m2.cast <double> ();
-        Eigen::MatrixXd x = m.cast <double> ();
+    //     // auto m2 = m.topLeftCorner(3,2);
+    //     // Eigen::MatrixXd x = m2.cast <double> ();
+    //     Eigen::MatrixXd x = m.cast <double> ();
 
 
 
-        // ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-        // ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-        // Eigen::MatrixXd x = m2.cast <double> ();
-        // if(verbose)
-        // {
-        //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
-        //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
-        // }
+    //     // ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+    //     // ROS_INFO_STREAM("\t mat rows: " << m2.rows());
+    //     // Eigen::MatrixXd x = m2.cast <double> ();
+    //     // if(verbose)
+    //     // {
+    //     //     ROS_INFO_STREAM("\t mat cols: " << m2.cols());
+    //     //     ROS_INFO_STREAM("\t mat rows: " << m2.rows());
+    //     // }
         
-        Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
-        autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
+    //     Eigen::MatrixXd res = autosense::common::calibration::proj(K_C, R_Lidar_CameraC, t_Lidar_CameraC, D_C, x);
+    //     autosense::PointCloudPtr cloud_distort(new autosense::PointCloud);
 
-        for(int i = 0; i < res.cols(); ++i)
-        {
-            autosense::Point p(double(res(0,i)),double(res(1,i)),0.0);
-            cloud_distort->points.push_back(p);
-        }
+    //     for(int i = 0; i < res.cols(); ++i)
+    //     {
+    //         autosense::Point p(double(res(0,i)),double(res(1,i)),0.0);
+    //         cloud_distort->points.push_back(p);
+    //     }
 
-        sensor_msgs::PointCloud2 output;
+    //     sensor_msgs::PointCloud2 output;
         
-        pcl::toROSMsg(*cloud_distort, output);
+    //     pcl::toROSMsg(*cloud_distort, output);
         
-        output.header = hd;
-        pcs_distort_pub_.publish(output);
-    }
+    //     output.header = hd;
+    //     pcs_distort_pub_.publish(output);
+    // }
 
-    // current pose
-    Eigen::Matrix4d pose = pose_listener.trans;
     auto status = autosense::common::transform::getVelodynePose(
         *tf_listener_, local_frame_id_, global_frame_id_, kTimeStamp, &pose);
     if (!status) {
@@ -216,12 +219,14 @@ void OnSegmentClouds(
     autosense::common::Clock clock_builder;
     std::vector<autosense::ObjectPtr> objects;
     object_builder_->build(segment_clouds, &objects);
+    if(use_utm_filter) utmFilter(&objects,trans_tf2);
     if (verbose) ROS_INFO_STREAM("Objects built. Took " << clock_builder.takeRealTime()
                                            << "ms.");
+    
 
     // visualize initial coarse segments
-    autosense::common::publishObjectsMarkers(
-        segments_coarse_pub_, header, autosense::common::MAGENTA.rgbA, objects);
+    // autosense::common::publishObjectsMarkers(
+    //     segments_coarse_pub_, header, autosense::common::MAGENTA.rgbA, objects);
 
     /**
      * @brief Use Tracking temporal information to improve segmentation
@@ -278,12 +283,12 @@ void OnSegmentClouds(
     // }
 
     // visualize expected objects
-    autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
-                                             autosense::common::DARKGREEN.rgbA,
-                                             expected_objects);
-    // visualize segmentation results
-    autosense::common::publishObjectsMarkers(
-        segments_pub_, header, autosense::common::GREEN.rgbA, obsv_objects);
+    // autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
+    //                                          autosense::common::DARKGREEN.rgbA,
+    //                                          expected_objects);
+    // // visualize segmentation results
+    // autosense::common::publishObjectsMarkers(
+    //     segments_pub_, header, autosense::common::GREEN.rgbA, obsv_objects);
 
     autosense::tracking::TrackingOptions tracking_options;
     tracking_options.velo2world_trans = velo2world;
@@ -294,7 +299,7 @@ void OnSegmentClouds(
 
     // tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
     for (auto & object: tracking_objects_velo)
-        object->dyn_prop = FIXED;
+        object->dyn_prop = autosense::FIXED;
 
     if (verbose) ROS_INFO_STREAM("Finish tracking. "
                     << tracking_objects_velo.size() << " Objects Tracked. Took "
@@ -312,7 +317,7 @@ void OnSegmentClouds(
      *   object size, observed segment & its id
      */
 
-    autosense::common::publishBBoxes(bbox_pub_, header, pose_listener.trans_tf2, tracking_objects_velo);
+    autosense::common::publishBBoxes(bbox_pub_, header, trans_tf2, tracking_objects_velo);
     
     // can_bus publishers
     if(care_object_only)
@@ -337,7 +342,6 @@ void OnSegmentClouds(
         for(const auto& object: objects_id_pub_)
         {
             std::cout << "ID: " <<  object->tracker_id <<
-             " type: " << object->type <<
              " type: " << object->type <<
              " [l, w, h]: " <<  
                 object->length << '\t' << 
@@ -489,6 +493,8 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/verbose", verbose);
     private_nh.getParam(
         param_ns_prefix_ + "/visualize", visualize);
+    private_nh.getParam(
+        param_ns_prefix_ + "/use_utm_filter", use_utm_filter);
 
     // // For projection demonstration and service
     std::vector<double> K_C_vec(9, 0.);
