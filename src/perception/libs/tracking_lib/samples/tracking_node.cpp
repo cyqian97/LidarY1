@@ -292,7 +292,9 @@ void OnSegmentClouds(
     tracking_worker_->track(obsv_objects, kTimeStamp, tracking_options,
                             &tracking_objects_velo);
 
-    tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
+    // tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
+    for (auto & object: tracking_objects_velo)
+        object->dyn_prop = FIXED;
 
     if (verbose) ROS_INFO_STREAM("Finish tracking. "
                     << tracking_objects_velo.size() << " Objects Tracked. Took "
@@ -335,6 +337,7 @@ void OnSegmentClouds(
         for(const auto& object: objects_id_pub_)
         {
             std::cout << "ID: " <<  object->tracker_id <<
+             " type: " << object->type <<
              " type: " << object->type <<
              " [l, w, h]: " <<  
                 object->length << '\t' << 
