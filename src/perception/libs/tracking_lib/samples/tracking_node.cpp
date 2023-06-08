@@ -57,8 +57,8 @@ bool verbose;
 bool visualize;
 bool use_utm_filter;
 
-nav_msgs::Odometry odom;
-ros::Subscriber nav_sub_;
+// nav_msgs::Odometry odom;
+
 ros::Publisher bbox_pub_;
 
 // std::map<autosense::IdType, std::vector<autosense::ObjectType>> type_histories;
@@ -130,12 +130,12 @@ std::unique_ptr<autosense::classifier::BaseClassifier> classifier_worker_ =
 
 std_msgs::Header hd;
 
-PoseListener pose_listener;
-void OnNavOdom(const nav_msgs::Odometry odom_) {
-    odom = odom_;
-    // ROS_INFO_STREAM(" UTM: " << odom.pose.pose.position.x << ", " <<
-    // odom.pose.pose.position.y << ", " << odom.pose.pose.position.z);
-};
+PoseListener* pose_listener;
+// void OnNavOdom(const nav_msgs::Odometry odom_) {
+//     odom = odom_;
+//     // ROS_INFO_STREAM(" UTM: " << odom.pose.pose.position.x << ", " <<
+//     // odom.pose.pose.position.y << ", " << odom.pose.pose.position.z);
+// };
 
 // TODO(chenshengjie): callback function as fast as possible
 void OnSegmentClouds(
@@ -150,8 +150,8 @@ void OnSegmentClouds(
     std::cout << "Delay: " << ros::Time::now().toSec() - header.stamp.toSec() << "s" << std::endl;
     // header.stamp = segments_msg->header.stamp;
     // current pose, get as early as possible to sync with Lidar results
-    Eigen::Matrix4d pose = pose_listener.trans;
-    tf2::Transform trans_tf2 = pose_listener.trans_tf2;
+    Eigen::Matrix4d pose = pose_listener->trans;
+    tf2::Transform trans_tf2 = pose_listener->trans_tf2;
     // header.stamp
     // initial coarse segments directly from segment node or after classified by
     // learning node
@@ -231,8 +231,8 @@ void OnSegmentClouds(
     
 
     // visualize initial coarse segments
-    // autosense::common::publishObjectsMarkers(
-    //     segments_coarse_pub_, header, autosense::common::MAGENTA.rgbA, objects);
+    autosense::common::publishObjectsMarkers(
+        segments_coarse_pub_, header, autosense::common::MAGENTA.rgbA, objects);
 
     /**
      * @brief Use Tracking temporal information to improve segmentation
@@ -623,8 +623,7 @@ int main(int argc, char **argv) {
     bbox_pub_ =
         nh.advertise<vision_msgs::BoundingBox3DArray>(pub_bbox_topic, 1);
 
-    nav_sub_ = nh.subscribe<nav_msgs::Odometry>(
-        sub_nav_topic, sub_nav_queue_size, &PoseListener::callbackLidarEigne, &pose_listener);
+    pose_listener = new PoseListener(sub_nav_topic,sub_nav_queue_size);
 
     spiner.start();
     ROS_INFO("tracking_node started...");

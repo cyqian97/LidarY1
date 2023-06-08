@@ -27,8 +27,11 @@ void utmFilter(std::vector<autosense::ObjectPtr> *objects_array, tf2::Transform 
         double kr = 25.2669642857;
         double br = -2328797.75134;
 
-        if ((center_utm.y() - bl) / kl < center_utm.x() &&
-            (center_utm.y() - br) / kr > center_utm.x()) {
+        double marginl = 0.5;
+        double marginr = 0.0;
+
+        if ((center_utm.y() - bl) / kl < center_utm.x() - marginl &&
+            (center_utm.y() - br) / kr > center_utm.x() + marginr) {
             temp_array.push_back(object);
         }
     }

@@ -110,10 +110,10 @@ void OnPointCloud(const sensor_msgs::PointCloud2ConstPtr &ros_pc2) {
     *cloud_nonground = *cloud_clusters[1];
 
     // Convert to ROS data type
-    sensor_msgs::PointCloud2 output;
-    pcl::toROSMsg(*cloud_nonground, output);
-    output.header = ros_pc2->header;
-    pcs_non_ground_pub_.publish(output);
+    // sensor_msgs::PointCloud2 output;
+    // pcl::toROSMsg(*cloud_nonground, output);
+    // output.header = ros_pc2->header;
+    // pcs_non_ground_pub_.publish(output);
 
     if(params_roi_.use_second_roi_filter)
     {
@@ -205,8 +205,8 @@ int main(int argc, char **argv) {
     pcs_segmented_pub_ = nh.advertise<autosense_msgs::PointCloud2Array>(
         pub_pcs_segmented_topic, 1);
 
-    pcs_non_ground_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
-        pub_non_ground_topic, 1);
+    // pcs_non_ground_pub_ = nh.advertise<sensor_msgs::PointCloud2>(
+    //     pub_non_ground_topic, 1);
 
     pointcloud_sub_ = nh.subscribe<sensor_msgs::PointCloud2>(
         sub_pc_topic, sub_pc_queue_size, OnPointCloud);
