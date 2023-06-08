@@ -8,21 +8,21 @@ tracking: {
   TrackingWorker: {
       ##----------------- Matcher: tracker<->observed object association
       matcher_method_name: "hungarian_matcher",
-      matcher_match_distance_maximum: 0.5,
+      matcher_match_distance_maximum: 1.0,
       # motion consistency
-      matcher_location_distance_weight: 1.,
+      matcher_location_distance_weight: 1.0,
       matcher_direction_distance_weight: 0.2,
       # appearance consistency
       matcher_bbox_size_distance_weight: 0.1,
       matcher_point_num_distance_weight: 0.1,
-      matcher_histogram_distance_weight: 0.5,
+      matcher_histogram_distance_weight: 0.0,
 
       ##----------------- Tracker
       # Tracker Filter setup
       filter_method_name: "robust_kalman_filter",
       filter_use_adaptive: true,
       # equals to matcher_match_distance_maximum
-      filter_association_score_maximum: 4.0,
+      filter_association_score_maximum: 1.0,
       filter_measurement_noise: 4,
       filter_initial_velocity_noise: 10.0,
       # | xy_propagation_noise    0           0          |

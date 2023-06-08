@@ -44,10 +44,17 @@ tracking: {
   pub_course_speed_limit: 0.5,
 
   # lidar's position wrt the cart ground center in meters
-  offset: [0.0, 0.2667, 1.18745],
+  offset: [0.0, 0.0, 0.0],
+
+
   
   verbose: false,
   visualize: true,
   use_utm_filter: true,
+
+  utm_left_margin: 0.5,
+  utm_right_margin: -0.5,
+
+  
 
 }

@@ -18,8 +18,8 @@ detect: {
     #roi_radius_min_m: 15.,
     #roi_radius_max_m: 120.,
     # Vertical range
-    roi_height_below_m: 1.,
-    roi_height_above_m: 4.0,
+    roi_height_below_m: 3.0,
+    roi_height_above_m: 1.0,
 
     roi_height_above_m_second: 4.0,
     roi_radius_max_m_second: 50.,

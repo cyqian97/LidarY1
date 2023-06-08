@@ -56,6 +56,8 @@
 bool verbose;
 bool visualize;
 bool use_utm_filter;
+double utm_left_margin;
+double utm_right_margin;
 
 // nav_msgs::Odometry odom;
 
@@ -225,7 +227,7 @@ void OnSegmentClouds(
     autosense::common::Clock clock_builder;
     std::vector<autosense::ObjectPtr> objects;
     object_builder_->build(segment_clouds, &objects);
-    if(use_utm_filter) utmFilter(&objects,trans_tf2);
+    if(use_utm_filter) utmFilter(&objects,trans_tf2, utm_left_margin, utm_right_margin);
     if (verbose) ROS_INFO_STREAM("Objects built. Took " << clock_builder.takeRealTime()
                                            << "ms.");
     
@@ -497,10 +499,17 @@ int main(int argc, char **argv) {
     // Control the command line output
     private_nh.getParam(
         param_ns_prefix_ + "/verbose", verbose);
+
     private_nh.getParam(
         param_ns_prefix_ + "/visualize", visualize);
+
+    // utm roi filter params
     private_nh.getParam(
         param_ns_prefix_ + "/use_utm_filter", use_utm_filter);
+    private_nh.getParam(
+        param_ns_prefix_ + "/utm_left_margin", utm_left_margin);
+    private_nh.getParam(
+        param_ns_prefix_ + "/utm_right_margin", utm_right_margin);
 
     // // For projection demonstration and service
     std::vector<double> K_C_vec(9, 0.);
@@ -623,8 +632,12 @@ int main(int argc, char **argv) {
     bbox_pub_ =
         nh.advertise<vision_msgs::BoundingBox3DArray>(pub_bbox_topic, 1);
 
-    pose_listener = new PoseListener(sub_nav_topic,sub_nav_queue_size);
-
+    std::vector<double> t_Lidar_GPS(3, 0.);
+    private_nh.getParam("callibration/t_Lidar_GPS",t_Lidar_GPS);
+    double yaw_Lidar_GPS;
+    private_nh.getParam("callibration/yaw_Lidar_GPS",yaw_Lidar_GPS);
+    pose_listener = new PoseListener(sub_nav_topic,sub_nav_queue_size,t_Lidar_GPS,yaw_Lidar_GPS);
+    
     spiner.start();
     ROS_INFO("tracking_node started...");
 

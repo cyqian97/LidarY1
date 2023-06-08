@@ -231,6 +231,14 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: false
+      Marker Topic: /tracking/segments_coarse
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -275,9 +283,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3897974491119385
+      Pitch: 0.6097973585128784
       Target Frame: <Fixed Frame>
-      Yaw: 4.748586177825928
+      Yaw: 4.708584785461426
     Saved: ~
 Window Geometry:
   Displays:
@@ -297,5 +305,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1900
-  X: -1
-  Y: -20
+  X: 0
+  Y: 0

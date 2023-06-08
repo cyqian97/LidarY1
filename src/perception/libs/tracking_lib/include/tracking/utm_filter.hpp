@@ -7,7 +7,7 @@
 #include <vector>
 
 // Filter segmented object according to theri utm
-void utmFilter(std::vector<autosense::ObjectPtr> *objects_array, tf2::Transform trans_tf2) {
+void utmFilter(std::vector<autosense::ObjectPtr> *objects_array, tf2::Transform trans_tf2, double marginl, double marginr) {
     std::vector<autosense::ObjectPtr> temp_array;
     for (auto& object : *objects_array) {
         tf2::Vector3 v2(object->ground_center[0], object->ground_center[1],
@@ -26,9 +26,6 @@ void utmFilter(std::vector<autosense::ObjectPtr> *objects_array, tf2::Transform 
         // Left to right bound
         double kr = 25.2669642857;
         double br = -2328797.75134;
-
-        double marginl = 0.5;
-        double marginr = 0.0;
 
         if ((center_utm.y() - bl) / kl < center_utm.x() - marginl &&
             (center_utm.y() - br) / kr > center_utm.x() + marginr) {

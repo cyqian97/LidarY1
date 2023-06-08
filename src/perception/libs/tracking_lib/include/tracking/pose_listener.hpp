@@ -14,7 +14,10 @@ class PoseListener {
     tf2::Transform trans_tf2;
     tf2::Transform trans_gps_lidar;
 
-    PoseListener(std::string topic_name, int queue_size);
+    PoseListener(std::string topic_name,
+                 int queue_size,
+                 std::vector<double> t_Lidar_GPS,
+                 double yaw_Lidar_GPS);
 
     void callbackLidarEigne(const nav_msgs::Odometry odom) {
         geometry_msgs::Pose pose;
@@ -40,11 +43,14 @@ class PoseListener {
     ros::Subscriber nav_sub_;
 };
 
-PoseListener::PoseListener(std::string topic_name, int queue_size) {
+PoseListener::PoseListener(std::string topic_name,
+                           int queue_size,
+                           std::vector<double> t_Lidar_GPS,
+                           double yaw_Lidar_GPS) {
     trans = Eigen::Matrix4d::Identity();
-    tf2::Vector3 v1(4, 0, 1.5);
+    tf2::Vector3 v1(t_Lidar_GPS[0], t_Lidar_GPS[1], t_Lidar_GPS[2]);
     tf2::Quaternion r1;
-    r1.setRPY(0, 0, -3.14159 / 2);
+    r1.setRPY(0, 0, -3.14159265359 / 2 + yaw_Lidar_GPS / 180.0 * 3.14159265359);
     trans_gps_lidar = tf2::Transform(r1, v1);
 
     nav_sub_ = nh_.subscribe<nav_msgs::Odometry>(

@@ -8,6 +8,7 @@
 #include <pcl/filters/approximate_voxel_grid.h>  // pcl::ApproximateVoxelGrid
 #include <pcl/filters/passthrough.h>             // pcl::PassThrough
 #include <pcl/filters/voxel_grid.h>              // pcl::VoxelGrid
+
 #include <vector>
 
 #include "common/common.hpp"    // common::EPSILON
@@ -202,16 +203,13 @@ static void squareROIFilter(float radius_min,
 //     }
 // }
 
-
 template <typename PointT>
 static void applyROIFilter(const ROIParams& params,
                            typename pcl::PointCloud<PointT>::Ptr cloud) {
     const float roi_radius_min = params.roi_radius_min_m;
     const float roi_radius_max = params.roi_radius_max_m;
-    const float roi_z_limit_min =
-        (-1.0) * (params.roi_lidar_height_m + params.roi_height_below_m);
-    const float roi_z_limit_max =
-        params.roi_height_above_m + params.roi_lidar_height_m;
+    const float roi_z_limit_min = (-1.0) * (params.roi_height_below_m);
+    const float roi_z_limit_max = params.roi_height_above_m;
 
     if (params.type == "Cylinder") {
         cylinderROIFilter<PointI>(roi_radius_min, roi_radius_max,
@@ -343,21 +341,21 @@ static void humanCarModelFilter(const std::vector<ObjectPtr>& objects_in,
 }
 
 static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
-                           const VolumetricModel& model) {
+                             const VolumetricModel& model) {
     for (size_t obj_id = 0u; obj_id < objects.size(); ++obj_id) {
         double length = objects[obj_id]->length;
         double width = objects[obj_id]->width;
         double height = objects[obj_id]->height;
 
-
-        if (width > length){
+        if (width > length) {
             double _temp = length;
             length = width;
             width = _temp;
-        } 
-        // std::cout << "Object ID: " << obj_id << ", model type:" << int(model.model_type) << std::endl;
-        // std::cout.precision(2);
-        // std::cout << "size: [" << length << ", " << width << ", " << height << "]" << std::endl;
+        }
+        // std::cout << "Object ID: " << obj_id << ", model type:" <<
+        // int(model.model_type) << std::endl; std::cout.precision(2); std::cout
+        // << "size: [" << length << ", " << width << ", " << height << "]" <<
+        // std::endl;
 
         if (abs(model.l_min - model.l_max) > common::EPSILON &&
             (length < model.l_min || length > model.l_max)) {
@@ -375,7 +373,8 @@ static void VolumetricFilter(const std::vector<ObjectPtr>& objects,
         }
 
         objects[obj_id]->size_conjectures.push_back(model.model_type);
-        // std::cout << "Size conjecture:" << int(model.model_type) << std::endl;
+        // std::cout << "Size conjecture:" << int(model.model_type) <<
+        // std::endl;
     }
 }
 
