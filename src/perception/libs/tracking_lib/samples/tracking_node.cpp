@@ -98,7 +98,6 @@ std::unique_ptr<tf::TransformListener> tf_listener_;
 ros::Subscriber gps_sub_;
 double theta = 0.0;
 
-
 // ros::Subscriber image_sub_;
 // cv_bridge::CvImagePtr cv_ptr;
 
@@ -291,9 +290,9 @@ void OnSegmentClouds(
     // }
 
     // visualize expected objects
-    // autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
-    //                                          autosense::common::DARKGREEN.rgbA,
-    //                                          expected_objects);
+    autosense::common::publishObjectsMarkers(segments_predict_pub_, header,
+                                             autosense::common::DARKGREEN.rgbA,
+                                             expected_objects);
     // // visualize segmentation results
     // autosense::common::publishObjectsMarkers(
     //     segments_pub_, header, autosense::common::GREEN.rgbA, obsv_objects);
@@ -305,9 +304,7 @@ void OnSegmentClouds(
     tracking_worker_->track(obsv_objects, kTimeStamp, tracking_options,
                             &tracking_objects_velo);
 
-    // tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
-    for (auto & object: tracking_objects_velo)
-        object->dyn_prop = autosense::FIXED;
+        
 
     if (verbose) ROS_INFO_STREAM("Finish tracking. "
                     << tracking_objects_velo.size() << " Objects Tracked. Took "
@@ -315,7 +312,16 @@ void OnSegmentClouds(
 
 
     
-    classifier_worker_->classify_vector(tracking_objects_velo);
+    // tracking_worker_->updateDynProp(&tracking_objects_velo,pub_course_speed_limit);
+
+    // classifier_worker_->classify_vector(tracking_objects_velo);
+    for (auto & object: tracking_objects_velo)
+    {
+        object->dyn_prop = autosense::FIXED;
+        object->type = autosense::BARRICADE;
+        object->velocity = Eigen::Vector3d(0,0,0);
+
+    }
 
 
 

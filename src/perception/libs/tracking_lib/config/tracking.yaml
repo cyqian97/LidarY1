@@ -38,7 +38,7 @@ tracking: {
   pub_lidar_camera_id_num_: 63,
   srv_lidar_camera_name: "/bbox_to_centers",
 
-  care_object_only: true,
+  care_object_only: false,
 
   # objects with speeds below this limit will have course = 0
   pub_course_speed_limit: 0.5,
@@ -52,7 +52,7 @@ tracking: {
   visualize: true,
   use_utm_filter: true,
 
-  utm_left_margin: 0.5,
+  utm_left_margin: 0.8,
   utm_right_margin: -0.5,
 
   

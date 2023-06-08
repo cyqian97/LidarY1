@@ -6,7 +6,7 @@ classifier: {
 
 
   # label fixing
-  fix_frame_lim: 5, # number of consecutive valid classifications to fix the label
+  fix_frame_lim: 3, # number of consecutive valid classifications to fix the label
   abort_frame_lim: 200, # fix the label to NOTSURE if label has not been fixed after this number of frames
 
   # Implicit Shape Model (ISM) Parameters
