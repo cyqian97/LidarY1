@@ -14,7 +14,7 @@
     <node  name="tracking_node" pkg="tracking_lib" type="tracking_lib_tracking_node" output="screen"  launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
         <rosparam command="load" file="$(find tracking_lib)/config/tracking.yaml"/>
         <rosparam command="load" file="$(find tracking_lib)/config/classifier.yaml"/>
-        <rosparam command="load" file="$(find tracking_lib)/config/callibration.yaml"/>
+        <rosparam command="load" file="$(find tracking_lib)/config/calibration.yaml"/>
         <rosparam command="load" file="$(find tracking_lib)/config/kitti/TrackingWorker.yaml"/>
     </node>
 

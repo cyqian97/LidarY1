@@ -3,8 +3,8 @@
  * Gary Chan <chenshj35@mail2.sysu.edu.cn>
  */
 
-#ifndef COMMON_INCLUDE_COMMON_CALLI_HPP_
-#define COMMON_INCLUDE_COMMON_CALLI_HPP_
+#ifndef COMMON_INCLUDE_COMMON_CALI_HPP_
+#define COMMON_INCLUDE_COMMON_CALI_HPP_
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
@@ -146,8 +146,8 @@ static Eigen::MatrixXd projFisheye(const Eigen::Matrix3d& K, const Eigen::Matrix
     return points_distorted;
 }
 
-}  // namespace callibration
+}  // namespace calibration
 }  // namespace common
 }  // namespace autosense
 
-#endif  // COMMON_INCLUDE_COMMON_CALLIBRATION_HPP_
+#endif  // COMMON_INCLUDE_COMMON_CALIBRATION_HPP_

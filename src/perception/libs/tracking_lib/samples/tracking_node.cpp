@@ -512,22 +512,22 @@ int main(int argc, char **argv) {
         param_ns_prefix_ + "/utm_right_margin", utm_right_margin);
 
     // // For projection demonstration and service
-    std::vector<double> K_C_vec(9, 0.);
-    private_nh.getParam("callibration/K_C",K_C_vec);
-    K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    // std::vector<double> K_C_vec(9, 0.);
+    // private_nh.getParam("calibration/K_C",K_C_vec);
+    // K_C = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(K_C_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
     
-    std::vector<double> R_Lidar_CameraC_vec(9, 0.);
-    private_nh.getParam("callibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
-    R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
+    // std::vector<double> R_Lidar_CameraC_vec(9, 0.);
+    // private_nh.getParam("calibration/R_Lidar_CameraC",R_Lidar_CameraC_vec);
+    // R_Lidar_CameraC = Eigen::Map<Eigen::Matrix3d, 0, Eigen::OuterStride<> >(R_Lidar_CameraC_vec.data(),3,3,Eigen::OuterStride<>(3)).transpose();
     
-    std::vector<double> t_Lidar_CameraC_vec(3, 0.);
-    private_nh.getParam("callibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
-    t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
+    // std::vector<double> t_Lidar_CameraC_vec(3, 0.);
+    // private_nh.getParam("calibration/t_Lidar_CameraC",t_Lidar_CameraC_vec);
+    // t_Lidar_CameraC = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(t_Lidar_CameraC_vec.data(),3,1,Eigen::OuterStride<>(3));
     // std::cout << "t_Lidar_CameraC\n" << t_Lidar_CameraC << std::endl;
 
 
     std::vector<double> D_C(4, 0.);
-    private_nh.getParam("callibration/D_C",D_C);
+    private_nh.getParam("calibration/D_C",D_C);
     // D_C = Eigen::Map<Eigen::Vector3d, 0, Eigen::OuterStride<> >(D_C_vec.data(),4,1,Eigen::OuterStride<>(4));
 
 
@@ -633,9 +633,9 @@ int main(int argc, char **argv) {
         nh.advertise<vision_msgs::BoundingBox3DArray>(pub_bbox_topic, 1);
 
     std::vector<double> t_Lidar_GPS(3, 0.);
-    private_nh.getParam("callibration/t_Lidar_GPS",t_Lidar_GPS);
+    private_nh.getParam("calibration/t_Lidar_GPS",t_Lidar_GPS);
     double yaw_Lidar_GPS;
-    private_nh.getParam("callibration/yaw_Lidar_GPS",yaw_Lidar_GPS);
+    private_nh.getParam("calibration/yaw_Lidar_GPS",yaw_Lidar_GPS);
     pose_listener = new PoseListener(sub_nav_topic,sub_nav_queue_size,t_Lidar_GPS,yaw_Lidar_GPS);
     
     spiner.start();
