@@ -1,3 +1,50 @@
+# For AutoDrive Challenge
+## To launch the code
+```
+roslaunch tracking_lib track_classify_low.launch
+```
+## Parameter tuning for the Highway Challenge
+### 1. Lidar-GPS Yaw Angle
+The parameter name is 'yaw_Lidar_GPS' and is located at the bottom line of the file below.
+```
+/root/rootfs/noetic_ws/src/LidarY1/src/perception/libs/tracking_lib/config/calibration.yaml
+```
+This parameter correct the difference between the heading directions of Lidar and GPS. To tune this parameter, check Fengzhi's waypoints and obstacles visulization window. If the traffic cone at the center of the lane appears at the left side way points, we need to tune this parameter smaller (can be negative) and vice versa. This parameter usually locate between [-3,3] degrees.
+
+The figures below illustrate how to tune this parameter. In the first picture, the yaw is too small and the center cone is right to the way points. After increase is by 3 degree, the cone is move back to the lane center.
+
+<p align="center">
+    <img src=".readme/yaw small.png" width="720px" alt=""/>
+    <img src=".readme/yaw ok.png" width="720px" alt=""/>
+</p>
+
+
+### 2. Highway boundary margins
+The parameter names are 'utm_left_margin' and 'utm_right_margin' and is located at the bottom line of the file below.
+```
+/root/rootfs/noetic_ws/src/LidarY1/src/perception/libs/tracking_lib/config/tracking.yaml
+```
+
+Object detection only output objects between to boundaries of the highway. Boundaries are lines chosen on the google map. Margins move the boundaries in the left-right (easting) direction. For both left and right boundary, positive margins move the boundary inward and include less objects, while negative margins move the boundaries outwards and see more object. These parameters are in meters and are usually with [-2,2] meters.
+
+
+The following picture show the case where left margin is too small. We include extra objects on the left side.
+<p align="center">
+    <img src=".readme/left margin.png" width="720px" alt=""/>
+</p>
+
+The following picture show the case where right margin is too large. We are missing the right most traffic cone.
+<p align="center">
+    <img src=".readme/right margin.png" width="720px" alt=""/>
+
+</p>
+
+The following picture show the case where both left and right margin are good.
+<p align="center">
+    <img src=".readme/margin.png" width="720px" alt=""/>
+</p>
+
+
 ## About this repo
 This repository is created by following the README of https://github.com/AutoLidarPerception/tracking_lib.
 

@@ -53,7 +53,7 @@ tracking: {
   use_utm_filter: true,
 
   utm_left_margin: 1.5, # in meter, 调大参数=》缩小左侧范围，消除左侧Lidar Object
-  utm_right_margin: -0.5, # in meter, 调小参数=》扩大右侧范围，使右侧未检测到的object出现
+  utm_right_margin: -1.5, # in meter, 调小参数=》扩大右侧范围，使右侧未检测到的object出现
 
   
 
