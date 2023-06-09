@@ -12,7 +12,7 @@ detect: {
     roi_lidar_height_m: 2.1,
     ## Horizontal range
     #--- for "Cylinder"
-    roi_radius_min_m: 0.,
+    roi_radius_min_m: 3.,
     roi_radius_max_m: 50., # Deer 20.0, car 45.0
     #--- for "Square"
     #roi_radius_min_m: 15.,
