@@ -52,9 +52,10 @@ tracking: {
   visualize: true,
   use_utm_filter: true,
 
-  utm_left_margin: 2.0, # in meter, 调大参数=》缩小左侧范围，消除左侧Lidar Object
-  utm_right_margin: -0.8, # in meter, 调小参数=》扩大右侧范围，使右侧未检测到的object出现
-
+  utm_left_margin: 2.0, 
+  utm_right_margin: -0.8, 
+  # For both left and right boundary, positive margins move the boundary inward and include less objects
+  # negative margins move the boundaries outwards and see more object.
   
 
 }
