@@ -16,7 +16,7 @@ D_C: [-1.78964656e-01,  1.39702959e-01,  3.39538501e-04, -1.63308665e-04, -3.297
 
 t_Lidar_GPS: [2.5, 0, 1.5],
 
-yaw_Lidar_GPS: 0.0, # 道路中间的traffic cone在way points左侧，则调小。 tune by degree, usually between -3~3 
+yaw_Lidar_GPS: -2.0, # 道路中间的traffic cone在way points左侧，则调小。 tune by degree, usually between -3~3 
 }
 
 

@@ -318,7 +318,7 @@ void OnSegmentClouds(
     for (auto & object: tracking_objects_velo)
     {
         object->dyn_prop = autosense::FIXED;
-        object->type = autosense::BARRICADE;
+        // object->type = autosense::BARRICADE;
         object->velocity = Eigen::Vector3d(0,0,0);
 
     }

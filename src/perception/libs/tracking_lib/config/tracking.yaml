@@ -38,7 +38,7 @@ tracking: {
   pub_lidar_camera_id_num_: 63,
   srv_lidar_camera_name: "/bbox_to_centers",
 
-  care_object_only: false,
+  care_object_only: true,
 
   # objects with speeds below this limit will have course = 0
   pub_course_speed_limit: 0.5,
@@ -52,8 +52,8 @@ tracking: {
   visualize: true,
   use_utm_filter: true,
 
-  utm_left_margin: 1.5, # in meter, 调大参数=》缩小左侧范围，消除左侧Lidar Object
-  utm_right_margin: -1.5, # in meter, 调小参数=》扩大右侧范围，使右侧未检测到的object出现
+  utm_left_margin: 2.0, # in meter, 调大参数=》缩小左侧范围，消除左侧Lidar Object
+  utm_right_margin: -0.8, # in meter, 调小参数=》扩大右侧范围，使右侧未检测到的object出现
 
   
 
